@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2021-2024 Alibaba Group Holding Limited.
+ */
+
+#include "th1520-lpi4a-product.dts"
+
+&eip_28 {
+	status = "disabled";
+};
+
+&th1520_iopmp {
+	status = "disabled";
+};
+
+&pmp_sec_regions {
+	status = "okay";
+};

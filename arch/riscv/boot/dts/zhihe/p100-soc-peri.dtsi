@@ -1,0 +1,1977 @@
+#include <dt-bindings/i2c/i2c.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/clock/p100-clock.h>
+#include <dt-bindings/iommu/zh-iommu.h>
+#include <dt-bindings/ata/ahci.h>
+
+/ {
+
+	display-subsystem {
+		compatible = "verisilicon,display-subsystem";
+		ports = <&dpu_disp0>, <&dpu_disp1>;
+		status = "okay";
+	};
+
+	dpu-encoders {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		dpu_enc0: dpu-encoder@0 {
+			/* default encoder is DSI */
+			compatible = "verisilicon,dsi-encoder";
+			reg = <0>;
+			status = "disabled";
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				/* input */
+				port@0 {
+					reg = <0>;
+					enc0_in: endpoint {
+						remote-endpoint = <&disp0_out>;
+					};
+				};
+			};
+		};
+
+		dpu_enc1: dpu-encoder@1 {
+			/* default encoder is DSI */
+			compatible = "verisilicon,dsi-encoder";
+			reg = <1>;
+			status = "disabled";
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				/* input */
+				port@0 {
+					reg = <0>;
+					enc1_in: endpoint {
+						// remote-endpoint = <&disp1_out>;
+					};
+				};
+			};
+		};
+	};
+
+	soc {
+		teesys_syscon: teesys-reg@0027400000 {
+			compatible = "syscon";
+			reg = <0x00 0x27400000 0x0 0x1000>;
+		};
+
+		nvmem_controller: efuse@0027410000 {
+			compatible = "zhihe,p100-fm-efuse", "syscon";
+			reg = <0x00 0x27410000 0x0 0x10000>;
+			zhihe,teesys = <&teesys_syscon>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			clocks = <&clk_peri TEE_EFUSE_CLKEN>;
+			clock-names = "pclk";
+			status = "okay";
+
+			gmac0_mac_address: gmac0-mac-address {
+				reg = <0xb0 6>;
+			};
+
+			gmac1_mac_address: gmac1-mac-address {
+				reg = <0xb8 6>;
+			};
+		};
+		dsi0: dw-mipi-dsi0@6700000{
+			compatible = "thead,light-mipi-dsi", "simple-bus", "syscon";
+			reg = <0x00 0x6700000 0x0 0x10000>;
+			status = "disabled";
+		};
+		vosys_reg: vosys@6e06000{
+			compatible = "thead,light-vo-subsys", "syscon";
+			reg = <0x00 0x06e06000 0x0 0x1000>;
+			status = "okay";
+		};
+
+		hdmi_tx: dw-hdmi-tx@6600000 {
+			compatible = "thead,light-hdmi-tx";
+			reg = <0x00 0x6600000 0x0 0x40000>;
+			interrupt-parent = <&intc>;
+			interrupts = <216>;
+			clocks = <&clk_vo VO_HDMI_PCLK_EN>,
+			         <&clk_vo VO_HDMI_SFRCLK_EN>,
+			         <&clk_vo VO_CEC_CLK_EN>,
+			         <&clk_vo VO_HDMI_PIXCLK>;
+			clock-names = "iahb", "isfr", "cec", "pixclk";
+			reg-io-width = <4>;
+			phy_version = <301>;
+			status = "okay";
+			port@0 {
+				hdmi_tx_in: endpoint {
+					remote-endpoint = <&disp1_out>;
+				};
+			};
+		};
+
+		dpu: dc8200@6400000{
+			compatible = "verisilicon,dc8200";
+			reg = <0x00 0x6400000 0x0 0x100>,  <0x00 0x6400800 0x0 0x2000>, <0x00 0x6430010 0x0 0x60>;
+			interrupt-parent = <&intc>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			interrupts = <218>;
+			clocks = <&clk_vo VO_DPUC_CLK_EN>,
+			         <&clk_vo VO_DPU_ACLK_EN>,
+			         <&clk_vo VO_DPU_HCLK_EN>,
+			         <&clk_vo VO_CH0_PIXCLK_EN>,
+			         <&clk_vo VO_CH1_PIXCLK_EN>,
+			         <&clk_vo VO_CH2_PIXCLK_EN>,
+			         <&clk    DPU0_PLL_FOUTPOSTDIV>,
+			         <&clk    DPU1_PLL_FOUTPOSTDIV>,
+			         <&clk_vo VO_MIPI_PIXCLK>,
+			         <&clk_vo VO_HDMI_PIXCLK>,
+			         <&clk_vo VO_DPTX_PIXCLK>;
+
+			clock-names = "core_clk", "axi_clk",  "cfg_clk", "pixclk0",
+			              "pixclk1",  "pixclk2",  "dpu0_pll_foutpostdiv", "dpu1_pll_foutpostdiv",
+			              "mipi_pixclk", "hdmi_pixclk", "dptx_pixclk";
+			status = "okay";
+			vosys-regmap = <&vosys_reg>;
+			zhihe-a210;
+			dpu_disp0: port@0 {
+				reg = <0>;
+				disp0_out: endpoint {
+					remote-endpoint = <&enc0_in>;
+				};
+			};
+
+			dpu_disp1: port@1 {
+				reg = <1>;
+				disp1_out: endpoint {
+					remote-endpoint = <&hdmi_tx_in>;
+				};
+			};
+		};
+		gpu: gpu@6c00000{
+			compatible = "img,gpu";
+			reg = <0x00 0x6c00000 0x0 0x100000>;
+			interrupt-parent = <&intc>;
+			interrupts = <72>;
+			interrupt-names = "gpuirq";
+			power-domains = <&power_gpu>;
+			vosys-regmap = <&vosys_reg>;
+			dma-mask = <0xf 0xffffffff>;
+			status = "okay";
+		};
+
+		watchdog0: watchdog@00305000 {
+			compatible = "snps,dw-wdt";
+			reg = <0x00 0x00305000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <331>;
+			clocks = <&clk_peri PERI0_WDT0_PCLK_EN>;
+			power-domains = <&power_peri0>;
+			clock-names = "tclk";
+			resets = <&rst PERI0_WDT0_PRST>;
+			status = "okay";
+		};
+
+		can0: flexcan@2000000 {
+			compatible = "fsl,a210-flexcan";
+			reg = <0x00 0x2000000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <261>;
+			clocks = <&clk_peri PERI1_CAN0_HIRES_CLK_EN>,
+					<&clk_peri PERI1_CAN0_OSC_CLK_EN>;
+			clock-names = "ipg", "per";
+			power-domains = <&power_peri1>;
+			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
+			status = "okay";
+		};
+
+		can1: flexcan@2004000 {
+			compatible = "fsl,a210-flexcan";
+			reg = <0x00 0x2004000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <262>;
+			clocks = <&clk_peri PERI1_CAN1_HIRES_CLK_EN>,
+					<&clk_peri PERI1_CAN1_OSC_CLK_EN>;
+			clock-names = "ipg", "per";
+			power-domains = <&power_peri1>;
+			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
+			status = "okay";
+		};
+
+		can2: flexcan@8420000 {
+			compatible = "fsl,a210-flexcan";
+			reg = <0x00 0x8420000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <263>;
+			clocks = <&clk_peri PERI2_CAN2_HIRES_CLK_EN>,
+					<&clk_peri PERI2_CAN2_OSC_CLK_EN>;
+			clock-names = "ipg", "per";
+			power-domains = <&power_peri2>;
+			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
+			status = "okay";
+		};
+
+		rtc: rtc@30840000 {
+			compatible = "snps,dw-apb-rtc";
+			reg = <0x00 0x30840000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <18>;
+			clocks = <&osc_32k>;
+			clock-names = "osc_32k";
+			wakeup-source;
+			prescaler = <0x8000>;
+			status = "okay";
+		};
+
+		dmac0: dmac@0000520000 {
+			compatible = "zhihe,p100-axi-dma";
+			reg = <0x00 0x00520000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <264>;
+			clocks = <&clk_peri PERI3_DMAC_ACLK_EN>, <&clk_peri PERI3_DMAC_HCLK_EN>;
+			clock-names = "core-clk", "cfgr-clk";
+			power-domains = <&power_peri3>;
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_DMAC_AP>;
+			#dma-cells = <1>;
+			dma-channels = <16>;
+			snps,block-size = <65536 65536 65536 65536 65536 65536 65536 65536
+								65536 65536 65536 65536 65536 65536 65536 65536>;
+			snps,priority = <0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0>;
+			snps,dma-masters = <1>;
+			snps,data-width = <4>;
+			snps,axi-max-burst-len = <4>;
+			status = "okay";
+		};
+
+		dmac1: tee_dmac@27540000 {
+			compatible = "zhihe,p100-axi-dma";
+			reg = <0x00 0x27540000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <259>;
+			clocks = <&clk_peri TEE_DMAC_CLKEN>, <&clk_peri TEE_DMAC_CLKEN>;
+			clock-names = "core-clk", "cfgr-clk";
+			#dma-cells = <1>;
+			dma-channels = <4>;
+			snps,block-size = <65536 65536 65536 65536>;
+			snps,priority = <0 0 0 0>;
+			snps,dma-masters = <1>;
+			snps,data-width = <4>;
+			snps,axi-max-burst-len = <16>;
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_TEE_DMAC>;
+			status = "okay";
+		};
+
+		uart0: serial@02014000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x02014000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <321>;
+			clocks = <&clk_peri PERI1_UART0_PCLK_EN>, <&clk_peri PERI1_UART0_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri1>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart1: serial@02015000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x02015000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <322>;
+			clocks = <&clk_peri PERI1_UART1_PCLK_EN>, <&clk_peri PERI1_UART1_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri1>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart2: serial@02016000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x02016000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <323>;
+			clocks = <&clk_peri PERI1_UART2_PCLK_EN>, <&clk_peri PERI1_UART2_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri1>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart3: serial@02017000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x02017000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <324>;
+			clocks = <&clk_peri PERI1_UART3_PCLK_EN>, <&clk_peri PERI1_UART3_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri1>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart4: serial@0008401000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x0008401000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <325>;
+			clocks = <&clk_peri PERI2_UART4_PCLK_EN>, <&clk_peri PERI2_UART4_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri2>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart5: serial@08402000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x08402000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <326>;
+			clocks = <&clk_peri PERI2_UART5_PCLK_EN>, <&clk_peri PERI2_UART5_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri2>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart6: serial@08403000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x08403000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <327>;
+			clocks = <&clk_peri PERI2_UART6_PCLK_EN>, <&clk_peri PERI2_UART6_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri2>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart7: serial@08404000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x08404000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <328>;
+			clocks = <&clk_peri PERI2_UART7_PCLK_EN>, <&clk_peri PERI2_UART7_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri2>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart8: serial@08405000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x08405000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <329>;
+			clocks = <&clk_peri PERI2_UART8_PCLK_EN>, <&clk_peri PERI2_UART8_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri2>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		uart9: serial@08406000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00 0x08406000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <330>;
+			clocks = <&clk_peri PERI2_UART9_PCLK_EN>, <&clk_peri PERI2_UART9_SCLK_EN>;
+			clock-names = "apb_pclk", "baudclk";
+			power-domains = <&power_peri2>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			hw-flow-control = "unsupport";
+			status = "okay";
+		};
+
+		adc: adc@5a0000 {
+			compatible = "zhihe,a210-adc";
+			reg = <0x00 0x5a0000 0x0 0x8000>;
+			interrupt-parent = <&intc>;
+			interrupts = <260>;
+			clocks = <&clk_peri PERI3_ADC_PCLK_EN>;
+			power-domains = <&power_peri3>;
+			clock-names = "adc";
+			status = "okay";
+		};
+
+		spi0: spi@02023000 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0x00 0x02023000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <310>;
+			clocks = <&clk_peri PERI1_SPI0_SSI_CLK_EN>,
+					<&clk_peri PERI1_SPI0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			dmas = <&dmac0 9>, <&dmac0 8>;
+			dma-names = "tx", "rx";
+			dma-tx-addr-incr;
+			dma-rx-addr-incr;
+			reg-map-size = <144>;
+			num-cs = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		spi1: spi@08413000 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0x00 0x08413000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <311>;
+			clocks = <&clk_peri PERI2_SPI1_SSI_CLK_EN>,
+					<&clk_peri PERI2_SPI1_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			dmas = <&dmac0 62>, <&dmac0 61>;
+			dma-names = "tx", "rx";
+			dma-tx-addr-incr;
+			dma-rx-addr-incr;
+			reg-map-size = <144>;
+			num-cs = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		qspi0: spi@01000000 {
+			compatible = "snps,dw-apb-ssi-quad";
+			reg = <0x00 0x01000000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <308>;
+			clocks = <&clk_peri PERI1_QSPI0_SSI_CLK_EN>,
+					<&clk_peri PERI1_QSPI0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			num-cs = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		qspi1: spi@08428000 {
+			compatible = "snps,dw-apb-ssi-quad";
+			reg = <0x00 0x08428000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <309>;
+			clocks = <&clk_peri PERI2_QSPI1_SSI_CLK_EN>,
+					<&clk_peri PERI2_QSPI1_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			num-cs = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		emmc: sdhci@00500000 {
+			compatible = "zhihe,p100-dwcmshc";
+			reg = <0x0 0x00500000 0x0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <265>;
+			interrupt-names = "sdhciirq";
+			clocks = <&clk_peri PERI3_EMMC_SDIO_REF_CLK_CG_EN>,
+					 <&clk_peri PERI3_EMMC_HCLK_EN>;
+			clock-names = "core", "bus";
+			power-domains = <&power_peri3>;
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_EMMC>;
+			status = "okay";
+		};
+
+		sdhci0: sd@00510000 {
+			compatible = "zhihe,p100-dwcmshc";
+			reg = <0x00 0x00510000 0x0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <337>;
+			interrupt-names = "sdhci0irq";
+			clocks = <&clk_peri PERI3_EMMC_SDIO_REF_CLK_CG_EN>,
+					<&clk_peri PERI3_EMMC_HCLK_EN>;
+			clock-names = "core", "bus";
+			power-domains = <&power_peri3>;
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_SD>;
+			status = "okay";
+		};
+
+		stmmac_axi_setup: stmmac-axi-config {
+			snps,wr_osr_lmt = <7>;
+			snps,rd_osr_lmt = <7>;
+			snps,blen = <16 8 4 0 0 0 0>;
+		};
+
+		gmac0_sys: syscon@0210F000 {
+			compatible = "syscon";
+			reg = <0x00 0x0210f000 0x0 0x20>;
+		};
+
+		gmac1_sys: syscon@0211F000 {
+			compatible = "syscon";
+			reg = <0x00 0x0211f000 0x0 0x20>;
+		};
+
+		gmac0: ethernet@0002100000{
+			compatible = "zhihe,p100-dwmac", "snps,dwmac-5.40a";
+			reg = <0x00 0x02100000 0x0 0x10000>;
+			reg-names = "gmac";
+			interrupt-parent = <&intc>;
+			interrupts = <277>;
+			interrupt-names = "macirq";
+			clocks = <&clk_peri PERI1_GMAC0_ACLK_EN>,
+					 <&clk_peri PERI1_GMAC0_HCLK_EN>;
+			clock-names = "gmac_aclk", "gmac_hclk";
+			power-domains = <&power_peri1>;
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,axi-config = <&stmmac_axi_setup>;
+			zhihe,gmacsys = <&gmac0_sys>;
+			// iommus = <&peri1_dfmu_iommu DEVID_DIE0_GMAC_0>;
+			status = "okay";
+
+			mdio0: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		gmac1: ethernet@02110000 {
+			compatible = "zhihe,p100-dwmac", "snps,dwmac-5.40a";
+			reg = <0x00 0x02110000 0x0 0x10000>;
+			reg-names = "gmac";
+			interrupt-parent = <&intc>;
+			interrupts = <288>;
+			interrupt-names = "macirq";
+			clocks = <&clk_peri PERI1_GMAC1_ACLK_EN>,
+					 <&clk_peri PERI1_GMAC1_HCLK_EN>;
+			clock-names = "gmac_aclk", "gmac_hclk";
+			power-domains = <&power_peri1>;
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,axi-config = <&stmmac_axi_setup>;
+			zhihe,gmacsys = <&gmac1_sys>;
+			// iommus = <&peri1_dfmu_iommu DEVID_DIE0_GMAC_1>;
+			status = "okay";
+
+			mdio1: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		aon_padctrl: aon-padctrl@30848000 {
+			compatible = "zhihe,p100-group0-pinctrl";
+			reg = <0x00 0x30848000 0x0 0x2000>;
+			status = "okay";
+		};
+
+		ao_gpio0: gpio@30841000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x00 0x30841000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			ao_gpio0_porta: ao_gpio0-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <26>;
+				gpio-ranges = <&aon_padctrl 0 7 26>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <17>;
+			};
+		};
+
+		ao_gpio1: gpio@30897000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x00 0x30897000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			ao_gpio1_porta: ao_gpio1-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <10>;
+				gpio-ranges = <&aon_padctrl 0 33 10>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <10>;
+			};
+		};
+
+		peri1_padctrl: peri1-padctrl@02026000 {
+			compatible = "zhihe,p100-group1-pinctrl";
+			reg = <0x00 0x02026000 0x0 0x1000>;
+			clocks = <&clk_peri PERI1_PAD_CTRL_PCLK_EN>;
+			clock-names = "pclk";
+			status = "okay";
+		};
+
+		peri2_padctrl: peri2-padctrl@08411000 {
+			compatible = "zhihe,p100-group2-pinctrl";
+			reg = <0x00 0x08411000 0x0 0x1000>;
+			clocks = <&clk_peri PERI2_PAD_CTRL_PCLK_EN>;
+			clock-names = "pclk";
+			status = "okay";
+		};
+
+		peri3_padctrl: peri3-padctrl@00542000 {
+			compatible = "zhihe,p100-group3-pinctrl";
+			reg = <0x00 0x00542000 0x0 0x1000>;
+			clocks = <&clk_peri PERI3_PAD_CTRL_PCLK_EN>;
+			clock-names = "pclk";
+			status = "okay";
+		};
+
+		gpio0: gpio@02012000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x00 0x02012000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&clk_peri PERI1_GPIO0_PCLK_EN>,
+					<&clk_peri PERI1_GPIO0_DBCLK_EN>;
+			clock-names = "bus", "db";
+			power-domains = <&power_peri1>;
+			status = "okay";
+
+			gpio0_porta: gpio0-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <32>;
+				gpio-ranges = <&peri1_padctrl 0 0 32>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <289>;
+			};
+		};
+
+		gpio1: gpio@02013000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x00 0x02013000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&clk_peri PERI1_GPIO1_PCLK_EN>,
+					<&clk_peri PERI1_GPIO1_DBCLK_EN>;
+			clock-names = "bus", "db";
+			power-domains = <&power_peri1>;
+			status = "okay";
+
+			gpio1_porta: gpio1-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <18>;
+				gpio-ranges = <&peri1_padctrl 0 32 18>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <290>;
+			};
+		};
+
+		gpio2: gpio@08410000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x00 0x08410000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&clk_peri PERI2_GPIO2_PCLK_EN>,
+					<&clk_peri PERI2_GPIO2_DBCLK_EN>;
+			clock-names = "bus", "db";
+			power-domains = <&power_peri2>;
+			status = "okay";
+
+			gpio2_porta: gpio2-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <32>;
+				gpio-ranges = <&peri2_padctrl 0 0 32>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <291>;
+			};
+		};
+
+		gpio3: gpio@08412000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x00 0x08412000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&clk_peri PERI2_GPIO3_PCLK_EN>,
+					<&clk_peri PERI2_GPIO3_DBCLK_EN>;
+			clock-names = "bus", "db";
+			power-domains = <&power_peri2>;
+			status = "okay";
+
+			gpio3_porta: gpio3-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <11>;
+				gpio-ranges = <&peri2_padctrl 0 32 11>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <292>;
+			};
+		};
+
+		gpio4: gpio@00550000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x00 0x00550000 0x0 0x10000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&clk_peri PERI3_GPIO4_PCLK_EN>,
+					<&clk_peri PERI3_GPIO4_DBCLK_EN>;
+			clock-names = "bus", "db";
+			power-domains = <&power_peri3>;
+			status = "okay";
+
+			gpio4_porta: gpio4-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				ngpios = <6>;
+				gpio-ranges = <&peri3_padctrl 0 0 6>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <52>;
+			};
+		};
+
+		pwm0: pwm@0202A000 {
+			compatible = "zhihe,a210-pwm";
+			reg = <0x00 0x0202A000 0x0 0x1000>;
+			#pwm-cells = <2>;
+			clocks = <&clk_peri PERI1_PWM0_CCLK_EN>;
+			clock-names = "cclk";
+			power-domains = <&power_peri1>;
+			interrupts = <305>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		pwm1: pwm@0841A000 {
+			compatible = "zhihe,a210-pwm";
+			reg = <0x00 0x0841A000 0x0 0x1000>;
+			#pwm-cells = <2>;
+			clocks = <&clk_peri PERI2_PWM1_CCLK_EN>;
+			clock-names = "cclk";
+			power-domains = <&power_peri2>;
+			interrupts = <306>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		pwm2: pwm@0841B000 {
+			compatible = "zhihe,a210-pwm";
+			reg = <0x00 0x0841B000 0x0 0x1000>;
+			#pwm-cells = <2>;
+			clocks = <&clk_peri PERI2_PWM2_CCLK_EN>;
+			clock-names = "cclk";
+			power-domains = <&power_peri2>;
+			interrupts = <307>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer0: timer0@00303000 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00303000 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <313>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer1: timer1@00303014 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00303014 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <314>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer2: timer2@00303028 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00303028 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <315>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer3: timer3@0030303c {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x0030303c 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <316>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer4: timer4@00304000 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00304000 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <317>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer5: timer5@00304014 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00304014 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <318>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer6: timer6@00304028 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00304028 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <319>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		timer7: timer7@0030403c {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x0030403c 0x0 0x14>;
+			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
+			clock-names = "pclk", "timer";
+			interrupts = <320>;
+			interrupt-parent = <&intc>;
+			status = "okay";
+		};
+
+		i2c0: i2c@02020000 {
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x02020000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <293>;
+			clocks = <&clk_peri PERI1_I2C0_IC_CLK_EN>, <&clk_peri PERI1_I2C0_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri1>;
+			dma-mode;
+			dmas = <&dmac0 21>, <&dmac0 20>;
+			dma-names = "tx", "rx";
+			dma-burst-len = <1>, <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		i2c1: i2c@02021000 {
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x02021000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <294>;
+			clocks = <&clk_peri PERI1_I2C1_IC_CLK_EN>, <&clk_peri PERI1_I2C1_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		i2c2: i2c@02022000{
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x02022000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <295>;
+			clocks = <&clk_peri PERI1_I2C2_IC_CLK_EN>, <&clk_peri PERI1_I2C2_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		i2c3: i2c@08415000{
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x08415000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <296>;
+			clocks = <&clk_peri PERI2_I2C3_IC_CLK_EN>, <&clk_peri PERI2_I2C3_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		i2c4: i2c@08416000{
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x08416000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <297>;
+			clocks = <&clk_peri PERI2_I2C4_IC_CLK_EN>, <&clk_peri PERI2_I2C4_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		i2c5: i2c@08417000{
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x08417000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <298>;
+			clocks = <&clk_peri PERI2_I2C5_IC_CLK_EN>, <&clk_peri PERI2_I2C5_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		i2c6: i2c@08418000{
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x08418000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <299>;
+			clocks = <&clk_peri PERI2_I2C6_IC_CLK_EN>, <&clk_peri PERI2_I2C6_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		i2c7: i2c@08419000{
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x08419000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <300>;
+			clocks = <&clk_peri PERI2_I2C7_IC_CLK_EN>, <&clk_peri PERI2_I2C7_PCLK_EN>;
+			clock-names = "ref", "pclk";
+			power-domains = <&power_peri2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		vdec: vdec@0006800000 {
+			compatible = "zhihe,vpu-vc9000d";
+			address-cells = <2>;
+			size-cells = <2>;
+			reg = <0x00 0x06800000 0x0 0xFFFFF
+					0x00 0x06b40000 0x0 0x10000 >;
+			interrupt-parent = <&intc>;
+			interrupts = <229>, <231>;
+			power-domains = <&power_vdec>;
+			status = "okay";
+		};
+
+		venc: venc@0006900000 {
+			compatible = "zhihe,vpu-vc9000e";
+			address-cells = <2>;
+			size-cells = <2>;
+			reg = <0x00 0x06900000 0x0 0xFFFFF
+					0x00 0x06b50000 0x0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <230>, <350>;
+			power-domains = <&power_venc>;
+			status = "okay";
+		};
+
+		vidmem: vidmem@ffecc08000 {
+			compatible = "zhihe,vidmem";
+			status = "okay";
+		};
+
+		audio_i2s0: audio_i2s0@0002029000 {
+			compatible = "zhihe,i2s0";
+			reg = <0x0 0x02029000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <301>;
+			clocks = <&clk_peri PERI1_I2S0_SRC_CLK_EN>, <&clk_peri PERI1_I2S0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 3>, <&dmac0 2>;
+			dma-names = "tx", "rx";
+			snd-soc-zhihe-a210;
+			status = "okay";
+		};
+
+		audio_i2s1: audio_i2s1@000840a000 {
+			compatible = "zhihe,i2s1";
+			reg = <0x0 0x0840a000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <302>;
+			clocks = <&clk_peri PERI2_I2S1_SRC_CLK_EN>, <&clk_peri PERI2_I2S1_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 38>, <&dmac0 37>;
+			dma-names = "tx", "rx";
+			snd-soc-zhihe-a210;
+			status = "okay";
+		};
+
+		audio_i2s2: audio_i2s2@000840b000 {
+			compatible = "zhihe,i2s2";
+			reg = <0x0 0x0840b000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <303>;
+			clocks = <&clk_peri PERI2_I2S2_SRC_CLK_EN>, <&clk_peri PERI2_I2S2_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 36>, <&dmac0 35>;
+			dma-names = "tx", "rx";
+			snd-soc-zhihe-a210;
+			status = "okay";
+		};
+
+		audio_i2s_8ch_sd0: audio_i2s_8ch_sd0@000840c000 {
+			compatible = "zhihe,i2s3-8ch-sd0";
+			reg = <0x0 0x0840c000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <304>;
+			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 28>, <&dmac0 27>;
+			dma-names = "tx", "rx";
+			snd-soc-zhihe-a210;
+			status = "okay";
+		};
+
+		audio_i2s_8ch_sd1: audio_i2s_8ch_sd1@000840c000 {
+			compatible = "zhihe,i2s3-8ch-sd1";
+			reg = <0x0 0x0840c000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <304>;
+			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 30>, <&dmac0 29>;
+			dma-names = "tx", "rx";
+			snd-soc-zhihe-a210;
+			status = "okay";
+		};
+
+		audio_i2s_8ch_sd2: audio_i2s_8ch_sd2@000840c000 {
+			compatible = "zhihe,i2s3-8ch-sd2";
+			reg = <0x0 0x0840c000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <304>;
+			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 32>, <&dmac0 31>;
+			dma-names = "tx", "rx";
+			snd-soc-zhihe-a210;
+			status = "okay";
+		};
+
+		audio_i2s_8ch_sd3: audio_i2s_8ch_sd3@000840c000 {
+			compatible = "zhihe,i2s3-8ch-sd3";
+			reg = <0x0 0x0840c000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <304>;
+			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri2>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 34>, <&dmac0 33>;
+			dma-names = "tx", "rx";
+			snd-soc-zhihe-a210;
+			status = "okay";
+		};
+
+		audio_tdm_slot0: audio_tdm_slot0@200c000 {
+			compatible = "zhihe,tdm-0";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 4>;
+			dma-names = "rx";
+			status = "okay";
+		};
+
+		audio_tdm_slot1: audio_tdm_slot1@200c000 {
+			compatible = "zhihe,tdm-1";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 5>;
+			dma-names = "rx";
+			status = "okay";
+		};
+
+		audio_tdm_slot2: audio_tdm_slot2@200c000 {
+			compatible = "zhihe,tdm-2";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 0>;
+			dma-names = "rx";
+			status = "okay";
+		};
+
+		audio_tdm_slot3: audio_tdm_slot3@200c000 {
+			compatible = "zhihe,tdm-3";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 1>;
+			dma-names = "rx";
+			status = "okay";
+		};
+
+		audio_tdm_slot4: audio_tdm_slot4@200c000 {
+			compatible = "zhihe,tdm-4";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 10>;
+			dma-names = "rx";
+			status = "okay";
+		};
+
+		audio_tdm_slot5: audio_tdm_slot5@200c000 {
+			compatible = "zhihe,tdm-5";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 11>;
+			dma-names = "rx";
+			status = "okay";
+		};
+
+		audio_tdm_slot6: audio_tdm_slot6@200c000 {
+			compatible = "zhihe,tdm-6";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 12>;
+			dma-names = "rx";
+			status = "okay";
+		};
+
+		audio_tdm_slot7: audio_tdm_slot7@200c000 {
+			compatible = "zhihe,tdm-7";
+			reg = <0x0 0x200c000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <312>;
+			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
+			clock-names = "sclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			dmas = <&dmac0 13>;
+			dma-names = "rx";
+		};
+
+		usb31_zhihe: usb31_zhihe@8001000 {
+			compatible = "zhihe,usb31";
+			reg = <0x00 0x08001000 0x0 0x1000>,
+			      <0x00 0x0807C000 0x0 0x2000>,
+			      <0x00 0x0807E000 0x0 0x2000>;
+			reg-names = "usb31-sysreg", "c10phy-tca", "c10phy-sysreg";
+			resets = <&rst USB_USB31_SLV_AFENCE_ARST>,
+				 <&rst USB_USB31_PHY_RST>,
+				 <&rst USB_C10PHY_PHY_RST>;
+			reset-names = "usb31-arst", "usb31-phy-rst", "c10phy-rst";
+			clocks = <&clk_usb USB31_REF_CLK_EN>,
+				 <&clk_usb USB31_SLV_AFENCE_ACLK_EN>,
+				 <&clk_usb USB_SS_PERI2_CFG_ACLK_EN>;
+			clock-names = "ref-clk", "slv-aclk", "cfg-aclk";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			usb3: dwc3@8100000 {
+				compatible = "snps,dwc3";
+				reg = <0x00 0x8100000 0x0 0x100000>;
+				interrupt-parent = <&intc>;
+				interrupts = <183>;
+				clocks = <&clk_usb USB31_PCLK_EN>,
+					 <&clk_usb USB31_BUS_CLK_EN>,
+					 <&clk_usb USB31_SUSPEND_CLK_EN>;
+				clock-names = "pclk",
+					      "bus_clk",
+					      "suspend_clk";
+				reg-shift = <2>;
+				reg-io-width = <4>;
+				dr_mode = "host";
+				power-domains = <&power_usb>;
+				//iommus = <&usb_dfmu_iommu DEVID_DIE0_USB3_0>;
+				snps,usb3_lpm_capable;
+				snps,usb_sofitpsync;
+				status = "okay";
+			};
+		};
+
+		usb20_zhihe: usb20_zhihe@08300000 {
+			compatible = "zhihe,usb20";
+			reg = <0x00 0x8300000 0x0 0x2000>;
+			reg-names = "usb20-blk-sysreg";
+			resets = <&rst USB_USB20_BLK_USB0_PHY_PON_RESET>,
+				 <&rst USB_USB20_BLK_USB1_PHY_PON_RESET>;
+			reset-names = "usb0-phy-rst", "usb1-phy-rst";			
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			usb2_0: dwc2@8200000 {
+				compatible = "zhihe,p100-usb";
+				reg = <0x00 0x8200000 0x0 0x40000>;
+				interrupt-parent = <&intc>;
+				interrupts = <181>;
+				reg-shift = <2>;
+				reg-io-width = <4>;
+				maximum-speed = "high-speed";
+				dr_mode = "host";
+				power-domains = <&power_usb>;
+				// iommus = <&usb_dfmu_iommu DEVID_DIE0_USB2_0>;
+				status = "okay";
+			};
+
+			usb2_1: dwc2@8240000 {
+				compatible = "zhihe,p100-usb";
+				reg = <0x00 0x8240000 0x0 0x40000>;
+				interrupt-parent = <&intc>;
+				interrupts = <182>;
+				reg-shift = <2>;
+				reg-io-width = <4>;
+				maximum-speed = "high-speed";
+				dr_mode = "host";
+				power-domains = <&power_usb>;
+				// iommus = <&usb_dfmu_iommu DEVID_DIE0_USB2_1>;
+				status = "okay";
+			};
+		};
+
+		audio_pdm0: audio_pdm0@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm0";
+			dmas = <&dmac0 6>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		audio_pdm1: audio_pdm1@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm1";
+			dmas = <&dmac0 7>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		audio_pdm2: audio_pdm2@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm2";
+			dmas = <&dmac0 12>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		audio_pdm3: audio_pdm3@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm3";
+			dmas = <&dmac0 13>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		audio_pdm4: audio_pdm4@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm4";
+			dmas = <&dmac0 10>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		audio_pdm5: audio_pdm5@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm5";
+			dmas = <&dmac0 11>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		audio_pdm6: audio_pdm6@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm6";
+			dmas = <&dmac0 0>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		audio_pdm7: audio_pdm7@0002008000 {
+			compatible = "zhihe,pdm";
+			reg = <0x0 0x02008000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <339>;
+			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
+			clock-names = "mclk", "pclk";
+			power-domains = <&power_peri1>;
+			#sound-dai-cells = <1>;
+			zhihe,mode = "pdm-master";
+			zhihe,sel = "audio_pdm7";
+			dmas = <&dmac0 1>;
+			dma-names = "rx";
+			p100-fpga,dma_maxburst = <4>;
+			status = "okay";
+		};
+
+		dm3x4: pcie@b000000 {
+			compatible = "zh,p100-pcie";
+			reg = <0x00 0x0b000000 0x0 0x800000>,
+				<0x18 0x00000000 0x0 0x200000>,
+				<0x00 0x0A004000 0x0 0x001000>,
+				<0x00 0x0A180000 0x0 0x001000>;
+			reg-names = "apb","config","wrap_sysreg","phy_sysreg";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			#interrupt-cells = <1>;
+			device_type = "pci";
+			bus-range = <0x00 0xff>;
+			ranges = <0x81000000 0x18 0x00200000 0x18 0x00200000 0x0 0x600000>,
+				 <0x82000000 0x00 0x40100000 0x00 0x40100000 0x0 0x800000>,
+				 <0xc3000000 0x18 0x00300000 0x18 0x00300000 0x0 0x800000>;
+			num-lanes = <4>;
+			interrupts = <139>,<140>,<141>,<142>,<143>;
+			interrupt-names = "msi","inta","intb","intc","intd";
+			interrupt-parent = <&intc>;
+			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
+			interrupt-map = <0x0 0x0 0x0 0x1 &intc 140>,
+					<0x0 0x0 0x0 0x2 &intc 141>,
+					<0x0 0x0 0x0 0x3 &intc 142>,
+					<0x0 0x0 0x0 0x4 &intc 143>;
+			zh,max-link-speed = <3>;
+			clocks = <&clk_pcie E16PHY_PCLK_EN>,
+					<&clk_pcie PCIE_DM_GEN3X4_AUX_CLK_EN>,
+					<&clk_pcie PCIE_DM_GEN3X4_SLV_ACLK_EN>,
+					<&clk_pcie PCIE_DM_GEN3X4_MST_ACLK_EN>,
+					<&clk_pcie PCIE_DM_GEN3X4_PCLK_EN>;
+			clock-names = "e16phy_clk","gen3x4_aux_clk","gen3x4_slv_clk","gen3x4_mst_clk","gen3x4_pclk";
+			power-domains = <&power_pcie0>;
+			resets = <&rst PCIE_E16PHY_PHY_RST>,
+					<&rst PCIE_E16PHY_APBS_PRST>;
+			reset-names = "pcie-rst", "pcie-prst";
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_PCIE_0>;
+			status = "okay";
+		};
+
+		rp3x1: pcie@b800000 {
+			compatible = "zh,p100-pcie";
+			reg = <0x00 0x0b800000 0x0 0x800000>,
+				<0x1E 0x00000000 0x0 0x20000>,
+				<0x00 0x0A005000 0x0 0x001000>,
+				<0x00 0x0A180000 0x0 0x001000>;
+			reg-names = "apb","config","wrap_sysreg","phy_sysreg";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			#interrupt-cells = <1>;
+			device_type = "pci";
+			bus-range = <0x00 0xff>;
+			ranges = <0x81000000 0x1E 0x00200000 0x1E 0x00200000 0x0 0x600000>,
+				 <0x82000000 0x00 0x50100000 0x00 0x50100000 0x0 0x800000>,
+				 <0xc3000000 0x1E 0x00300000 0x1E 0x00300000 0x0 0x800000>;
+			num-lanes = <1>;
+			interrupts = <158>,<159>,<160>,<161>,<162>;
+			interrupt-names = "msi","inta","intb","intc","intd";
+			interrupt-parent = <&intc>;
+			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
+			interrupt-map = <0x0 0x0 0x0 0x1 &intc 159>,
+					<0x0 0x0 0x0 0x2 &intc 160>,
+					<0x0 0x0 0x0 0x3 &intc 161>,
+					<0x0 0x0 0x0 0x4 &intc 162>;
+			zh,max-link-speed = <3>;
+			clocks = <&clk_pcie E16PHY_PCLK_EN>,
+					<&clk_pcie PCIE_RP_GEN3X1_AUX_CLK_EN>,
+					<&clk_pcie PCIE_RP_GEN3X1_SLV_ACLK_EN>,
+					<&clk_pcie PCIE_RP_GEN3X1_MST_ACLK_EN>,
+					<&clk_pcie PCIE_RP_GEN3X1_PCLK_EN>;
+			clock-names = "e16phy_clk","gen3x1_aux_clk","gen3x1_slv_clk","gen3x1_mst_clk","gen3x1_pclk";
+			power-domains = <&power_pcie1>;
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_PCIE_1>;
+			status = "okay";
+		};
+
+		mbox_920: mbox@0000310000 {
+			compatible = "zhihe,p100-mbox";
+			reg = <0x00 0x00321000 0x0 0x1000>,
+				  <0x00 0x00320000 0x0 0x1000>,
+				  <0x00 0x00311000 0x0 0x1000>;
+			reg-names = "interrupt_addr",
+					"local_addr0",
+					"remote_icu0";
+			interrupt-parent = <&intc>;
+			interrupts = <336 IRQ_TYPE_LEVEL_HIGH>;
+			icu_cpu_id = <0>;
+			#mbox-cells = <2>;
+			status = "okay";
+		};
+		aon: aon_subsys {
+			compatible = "zhihe,p100-aon";
+			mbox-names = "aon0";
+			mboxes = <&mbox_920 1 0>;					 //parent / channel / type
+			#mbox-cells = <2>;
+			status = "okay";
+		};
+
+		sata: sata@000a200000 {
+			compatible = "snps,dwc-ahci";
+			reg = <0x0 0xa200000 0x0 0x100000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			interrupt-parent = <&intc>;
+			interrupts = <170>;
+			clocks = <&clk_pcie SATA_PMALIVE_CLK_EN>,
+				 <&clk_pcie SATA_RXOOB0_CLK_EN>,
+				 <&clk_pcie SATA_GEN3X2_ACLK_EN>;
+			clock-names = "pmalive", "rxoob", "aclk";
+			power-domains = <&power_sata>;
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_SATA_0>;
+			ports-implemented = <3>;
+			status = "okay";
+
+			sata0: sata-port@0 {
+				reg = <0>;
+				hba-port-cap = <HBA_PORT_FBSCP>;
+				snps,tx-ts-max = <16>;
+				snps,rx-ts-max = <16>;
+			};
+
+			sata1: sata-port@1 {
+				reg = <1>;
+				hba-port-cap = <HBA_PORT_FBSCP>;
+				snps,tx-ts-max = <16>;
+				snps,rx-ts-max = <16>;
+			};
+		};
+
+		vi_dfmu_mt: mt@0x06370000 {
+			compatible = "zhihe,memtester";
+			reg = <0x0 0x06370000 0x0 0x400>;
+			iommus = <&vi_dfmu_iommu DEVID_DIE0_VI_DFMU>;
+			status = "disabled";
+		};
+
+		vi_dfmu_iommu: iommu@0x06372000 {
+			compatible = "riscv,iommu";
+			reg = <0x0 0x06372000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <204>;
+			status = "disabled";
+			#iommu-cells = <1>;
+		};
+
+		vp_dfmu_mt: mt@0x06B10000 {
+			compatible = "zhihe,memtester";
+			reg = <0x0 0x06B10000 0x0 0x400>;
+			iommus = <&vp_dfmu_iommu DEVID_DIE0_VP_DFMU>;
+			status = "disabled";
+		};
+
+		vp_dfmu_iommu: iommu@0x06B12000 {
+			compatible = "riscv,iommu";
+			reg = <0x0 0x06B12000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <235>;
+			status = "disabled";
+			#iommu-cells = <1>;
+		};
+
+		npu_dfmu_mt: mt@0x07100000 {
+			compatible = "zhihe,memtester";
+			reg = <0x0 0x07100000 0x0 0x400>;
+			iommus = <&npu_dfmu_iommu DEVID_DIE0_NPU_DFMU>;
+			status = "disabled";
+		};
+
+		npu_dfmu_iommu: iommu@0x07102000 {
+			compatible = "riscv,iommu";
+			reg = <0x0 0x07102000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <66>;
+			status = "disabled";
+			#iommu-cells = <1>;
+		};
+
+		vo_dfmu_mt: mt@0x06710000 {
+			compatible = "zhihe,memtester";
+			reg = <0x0 0x06710000 0x0 0x400>;
+			iommus = <&vo_dfmu_iommu DEVID_DIE0_VO_DFMU>;
+			status = "disabled";
+		};
+
+		vo_dfmu_iommu: iommu@0x06712000 {
+			compatible = "riscv,iommu";
+			reg = <0x0 0x06712000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <223>;
+			status = "disabled";
+			#iommu-cells = <1>;
+		};
+
+		peri1_dfmu_mt: mt@0x02030000 {
+			compatible = "zhihe,memtester";
+			reg = <0x0 0x02030000 0x0 0x400>;
+			iommus = <&peri1_dfmu_iommu DEVID_DIE0_PERI1_DFMU>;
+			status = "disabled";
+		};
+
+		peri1_dfmu_iommu: iommu@0x02032000 {
+			compatible = "riscv,iommu";
+			reg = <0x0 0x02032000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <344>;
+			status = "okay";
+			#iommu-cells = <1>;
+			power-domains = <&power_peri1>;
+		};
+
+		pcie_dfmu_mt: mt@0x0a010000 {
+			compatible = "zhihe,memtester";
+			reg = <0x0 0x0a010000 0x0 0x400>;
+			iommus = <&pcie_dfmu_iommu DEVID_DIE0_PCIE_DFMU>;
+			status = "disabled";
+		};
+
+		pcie_dfmu_iommu: iommu@0x0a012000 {
+			compatible = "riscv,iommu";
+			reg = <0x0 0x0a012000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <174>;
+			status = "okay";
+			#iommu-cells = <1>;
+			power-domains = <&power_top>;
+		};
+
+		usb_dfmu_mt: mt@0x08020000 {
+			compatible = "zhihe,memtester";
+			reg = <0x0 0x08020000 0x0 0x400>;
+			iommus = <&usb_dfmu_iommu DEVID_DIE0_USB_DFMU>;
+			status = "disabled";
+		};
+
+		usb_dfmu_iommu: iommu@0x08022000 {
+			compatible = "riscv,iommu";
+			reg = <0x0 0x08022000 0x0 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <187>;
+			status = "okay";
+			#iommu-cells = <1>;
+			power-domains = <&power_usb>;
+		};
+
+		npu0: vipcore@0x07000000 {
+			compatible = "verisilicon,vipcore";
+			reg = <0x00 0x7000000 0x00 0x20000>;
+			interrupt-parent = <&intc>;
+			interrupts = <71>;
+			clocks = <&clk TOP_NPU_CCLK_DIV>,
+					<&clk TOP_NPU_ACLK_DIV>;
+			clock-names = "npu_cclk", "npu_aclk";
+			power-domains = <&power_npu_ip>;
+			status = "okay";
+		};
+
+		g2d: gc620@0006a00000 {
+			compatible = "xuantie,th1520-gc620", "thead,c910-gc620";
+			reg = <0x00 0x06a00000 0x0 0x40000>;
+			interrupt-parent = <&intc>;
+			interrupts = <240>;
+			interrupt-names = "irq_2d";
+			clocks = <&clk VP_G2D_PCLK_EN>,
+				 <&clk VP_G2D_ACLK_EN>,
+				 <&clk VP_G2D_CCLK_EN>;
+			clock-names = "pclk", "aclk", "cclk";
+			power-domains = <&power_vp_wrapper>;
+			status = "okay";
+		};
+
+		eip_28: eip-28@0027500000 {
+			compatible = "xlnx,sunrise-fpga-1.0", "safexcel-eip-28";
+			reg = <0x00 0x27500000 0x0 0x40000>;
+			interrupt-parent = <&intc>;
+			interrupts = <243>,<246>,<249>,<251>;
+			clocks = <&clk_peri TEE_EIP120SI_CLKEN>,
+				 <&clk_peri TEE_EIP120SII_CLKEN>,
+				 <&clk_peri TEE_EIP120SIII_CLKEN>,
+				 <&clk_peri TEE_EIP150B_CLKEN>;
+			clock-names = "120si_clk","120sii_clk","120siii_clk","hclk";
+			//iommus = <&pcie_dfmu_iommu DEVID_DIE0_TEE_EIP120SI>,
+			//	 <&pcie_dfmu_iommu DEVID_DIE0_TEE_EIP120SII>,
+			//	 <&pcie_dfmu_iommu DEVID_DIE0_TEE_EIP120SIII>;
+			status = "okay";
+		};
+
+		mipi0_csi0: csi@0006300000 {
+			compatible = "zhihe,bm-csi";
+			reg = < 0x00 0x06300000 0x0 0x10000
+					0x00 0x063a0020 0x0 0x4
+					0x00 0x063a0028 0x0 0x4>;
+			interrupt-parent = <&intc>;
+			interrupts = <192>;
+			clocks = <&clk_vi VI_MIPI0_PIX_REF_SWITCH_SEL>,
+					 <&clk_vi VI_PRE_MIPI0_PIXCLK_DIV_NUM>,
+					 <&clk_vi VI_MIPI0_CSI0_PIXCLK_EN>,
+					 <&clk_vi VI_MIPI0B_CFGCLK_EN>,
+					 <&clk_vi VI_MIPI0CSI0_PCLK_EN>,
+					 <&clk_vi VI_MIPI0CSI0_FPCLK_EN>;
+			clock-names = "pix_ref_sel", "pixclk_div", "pixclk", "cfg_clk", "pclk", "fpclk";
+			phy_name = "CSI_BPHY";
+			status = "okay";
+		};
+
+		mipi0_csi1: csi@0006310000 {
+			compatible = "zhihe,bm-csi";
+			reg = < 0x00 0x06310000 0x0 0x10000
+					0x00 0x063a0024 0x0 0x4
+					0x00 0x063a0028 0x0 0x4>;
+			interrupt-parent = <&intc>;
+			interrupts = <193>;
+			clocks = <&clk_vi VI_MIPI0_PIX_REF_SWITCH_SEL>,
+					 <&clk_vi VI_PRE_MIPI0_PIXCLK_DIV_NUM>,
+					 <&clk_vi VI_MIPI0_CSI1_PIXCLK_EN>,
+					 <&clk_vi VI_MIPI0A_CFGCLK_EN>,
+					 <&clk_vi VI_MIPI0CSI1_PCLK_EN>,
+					 <&clk_vi VI_MIPI0CSI1_FPCLK_EN>;
+			clock-names = "pix_ref_sel", "pixclk_div", "pixclk", "cfg_clk", "pclk", "fpclk";
+			phy_name = "CSI_APHY";
+			status = "okay";
+		};
+
+		mipi1_csi0: csi@0006320000 {
+			compatible = "zhihe,bm-csi";
+			reg = < 0x00 0x06320000 0x0 0x10000
+					0x00 0x063a0030 0x0 0x4
+					0x00 0x063a0038 0x0 0x4>;
+			interrupt-parent = <&intc>;
+			interrupts = <194>;
+			clocks = <&clk_vi VI_MIPI1_PIX_REF_SWITCH_SEL>,
+					 <&clk_vi VI_PRE_MIPI1_PIXCLK_DIV_NUM>,
+					 <&clk_vi VI_MIPI1_CSI0_PIXCLK_EN>,
+					 <&clk_vi VI_MIPI1B_CFGCLK_EN>,
+					 <&clk_vi VI_MIPI1CSI0_PCLK_EN>,
+					 <&clk_vi VI_MIPI1CSI0_FPCLK_EN>;
+			clock-names = "pix_ref_sel", "pixclk_div", "pixclk", "cfg_clk", "pclk", "fpclk";
+			phy_name = "CSI_BPHY";
+			status = "okay";
+		};
+
+		mipi1_csi1: csi@0006330000 {
+			compatible = "zhihe,bm-csi";
+			reg = < 0x00 0x06330000 0x0 0x10000
+					0x00 0x063a0034 0x0 0x4
+					0x00 0x063a0038 0x0 0x4>;
+			interrupt-parent = <&intc>;
+			interrupts = <195>;
+			clocks = <&clk_vi VI_MIPI1_PIX_REF_SWITCH_SEL>,
+					 <&clk_vi VI_PRE_MIPI1_PIXCLK_DIV_NUM>,
+					 <&clk_vi VI_MIPI1_CSI1_PIXCLK_EN>,
+					 <&clk_vi VI_MIPI1A_CFGCLK_EN>,
+					 <&clk_vi VI_MIPI1CSI1_PCLK_EN>,
+					 <&clk_vi VI_MIPI1CSI1_FPCLK_EN>;
+			clock-names = "pix_ref_sel", "pixclk_div", "pixclk", "cfg_clk", "pclk", "fpclk";
+			phy_name = "CSI_APHY";
+			status = "okay";
+		};
+
+		vipre: vipre@0006340000 {
+			compatible = "zhihe,vipre";
+			reg = <0x00 0x06340000 0x0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <200>;
+			clocks = <&clk_vi VI_VIPRE_ACLK_EN>,
+				 <&clk_vi VI_VIPRE_SCLK_EN>,
+				 <&clk_vi VI_VIPRE_I0_PIXCLK_EN>,
+				 <&clk_vi VI_VIPRE_I1_PIXCLK_EN>,
+				 <&clk_vi VI_VIPRE_PCLK_EN>;
+			clock-names = "aclk", "sclk", "i0pixclk", "i1pixclk", "pclk";
+			status = "okay";
+		};
+
+		dw200_vb: dw200_vb@95000000 {
+			compatible = "zhihe,dw200_vb";
+			address-cells = <2>;
+			size-cells = <2>;
+			reg = <0x00 0x95000000 0x0 0x8000000>;
+			status = "okay";
+		};
+
+		isp8000: isp8000@06000000 {
+			compatible = "zhihe,isp8000";
+			reg = <0x00 0x06000000 0x0 0x100000
+					0x00 0x063A0400 0x0 0x4>;
+			interrupt-parent = <&intc>;
+			interrupts = <196>,<198>,<197>;
+			clocks = <&clk_vi VI_ISPOUT_CLK_EN>,
+				 <&clk_vi VI_ISP_CLK_EN>;
+			clock-names = "isp_out_clk", "isp_clk";
+			status = "okay";
+		};
+
+		dw200_dw: dw200_dw@06200000 {
+			compatible = "zhihe,dw200_v30";
+ 			reg = <0x00 0x06200000 0x0 0x100000
+				  0x00 0x063A0400 0x0 0x4
+				  0x00 0x06350000 0x0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <209>,<211>,<210>,<199>;
+			clocks = <&clk_vi VI_DW_SCLK_EN>,
+				 <&clk_vi VI_VSE_CLK_EN>,
+				 <&clk_vi VI_DWE_CLK_EN>,
+				 <&clk_vi VI_DW200_ACLK_EN>,
+				 <&clk_vi VI_DW200_HCLK_EN>,
+				 <&clk_vi VI_VSEOUT_CLK_EN>;
+			clock-names = "dw_sclk", "vse_clk", "dwe_clk", "dw200_aclk", "dw200_hclk", "vseout_clk";
+			status = "okay";
+		};
+
+		bmu0: ddr-bmu@0004850000 {
+			compatible = "zhihe,p100-ddr-bmu";
+			reg = <0x00 0x04850000 0x0 0x10000>,
+				  <0x00 0x05850000 0x0 0x10000>;
+			zhihe,bm-num = <2>;
+			zhihe,bm-name ="bmu_ddr";
+			interrupt-parent = <&intc>;
+			interrupts = <96>,<101>,<115>,<120>;
+			status = "okay";
+		};
+
+		bmu1: gpu-bmu@0006d14000 {
+			compatible = "zhihe,p100-gpu-bmu";
+			reg = <0x00 0x06d14000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_gpu";
+			interrupt-parent = <&intc>;
+			interrupts = <54>;
+			status = "okay";
+		};
+
+		bmu2: npu-bmu@0007104000 {
+			compatible = "zhihe,p100-npu-bmu";
+			reg = <0x00 0x07104000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_npu";
+			interrupt-parent = <&intc>;
+			interrupts = <65>;
+			status = "okay";
+		};
+
+		bmu3: pcie-bmu@000a014000 {
+			compatible = "zhihe,p100-pcie-bmu";
+			reg = <0x00 0x0a014000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_pcie";
+			interrupt-parent = <&intc>;
+			interrupts = <173>;
+			status = "okay";
+		};
+
+		bmu4: usb-bmu@0008024000 {
+			compatible = "zhihe,p100-usb-bmu";
+			reg = <0x00 0x08024000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_usb";
+			interrupt-parent = <&intc>;
+			interrupts = <186>;
+			status = "okay";
+		};
+
+		bmu5: vo-bmu@0006714000 {
+			compatible = "zhihe,p100-vo-bmu";
+			reg = <0x00 0x06714000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_vo";
+			interrupt-parent = <&intc>;
+			interrupts = <222>;
+			status = "okay";
+		};
+
+		bmu6: vi-bmu@0006374000 {
+			compatible = "zhihe,p100-vi-bmu";
+			reg = <0x00 0x06374000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_vi";
+			interrupt-parent = <&intc>;
+			interrupts = <203>;
+			status = "okay";
+		};
+
+		bmu7: vp-bmu@0006b14000 {
+			compatible = "zhihe,p100-vp-bmu";
+			reg = <0x00 0x06b14000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_vp";
+			interrupt-parent = <&intc>;
+			interrupts = <234>;
+			status = "okay";
+		};
+
+		bmu8: peri-bmu@0002034000 {
+			compatible = "zhihe,p100-peri-bmu";
+			reg = <0x00 0x02034000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_peri";
+			interrupt-parent = <&intc>;
+			interrupts = <343>;
+			status = "okay";
+		};
+
+		bmu9: d2d-bmu@0009034000 {
+			compatible = "zhihe,p100-d2d-bmu";
+			reg = <0x00 0x09034000 0x0 0x400>;
+			zhihe,bm-num = <1>;
+			zhihe,bm-name ="bmu_d2d";
+			interrupt-parent = <&intc>;
+			interrupts = <124>;
+			status = "okay";
+		};
+
+	};
+};

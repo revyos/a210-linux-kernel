@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0
+
+config ZHIHE_CLK
+	bool
+	def_bool ARCH_ZHIHE
+
+config CLK_P100
+	bool "Zhihe P100 Clock Driver"
+	depends on ARCH_ZHIHE
+	default n
+	help
+	    Build the driver for zhihe p100 Clock Driver

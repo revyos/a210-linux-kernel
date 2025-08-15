@@ -1,0 +1,391 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2025 Zhihe Computing Limited.
+ */
+
+#ifndef __MACH_ZHIHE_CLK_H
+#define __MACH_ZHIHE_CLK_H
+
+#include <linux/spinlock.h>
+#include <linux/clk-provider.h>
+#include <linux/platform_device.h>
+#include <dt-bindings/clock/p100-clock.h>
+
+extern spinlock_t zhihe_p100_clk_lock;
+
+#define P100_CLK_NAME_SIZE 30
+
+/* top reg idx */
+#define PLL_WRAP		0
+#define TOP_CRG			1
+#define CPU_SS_CLK_SYSREG	2
+#define CPU_SS_CPU_PLL		3
+#define DDR0_SYSREG		4
+#define DDR1_SYSREG		5
+#define SLC_DUAL_SYSREG		6
+#define TOP_CRG_T		7
+/* gpu reg idx */
+#define GPU_SS_PWRAP_CLK_EN	0
+#define GPU_SS_TOP_CLK_EN	1
+/* pcie reg idx */
+#define PCIE_CLK_EN		0
+/* usb reg idx */
+#define USB_CLK_EN		0
+/* vi reg idx */
+#define VI_CLK			0
+/* vp reg idx */
+#define VP_CLK			0
+/* vo reg idx */
+#define VO_CLK			0
+#define VO_PATH_CTRL		1
+/* npu reg idx */
+#define NPU_CLK			0
+#define NPU_TOP_CLK		1
+/* d2d reg idx */
+#define D2D_CRG_REG		0
+/* peri reg idx */
+#define PERI0_SYSREG		0
+#define PERI1_SYSREG		1
+#define PERI2_SYSREG		2
+#define PERI3_SYSREG		3
+#define TEE_CRG			4
+
+#define PLL_RATE(_vco, _rate, _r, _b, _f, _p, _k)       \
+	{                                               \
+		.vco_rate	=	(_vco),         \
+		.rate		=	(_rate),        \
+		.refdiv		=	(_r),           \
+		.fbdiv		=	(_b),           \
+		.frac		=	(_f),           \
+		.postdiv1	=	(_p),           \
+		.postdiv2	=	(_k),           \
+	}
+
+#define REG(n)  [(n)] = {.name = #n}
+
+#define CLK(_type, _id, _name, _parent) \
+	.type = (_type),                \
+	.id = (_id),                    \
+	.name = (_name),                \
+	.parent = (_parent)
+
+#define FIXED(_id, _name, _parent, _freq) {             \
+	CLK(CLK_TYPE_FIXED, (_id), (_name), (_parent)), \
+	.fixed = {.freq = (_freq),},                    \
+}
+
+#define PLL(_id, _name, _parent, _reg, _shift, _pll) {  \
+	CLK(CLK_TYPE_PLL, (_id), (_name), (_parent)),   \
+	.reg = (_reg),                                  \
+	.shift = (_shift),                              \
+	.pll = (_pll),                                  \
+}
+
+#define FIXED_FACTOR(_id, _name, _parent, _mult, _div) {       \
+	CLK(CLK_TYPE_FIXED_FACTOR, (_id), (_name), (_parent)), \
+	.fixed_factor = {.mult = (_mult), .div = (_div),},     \
+}
+
+#define DIV(_id, _name, _parent, _reg, _shift, _bit_idx, _width, _sync, _div_type, _min, _max)  { \
+	CLK(CLK_TYPE_DIVIDER, (_id), (_name), (_parent)),                                         \
+	.reg = (_reg),                                                                            \
+	.shift = (_shift),                                                                        \
+	.bit_idx = (_bit_idx),                                                                    \
+	.width = (_width),                                                                        \
+	.divider = {.sync = (_sync), .div_type = (_div_type), .min = (_min), .max = (_max)}       \
+}
+
+#define DIV_CLOSEST(_id, _name, _parent, _reg, _shift, _bit_idx, _width, _sync, _div_type, _min, _max)  { \
+	CLK(CLK_TYPE_DIVIDER_CLOSEST, (_id), (_name), (_parent)),                                         \
+	.reg = (_reg),                                                                                    \
+	.shift = (_shift),                                                                                \
+	.bit_idx = (_bit_idx),                                                                            \
+	.width = (_width),                                                                                \
+	.divider = {.sync = (_sync), .div_type = (_div_type), .min = (_min), .max = (_max)}               \
+}
+
+#define GATE(_id, _name, _parent, _reg, _shift, _bit_idx) { \
+	CLK(CLK_TYPE_GATE, (_id), (_name), (_parent)),      \
+	.reg = (_reg),                                      \
+	.shift = (_shift),                                  \
+	.bit_idx = (_bit_idx),                              \
+}
+
+#define GATE_SHARED(_id, _name, _parent, _reg, _shift, _bit_idx, _count) { \
+	CLK(CLK_TYPE_GATE_SHARED, (_id), (_name), (_parent)),              \
+	.reg = (_reg),                                                     \
+	.shift = (_shift),                                                 \
+	.bit_idx = (_bit_idx),                                             \
+	.gate_shared = {.share_count = (_count)},                          \
+}
+
+#define MUX(_id, _name, _reg, _shift, _bit_idx, _width, _parents, _num, _flags) { \
+	CLK(CLK_TYPE_MUX, (_id), (_name), ""),                                    \
+	.reg = (_reg),                                                            \
+	.shift = (_shift),                                                        \
+	.bit_idx = (_bit_idx),                                                    \
+	.width = (_width),                                                        \
+	.mux = {.parents = (_parents), .num_parents = (_num), .flags = (_flags)}, \
+}
+
+#define PLL_PARAM(_pll, _out, _table, _count, _cfg0, _sts, _lock, _bypass, _rst, _mode, _name) \
+	[(_pll)] = {                                                                           \
+		.out_type = (_out),                                                            \
+		.clk_type = (_pll),                                                            \
+		.rate_table = (_table),                                                        \
+		.rate_count = (_count),                                                        \
+		.cfg0_reg_off = (_cfg0),                                                       \
+		.pll_sts_off = (_sts),                                                         \
+		.pll_lock_bit = (_lock),                                                       \
+		.pll_bypass_bit = (_bypass),                                                   \
+		.pll_rst_bit = (_rst),                                                         \
+		.pll_mode = (_mode),                                                           \
+		.name = (_name),                                                               \
+	}
+
+#define CLK_SUBSYS(_name, _regs, _num_reg, _info, _num_info, _pll, _num_pll, _is_fpga) {  \
+	.name = (_name),                                                                  \
+	.regs = (_regs),                                                                  \
+	.num_regs = (_num_reg),                                                           \
+	.info = (_info),                                                                  \
+	.num_info = (_num_info),                                                          \
+	.plls = (_pll),                                                                   \
+	.num_plls = (_num_pll),                                                           \
+	.is_fpga = (_is_fpga),                                                            \
+}
+
+enum p100_pll_outtype {
+	P100_PLL_VCO,
+	P100_PLL_DIV,
+};
+
+enum p100_div_type {
+        MUX_TYPE_DIV,
+        MUX_TYPE_CDE,
+};
+
+enum p100_div_sync_type {
+    NO_DIV_EN = 255,
+};
+
+enum p100_pll_clktype {
+	AUDIO0_PLL,
+	AUDIO1_PLL,
+	VIDEO_PLL,
+	GMAC_PLL,
+	DVFS_PLL,
+	DPU0_PLL,
+	DPU1_PLL,
+	DPU2_PLL,
+	TEE_PLL,
+	DDR_PLL,
+	C920_PLL,
+	C908_PLL,
+};
+
+enum p100_clk_types {
+	CLK_TYPE_FIXED,
+	CLK_TYPE_PLL,
+	CLK_TYPE_FIXED_FACTOR,
+	CLK_TYPE_DIVIDER,
+	CLK_TYPE_DIVIDER_CLOSEST,
+	CLK_TYPE_GATE,
+	CLK_TYPE_GATE_SHARED,
+	CLK_TYPE_MUX,
+};
+
+enum p100_pll_mode {
+	PLL_MODE_FRAC,
+	PLL_MODE_INT,
+};
+
+struct p100_clk_reg {
+	void __iomem *base;
+	char name[P100_CLK_NAME_SIZE];
+};
+
+/* clk summary info at subsys level */
+struct p100_clk_subsys {
+	char name[P100_CLK_NAME_SIZE];
+	struct p100_clk_reg *regs;
+	u32 num_regs;
+	struct p100_clk_info *info;
+	u32 num_info;
+	struct p100_clk_info_pll *plls;
+	u32 num_plls;
+	bool is_fpga;
+	struct clk_onecell_data *clk_data;
+};
+
+struct clk_p100pll {
+	struct clk_hw hw;
+	void __iomem *base;
+	enum p100_pll_clktype clk_type;
+	enum p100_pll_outtype out_type;
+	enum p100_pll_mode pll_mode;
+	const struct p100_pll_rate_table *rate_table;
+	int rate_count;
+
+	u32 cfg0_reg_off;
+	u32 pll_sts_off;
+	int pll_lock_bit;
+	int pll_rst_bit;
+	int pll_bypass_bit;
+};
+
+struct clk_p100div {
+	struct clk_divider divider;
+	enum p100_div_type div_type;
+	u16 min_div;
+	u16 max_div;
+	u8 sync_en;
+	const struct clk_ops *ops;
+};
+
+struct clk_p100gate {
+	struct clk_gate gate;
+	unsigned int *share_count;
+	const struct clk_ops *ops;
+};
+
+struct p100_pll_rate_table {
+	unsigned long vco_rate;
+	unsigned long rate;
+	unsigned int refdiv;
+	unsigned int fbdiv;
+	unsigned int frac;
+	unsigned int postdiv1;
+	unsigned int postdiv2;
+};
+
+/* detailed clk info for each clk */
+
+struct p100_clk_info_pll {
+	enum p100_pll_outtype out_type;
+	enum p100_pll_clktype clk_type;
+	struct p100_pll_rate_table *rate_table;
+	int rate_count;
+	int flags;
+	char name[P100_CLK_NAME_SIZE];
+	u32 cfg0_reg_off;
+	u32 pll_sts_off;
+	int pll_lock_bit;
+	int pll_rst_bit;
+	int pll_bypass_bit;
+	enum p100_pll_mode pll_mode;
+};
+
+struct p100_clk_info_fixed {
+	unsigned int freq;
+};
+
+struct p100_clk_info_fixed_factor {
+	unsigned int mult;
+	unsigned int div;
+};
+
+struct p100_clk_info_divider {
+	u8 sync;
+	enum p100_div_type div_type;
+	u16 min;
+	u16 max;
+};
+
+struct p100_clk_info_gate_shared {
+	unsigned int *share_count;
+};
+
+struct p100_clk_info_mux {
+	const char * const *parents;
+	int num_parents;
+	unsigned long flags;
+};
+
+struct p100_clk_info {
+	enum p100_clk_types type;
+	u32 id;
+	char name[P100_CLK_NAME_SIZE];
+	char parent[P100_CLK_NAME_SIZE];
+	u8 reg;
+	u32 shift;
+	u8 width;
+	u8 bit_idx;
+	union {
+		struct p100_clk_info_fixed fixed;
+		struct p100_clk_info_fixed_factor fixed_factor;
+		struct p100_clk_info_pll *pll;
+		struct p100_clk_info_divider divider;
+		struct p100_clk_info_gate_shared gate_shared;
+		struct p100_clk_info_mux mux;
+	};
+};
+
+static inline struct clk *zhihe_p100_clk_fixed_factor(const char *name,
+		const char *parent, unsigned int mult, unsigned int div)
+{
+	return clk_register_fixed_factor(NULL, name, parent,
+			CLK_SET_RATE_PARENT, mult, div);
+}
+
+struct clk *zhihe_p100_pll(const char *name, const char *parent_name,
+			    void __iomem *base,
+			    const struct p100_clk_info_pll *pll_clk);
+
+static inline struct clk *zhihe_clk_p100_gate(const char *name, const char *parent,
+					       void __iomem *reg, u8 shift)
+{
+	return clk_register_gate(NULL, name, parent, CLK_SET_RATE_PARENT, reg,
+			shift, 0, &zhihe_p100_clk_lock);
+}
+
+struct clk *zhihe_clk_p100_register_gate_shared(const char *name, const char *parent,
+						 unsigned long flags, void __iomem *reg,
+						 u8 shift, spinlock_t *lock,
+						 unsigned int *share_count);
+
+struct clk *zhihe_clk_p100_divider(const char *name, const char *parent,
+				    void __iomem *reg, u8 shift, u8 width,
+				    u8 sync, enum p100_div_type div_type,
+				    u16 min, u16 max);
+
+/**
+* By default, the clk framework calculates frequency by rounding downwards.
+* This function is to achieve closest frequency.
+*/
+struct clk *zhihe_clk_p100_divider_closest(const char *name, const char *parent,
+				    void __iomem *reg, u8 shift, u8 width,
+				    u8 sync, enum p100_div_type div_type,
+				    u16 min, u16 max);
+
+void zhihe_unregister_clocks(struct clk *clks[], unsigned int count);
+
+static inline struct clk *zhihe_clk_fixed(const char *name, const char *parent, unsigned long rate)
+{
+	return clk_register_fixed_rate(NULL, name, parent, 0, rate);
+}
+
+static inline struct clk *zhihe_clk_p100_gate_shared(const char *name, const char *parent,
+					void __iomem *reg, u8 shift,
+					unsigned int *share_count)
+{
+	return zhihe_clk_p100_register_gate_shared(name, parent, CLK_SET_RATE_PARENT, reg,
+						    shift, &zhihe_p100_clk_lock, share_count);
+}
+
+static inline struct clk *zhihe_p100_clk_mux_flags(const char *name,
+			void __iomem *reg, u8 shift, u8 width,
+			const char * const *parents, int num_parents,
+			unsigned long flags)
+{
+	return clk_register_mux(NULL, name, parents, num_parents,
+			flags , reg, shift, width, 0,
+			&zhihe_p100_clk_lock);
+}
+
+void zhihe_p100_clk_fake_pll_fixed_ops(void);
+int zhihe_clk_set_round_rate(struct device *dev, struct clk *clk, unsigned int freq);
+int zhihe_clk_of_bulk_init(struct device *dev, struct clk **clks);
+int p100_parse_regbase(struct platform_device *pdev);
+void p100_register_clock(struct platform_device *pdev);
+
+#endif

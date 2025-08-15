@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config CRYPTO_DEV_ZHIHE
+	tristate "zhihe crypto driver"
+	depends on CRYPTO
+	select CRYPTO_ENGINE
+	select CRYPTO_AEAD
+	select CRYPTO_AEAD2
+	select CRYPTO_RSA
+	select CRYPTO_ECC
+	select CRYPTO_ECDH
+	select CRYPTO_SM2
+	select CRYPTO_CURVE25519
+	select CRYPTO_AES
+	select CRYPTO_DES
+	select CRYPTO_SM4
+	select CRYPTO_SM4_GENERIC
+	select CRYPTO_CTR
+	select CRYPTO_ECB
+	select CRYPTO_OFB
+	select CRYPTO_XTS
+	select CRYPTO_GCM
+	select CRYPTO_SHA1
+	select CRYPTO_SHA256
+	select CRYPTO_SHA512
+	select CRYPTO_SHA3
+	select CRYPTO_SM3
+	select CRYPTO_SM3_GENERIC
+	select CRYPTO_HMAC
+	select CRYPTO_LIB_CURVE25519_GENERIC
+	select CRYPTO_LIB_DES
+	select CRYPTO_USER
+	select CRYPTO_USER_API
+	select CRYPTO_USER_API_AEAD
+	select CRYPTO_USER_API_RNG
+	select CRYPTO_USER_API_HASH
+	select CRYPTO_USER_API_SKCIPHER
+	help
+	  This driver provides support for zhihe crypto device. If you
+	  choose 'M' here, this module will be called zhihe_crypto.

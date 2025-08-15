@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config P100_AON
+	bool "P100 Aon Protocol driver"
+	depends on P100_MBOX
+	default y
+	help
+	  ZHIHE P100 Aon is a low-level system function which runs a dedicated
+	  ZHIHE riscv E902 core to provide power, clock and resource management.
+
+	  This driver manages the IPC interface between host cpu liks thead
+	  and the Aon firmware running on thead riscv E902 core.
+

@@ -1,0 +1,215 @@
+
+&c908_0 {
+// 	status = "disabled";
+};
+
+// &c908_1 {
+// 	status = "disabled";
+// };
+
+// &c908_2 {
+// 	status = "disabled";
+// };
+
+// &c908_3 {
+// 	status = "disabled";
+// };
+
+// &c920_4 {
+// 	status = "disabled";
+// };
+
+// &c920_5 {
+// 	status = "disabled";
+// };
+
+// &c920_6 {
+// 	status = "disabled";
+// };
+
+// &c920_7 {
+// 	status = "disabled";
+// };
+
+&uart0 {
+	status = "disabled";
+};
+
+&uart1 {
+	status = "disabled";
+};
+
+&uart3 {
+	status = "disabled";
+};
+
+&uart4 {
+	current-speed = <115200>; /* OpenSBI */
+};
+
+&uart5 {
+	status = "disabled";
+};
+
+&uart6 {
+	status = "disabled";
+};
+
+&uart8 {
+	status = "disabled";
+};
+
+&uart9 {
+	status = "disabled";
+};
+
+&spi0 {
+	status = "disabled";
+};
+
+&qspi0 {
+	status = "disabled";
+};
+
+&i2c1 {
+	status = "disabled";
+};
+
+&i2c2 {
+	status = "disabled";
+};
+
+&i2c3 {
+	status = "disabled";
+};
+
+&i2c7 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "disabled";
+};
+
+&pwm2 {
+	status = "disabled";
+};
+
+&audio_i2s2 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd1 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd2 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd3 {
+	status = "disabled";
+};
+
+&peri3_padctrl {
+        status = "disabled";
+};
+
+&gpio4 {
+        status = "disabled";
+};
+
+&peri3_padctrl {
+        status = "disabled";
+};
+
+&gpio4 {
+        status = "disabled";
+};
+
+/* FIX aon_padctrl init failed issue */
+/ {
+	soc {
+		clocks {
+			evb_clock_24m: clock-24m {
+				compatible = "fixed-clock";
+				clock-frequency = <24000000>;
+				clock-output-names = "evb_clock_24m";
+				#clock-cells = <0>;
+			};
+		};
+	};
+};
+
+&aon_padctrl {
+	clocks = <&evb_clock_24m>;
+};
+
+/* FIXME: Disabled non-critical peripherals in the bringup phase */
+&can0 {
+	status = "disabled";
+};
+
+&can1 {
+	status = "disabled";
+};
+
+&can2 {
+	status = "disabled";
+};
+
+&dmac1 {
+	status = "disabled";
+};
+
+&uart2 {
+	status = "disabled";
+};
+
+&sdhci0 {
+	status = "disabled";
+};
+
+&timer0 {
+	status = "disabled";
+};
+
+&timer1 {
+	status = "disabled";
+};
+
+&timer3 {
+	status = "disabled";
+};
+
+&timer4 {
+	status = "disabled";
+};
+
+&timer5 {
+	status = "disabled";
+};
+
+&timer6 {
+	status = "disabled";
+};
+
+&timer7 {
+	status = "disabled";
+};
+
+&i2c4 {
+	status = "disabled";
+};
+
+&audio_i2s0 {
+	status = "disabled";
+};
+
+// &usb31_zhihe {
+//	status = "disabled";
+// };
+
+// &sata {
+//	status = "disabled";
+// };

@@ -1,0 +1,1259 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2021 Alibaba Group Holding Limited.
+ */
+
+#include <dt-bindings/clock/p100-clock.h>
+#include <dt-bindings/reset/p100-reset.h>
+#include <dt-bindings/iopmp/zh-iopmp.h>
+
+/ {
+	compatible = "zhihe,p100";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus: cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <24000000>; /*24M*/
+		c908_0: cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu0_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c908_1: cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu1_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c908_2: cpu@2 {
+			device_type = "cpu";
+			reg = <2>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu2_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c908_3: cpu@3 {
+			device_type = "cpu";
+			reg = <3>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu3_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+
+		c920_4: cpu@4 {
+			device_type = "cpu";
+			reg = <4>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu4_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c920_5: cpu@5 {
+			device_type = "cpu";
+			reg = <5>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu5_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c920_6: cpu@6 {
+			device_type = "cpu";
+			reg = <6>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu6_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c920_7: cpu@7 {
+			device_type = "cpu";
+			reg = <7>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <0>;
+			status = "okay";
+			cpu7_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&c908_0>;
+				};
+
+				core1 {
+					cpu = <&c908_1>;
+				};
+
+				core2 {
+					cpu = <&c908_2>;
+				};
+
+				core3 {
+					cpu = <&c908_3>;
+				};
+			};
+			cluster1 {
+				core0 {
+					cpu = <&c920_4>;
+				};
+
+				core1 {
+					cpu = <&c920_5>;
+				};
+
+				core2 {
+					cpu = <&c920_6>;
+				};
+
+				core3 {
+					cpu = <&c920_7>;
+				};
+			};
+		};
+
+		idle_states: idle-states {
+			CPU_RET_0_0: cpu-retentive-0-0 {
+				compatible = "riscv,idle-state";
+				riscv,sbi-suspend-param = <0x10000000>;
+				entry-latency-us = <20>;
+				exit-latency-us = <40>;
+				min-residency-us = <80>;
+			};
+
+			CPU_NONRET_0_0: cpu-nonretentive-0-0 {
+				compatible = "riscv,idle-state";
+				riscv,sbi-suspend-param = <0x90000000>;
+				entry-latency-us = <250>;
+				exit-latency-us = <500>;
+				min-residency-us = <950>;
+			};
+
+			CLUSTER_RET_0: cluster-retentive-0 {
+				compatible = "riscv,idle-state";
+				riscv,sbi-suspend-param = <0x11000000>;
+				local-timer-stop;
+				entry-latency-us = <50>;
+				exit-latency-us = <100>;
+				min-residency-us = <250>;
+				wakeup-latency-us = <130>;
+			};
+
+			CLUSTER_NONRET_0: cluster-nonretentive-0 {
+				compatible = "riscv,idle-state";
+				riscv,sbi-suspend-param = <0x91000000>;
+				local-timer-stop;
+				entry-latency-us = <600>;
+				exit-latency-us = <1100>;
+				min-residency-us = <2700>;
+				wakeup-latency-us = <1500>;
+			};
+		};
+	};
+
+	pmu {
+		compatible = "riscv,pmu";
+		riscv,event-to-mhpmevent =
+			/* PMU_HW_CPU_CYCLES:1 */
+			<0x00001 0x00000000 0x00000000>,
+			/* PMU_HW_INSTRUCTIONS:2 */
+			<0x00002 0x00000000 0x00000000>,
+			/* PMU_HW_CACHE_REFERENCES:3 */
+			/* PMU_HW_CACHE_MISSES:4 */
+			/* PMU_HW_BRANCH_INSTRUCTIONS:5 */
+			<0x00005 0x00000000 0x00000007>,
+			/* PMU_HW_BRANCH_MISSES:6 */
+			<0x00006 0x00000000 0x00000006>,
+			/* PMU_HW_BUS_CYCLES:7 */
+			/* PMU_HW_STALLED_CYCLES_FRONTEND:8 */
+			<0x00008 0x00000000 0x00000027>,
+			/* PMU_HW_STALLED_CYCLES_BACKEND:9 */
+			<0x00009 0x00000000 0x00000028>,
+			/* PMU_HW_REF_CPU_CYCLES:10 */
+			/* L1D_READ_ACCESS:0x10000 */
+			<0x10000 0x00000000 0x0000000c>,
+			/* L1D_READ_MISS:0x10001 */
+			<0x10001 0x00000000 0x0000000d>,
+			/* L1D_WRITE_ACCESS:0x10002 */
+			<0x10002 0x00000000 0x0000000e>,
+			/* L1D_WRITE_MISS:0x10003 */
+			<0x10003 0x00000000 0x0000000f>,
+			/* L1I_READ_ACCESS:0x10008 */
+			<0x10008 0x00000000 0x00000001>,
+			/* L1I_READ_MISS:0x10009 */
+			<0x10009 0x00000000 0x00000002>,
+			/* dTLB read miss :0x10019 */
+			<0x10019 0x00000000 0x00000004>,
+			/* iTLB read miss :0x10021 */
+			<0x10021 0x00000000 0x00000003>;
+			/* LL_READ_ACCESS:0x10010 */
+			/* LL_READ_MISS:0x10011 */
+			/* LL_WRITE_ACCESS:0x10012 */
+			/* LL_WRITE_MISS:0x10013 */
+			/* BPU_READ_ACCESS:0x10028 */
+			/* BPU_READ_MISS:0x10029 */
+		riscv,event-to-mhpmcounters =
+			/* The Xuantie processor only implements 31 mhpmcounters, so the bitmap is 0xfffffff8 */
+			<0x00001 0x00001 0x00000001>,
+			<0x00002 0x00002 0x00000004>,
+			<0x00005 0x00005 0xfffffff8>,
+			<0x00006 0x00006 0xfffffff8>,
+			<0x00008 0x00008 0xfffffff8>,
+			<0x00009 0x00009 0xfffffff8>,
+			<0x10000 0x10000 0xfffffff8>,
+			<0x10001 0x10001 0xfffffff8>,
+			<0x10002 0x10002 0xfffffff8>,
+			<0x10003 0x10003 0xfffffff8>,
+			<0x10008 0x10008 0xfffffff8>,
+			<0x10009 0x10009 0xfffffff8>,
+			<0x10019 0x10019 0xfffffff8>,
+			<0x10021 0x10021 0xfffffff8>;
+		riscv,raw-event-to-mhpmcounters =
+			/* For raw event ID 0x0 - 0xff */
+			<0x0 0x0 0xffffffff 0xffffff00 0xfffffff8>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		dma-noncoherent;
+
+		/* OPENSBI */
+		reset: reset-sample {
+			compatible = "zhihe,reset-sample";
+			reg = <0x00 0x00 0x00 0x00>;
+			plic-delegate = <0x00 0x181ffffc>; /* PLIC_CTRL */
+			entry-reg = <0x00 0x10148040 0x00 0x10148060>;	/* SYSREG set rst boot address*/
+			entry-cnt = <4 4>;								/* The number of CPUs in each cluster */
+			control-reg = <0x00 0x10144004 0x00 0x10144008>;/* SWRST C908 C920*/
+			control-val = <0x1f 0x1f>;	/* bit0:clust, bit1~4:core0~core3 */
+			csr-init = <							/* 0x00 0x00, Magic New Cluster start */
+				0x00 0x00  /* Cluster0 init CSR Register */
+				0x00 0x7c5 0x00 0x212A10C 	/* mhint*/
+				0x01 0x7cc 0x02 0x00000000 	/* mhint2 bit33: When the CPU hangs, it is possible to obtain the CPU's internal context register through jtag */
+				0x01 0x7cd 0x00 0x06		/* mhint3 bit1~2: Fix the stuttering issue on multi-core processors*/
+				0x01 0x7ce 0x00 0x00002000	/* mhint4 bit13:enabled L2 cache free write to reduce L2 miss latency, bit7,28: enable cpu wirte-evict function o enable cpu to write clean data to LLC(L3) 0x10002080*/
+				0x00 0x7c3 0x00 0xA2490008	/* mccr2 */
+				0x00 0x7f3 0x00 0x01		/* msmpr(smpen) */
+				0x00 0x7c1 0x00 0x10011FF	/* mhcr */
+				0x00 0x7c0 0x00 0x438000	/* mxstatus CONFIG_STD_SVPBMT */
+				0x00 0x30a 0x40000000 0x00000000 /* menvcfg PBMTE=1 */
+				0x00 0x00  /* Cluster1 init CSR Register */
+				0x00 0x7c5 0x00 0x316A32C	/* mhint*/
+				0x00 0x7cc 0x1000 0x00000180  /* mhint2*/
+				0x01 0x7cd 0x00 0x06		/* mhint3 bit1~2: Fix the stuttering issue on multi-core processors*/
+				0x01 0x7ce 0x00 0x00002000	/* mhint4 bit13:enabled L2 cache free write to reduce L2 miss latency, bit7,28: enable cpu wirte-evict function o enable cpu to write clean data to LLC(L3) 0x10002080*/
+				0x00 0x7c3 0x00 0xE2490009	/* mccr2 */
+				0x00 0x7f3 0x00 0x01		/* msmpr */
+				0x00 0x7c1 0x00 0x11FF		/* mhcr */
+				0x00 0x7c0 0x00 0x438000	/* mxstatus CONFIG_STD_SVPBMT */
+				0x00 0x30a 0x40000000 0x00000000 /* menvcfg PBMTE=1 */
+			>;
+		};
+
+		clint0: clint@001c000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <
+				&cpu0_intc  3 &cpu0_intc  7
+				&cpu1_intc  3 &cpu1_intc  7
+				&cpu2_intc  3 &cpu2_intc  7
+				&cpu3_intc  3 &cpu3_intc  7
+				&cpu4_intc  3 &cpu4_intc  7
+				&cpu5_intc  3 &cpu5_intc  7
+				&cpu6_intc  3 &cpu6_intc  7
+				&cpu7_intc  3 &cpu7_intc  7
+			>;
+			reg = <0x00 0x1c000000 0x0 0x0000d000>;
+			clint,has-no-64bit-mmio;
+
+		};
+
+		clk: clock-controller@0 {
+			compatible = "zhihe,p100-clk";
+			reg = <0x00 0x00260000 0x0 0x1000>,<0x00 0x00250000 0x0 0x1000>,
+			      <0x00 0x10141600 0x0 0x100>,<0x00 0x10141400 0x0 0x100>,
+			      <0x00 0x04810000 0x0 0x1000>,<0x00 0x05810000 0x0 0x1000>,
+			      <0x00 0x04900000 0x0 0x1000>,<0x00 0x20250000 0x0 0x1000>;
+			reg-names = "PLL_WRAP","TOP_CRG","CPU_SS_CLK_SYSREG","CPU_SS_CPU_PLL",
+			"DDR0_SYSREG","DDR1_SYSREG","SLC_DUAL_SYSREG","TOP_CRG_T";
+			#clock-cells = <1>;
+			clocks = <&osc_32k>, <&osc_24m>, <&rc_24m>;
+			clock-names = "osc_32k", "osc_24m", "rc_24m";
+			/* pll */
+			audio0_pll_foutvco_frequency = <2359296000>;
+			audio1_pll_foutvco_frequency = <2528870400>;
+			video_pll_foutvco_frequency = <2640000000>;
+			gmac_pll_foutvco_frequency = <3000000000>;
+			dvfs_pll_foutvco_frequency = <1920000000>;
+			dpu0_pll_foutvco_frequency = <2376000000>;
+			dpu1_pll_foutvco_frequency = <2376000000>;
+			dpu2_pll_foutvco_frequency = <2376000000>;
+			tee_pll_foutvco_frequency = <2400000000>;
+			/* top */
+			top_cfg_aclk_frequency = <330000000>;
+			top_pclk_frequency = <165000000>;
+			top_amux_clk_frequency = <660000000>;
+			iommu_ptw_aclk_frequency = <330000000>;
+			noc_cclk_frequency = <950000000>;
+			top_cpusys_bus_clk_frequency = <1320000000>;
+			top_cpusys_pic_clk_frequency = <1000000000>;
+			status = "okay";
+		};
+
+		clk_gpu: clock-controller@1 {
+			compatible = "zhihe,p100-gpu-clk";
+			reg = <0x00 0x06D02200 0x0 0x200>, <0x00 0x06E06200 0x0 0x200>;
+			reg-names = "GPU_SS_PWRAP_CLK_EN","GPU_SS_TOP_CLK_EN";
+			#clock-cells = <1>;
+			clocks = <&clk TOP_GPU_CORE_CLK_DIV>;
+			clock-names = "top_gpu_core_clk";
+			top_gpu_core_clk_frequency = <786432000>;
+			status = "okay";
+		};
+
+		clk_pcie: clock-controller@2 {
+			compatible = "zhihe,p100-pcie-clk";
+			reg = <0x00 0x0a000000 0x0 0x28>;
+			reg-names = "PCIE_CLK_EN";
+			#clock-cells = <1>;
+			clocks = <&clk TOP_PCIE_SCAN_REF_CLK0_DIV>, <&clk TOP_PCIE_SCAN_REF_CLK1_DIV>,
+				 <&clk TOP_PCIE_AXI_M_ACLK_DIV>;
+			clock-names = "scan_ref_clk0", "scan_ref_clk1", "pcie_ss_axi_m_aclk";
+			scan_ref_clk0_frequency = <396000000>;
+			scan_ref_clk1_frequency = <1000000000>;
+			pcie_ss_axi_m_aclk_frequency = <786432000>;
+			status = "okay";
+		};
+
+		clk_usb: clock-controller@3 {
+			compatible = "zhihe,p100-usb-clk";
+			reg = <0x00 0x08000000 0x0 0x24>;
+			reg-names = "USB_CLK_EN";
+			#clock-cells = <1>;
+			clocks = <&clk TOP_USB_USB20_SCAN_REF_CLK_DIV>, <&clk TOP_USB_SCAN_REF_CLK3_DIV>,
+				 <&clk TOP_USB_SCAN_REF_CLK2_DIV>, <&clk TOP_USB_SCAN_REF_CLK1_DIV>,
+				 <&clk TOP_USB_SCAN_REF_CLK0_DIV>, <&clk TOP_USB_BUS_ACLK_DIV>,
+				 <&clk TOP_USB_DP_AUX_CLK_DIV>;
+			clock-names = "clkgen_usb20phy_scan_ref_clk", "clkgen_c10phy_scan_ref_clk3", "clkgen_c10phy_scan_ref_clk2",
+				      "clkgen_c10phy_scan_ref_clk1", "clkgen_c10phy_scan_ref_clk0", "clkgen_usb_ss_bus_clk",
+				      "clkgen_usb_ss_aux_clk";
+			clkgen_usb20phy_scan_ref_clk_frequency = <475200000>;
+			clkgen_c10phy_scan_ref_clk3_frequency = <792000000>;
+			clkgen_c10phy_scan_ref_clk2_frequency = <600000000>;
+			clkgen_c10phy_scan_ref_clk1_frequency = <500000000>;
+			clkgen_c10phy_scan_ref_clk0_frequency = <396000000>;
+			clkgen_usb_ss_bus_clk_frequency = <330000000>;
+			clkgen_usb_ss_aux_clk_frequency = <16000000>;
+			status = "okay";
+		};
+
+		clk_vi: clock-controller@4 {
+			compatible = "zhihe,p100-vi-clk";
+			reg = <0x00 0x063a0200 0x0 0x200>;
+			reg-names = "VI_CLK";
+			#clock-cells = <1>;
+			status = "okay";
+		};
+
+		clk_vp: clock-controller@5 {
+			compatible = "zhihe,p100-vp-clk";
+			reg = <0x00 0x06b20200 0x0 0x200>;
+			reg-names = "VP_CLK";
+			#clock-cells = <1>;
+			clocks = <&clk TOP_VP_ACLK_DIV>, <&clk TOP_VP_VDEC_CCLK_DIV>,
+				 <&clk TOP_VP_VENC_CCLK_DIV>, <&clk TOP_VP_G2D_CCLK_DIV>;
+			clock-names = "vp_aclk", "vdec_cclk", "venc_cclk", "g2d_cclk";
+			vp_aclk_frequency = <880000000>;
+			vdec_cclk_frequency = <786432000>;
+			venc_cclk_frequency = <600000000>;
+			g2d_cclk_frequency = <786432000>;
+			status = "okay";
+		};
+
+		clk_vo: clock-controller@6 {
+			compatible = "zhihe,p100-vo-clk";
+			reg = <0x00 0x06720048 0x0 0x4>, <0x00 0x06720200 0x0 0xc>;
+			reg-names = "VO_PATH_CTRL","VO_CLK";
+			#clock-cells = <1>;
+			vo_dpuc_clk_frequency = <880000000>;
+			dpu0_pixclk_frequency = <594000000>;
+			dpu1_pixclk_frequency = <594000000>;
+			dpu2_pixclk_frequency = <594000000>;
+			vo_dpu_aclk_frequency = <880000000>;
+			vo_hdmi_pclk_frequency = <165000000>;
+			vo_decomp0_clk_frequency = <220000000>;
+			vo_decomp1_clk_frequency = <220000000>;
+			status = "okay";
+		};
+
+		clk_npu: clock-controller@7 {
+			compatible = "zhihe,p100-npu-clk";
+			reg = <0x00 0x07112210 0x0 0x4>,<0x00 0x07301050 0x0 0x4>;
+			reg-names = "NPU_CLK","NPU_TOP_CLK";
+			#clock-cells = <1>;
+			clocks = <&clk TOP_NPU_CCLK_DIV>, <&clk TOP_NPU_ACLK_DIV>;
+			clock-names = "npu_cclk", "npu_aclk";
+			npu_cclk_frequency = <880000000>;
+			npu_aclk_frequency = <880000000>;
+			status = "okay";
+		};
+
+		clk_d2d: clock-controller@8 {
+			compatible = "zhihe,p100-d2d-clk";
+			reg = <0x00 0x09010000 0x0 0x4>;
+			reg-names = "D2D_CRG_REG";
+			#clock-cells = <1>;
+			clocks = <&clk TOP_D2D_ACLK_DIV>, <&clk TOP_D2D_REF_CLK_MUX>;
+			clock-names = "top_d2d_aclk", "d2d_phy_ref_clk";
+			top_d2d_aclk_frequency = <950000000>;
+			d2d_phy_ref_clk_frequency = <100000000>;
+			status = "okay";
+		};
+
+		clk_peri: clock-controller@9 {
+			compatible = "zhihe,p100-peri-clk";
+			reg = <0x00 0x00300200 0x0 0x4>,
+			      <0x00 0x02010200 0x0 0x8>,<0x00 0x08400200 0x0 0x8>,
+			      <0x00 0x00540200 0x0 0x4>,<0x00 0x27420200 0x0 0x200>;
+			reg-names = "PERI0_SYSREG","PERI1_SYSREG","PERI2_SYSREG",
+			"PERI3_SYSREG","TEE_CRG";
+			#clock-cells = <1>;
+			clocks = <&clk TOP_PERI_TIMER_CLK_MUX>, <&clk TOP_PERI_I2S_2CH0_SRC_CLK_MUX>,
+				 <&clk TOP_PERI_I2S_2CH1_SRC_CLK_MUX>, <&clk TOP_PERI_I2S_2CH2_SRC_CLK_MUX>,
+				 <&clk TOP_PERI_I2S_8CH0_SRC_CLK_MUX>, <&clk TOP_PERI_SPI_SSI_CLK0_DIV>,
+				 <&clk TOP_PERI_SPI_SSI_CLK1_DIV>, <&clk TOP_PERI_QSPI_SSI_CLK_MUX0>,
+				 <&clk TOP_PERI_QSPI_SSI_CLK_MUX1>, <&clk TOP_PERI_PDM_MCLK_DIV>,
+				 <&clk TOP_UART_SCLK_MUX>, <&clk TOP_PERI_TDM_SRC_CLK_MUX>,
+				 <&clk TOP_PAD_SENSOR_VCLK0_DIV>, <&clk TOP_PAD_SENSOR_VCLK1_DIV>,
+				 <&clk TOP_PERI_HIRES_CLK0_DIV>, <&clk TOP_PERI_HIRES_CLK1_DIV>,
+				 <&clk TOP_TEE_CLK_DIV>, <&clk TOP_PERI_EMMC_REF_CLK_DIV>,
+				 <&clk TOP_PERI_MST_ACLK0_DIV>, <&clk TOP_PERI_MST_CLK1_DIV>;
+			clock-names = "peri0_timer_clk", "peri1_i2s0_src_clk", "peri2_i2s1_src_clk",
+				      "peri2_i2s2_src_clk", "peri2_i2s3_src_clk", "peri1_spi_ssi_clk",
+				      "peri2_spi_ssi_clk", "peri1_qspi_ssi_clk", "peri2_qspi_ssi_clk",
+				      "peri1_pdm_mclk", "uart_sclk", "peri1_tdm_src_clk",
+				      "top_pad_sensor_vclk0_div", "top_pad_sensor_vclk1_div", "peri1_hires_clk",
+				      "peri2_hires_clk", "tee_clk", "emmc_ref_clk",
+				      "peri1_mst_aclk", "peri3_mst_aclk";
+			peri0_timer_clk_frequency = <24000000>;
+			peri1_i2s0_src_clk_frequency = <316108800>;
+			peri2_i2s1_src_clk_frequency = <316108800>;
+			peri2_i2s2_src_clk_frequency = <316108800>;
+			peri2_i2s3_src_clk_frequency = <316108800>;
+			peri1_spi_ssi_clk_frequency = <421478400>;
+			peri2_spi_ssi_clk_frequency = <421478400>;
+			peri1_qspi_ssi_clk_frequency = <421478400>;
+			peri2_qspi_ssi_clk_frequency = <421478400>;
+			peri1_pdm_mclk_frequency = <31610880>;
+			uart_sclk_frequency = <24000000>;
+			peri1_tdm_src_clk_frequency = <316108800>;
+			top_pad_sensor_vclk0_div_frequency = <74250000>;
+			top_pad_sensor_vclk1_div_frequency = <148500000>;
+			peri1_hires_clk_frequency = <80000000>;
+			peri2_hires_clk_frequency = <80000000>;
+			emmc_ref_clk_frequency = <786432000>;
+			peri1_mst_aclk_frequency = <330000000>;
+			peri3_mst_aclk_frequency = <440000000>;
+			tee_clk_frequency = <377142858>;
+			status = "okay";
+		};
+
+		power: p100-power-domain {
+			compatible = "zhihe,p100-power-domain";
+			reg = <0x00 0x30892000 0x0 0x1000>,<0x00 0x06BFB000 0x0 0x1000>,
+			<0x00 0x06BF9000 0x0 0x1000>,<0x00 0x06BF8000 0x0 0x1000>,
+			<0x00 0x06BF0000 0x0 0x1000>,<0x00 0x06BF3000 0x0 0x1000>,
+			<0x00 0x06BF2000 0x0 0x1000>,<0x00 0x06BF6000 0x0 0x1000>,
+			<0x00 0x06BF5000 0x0 0x1000>,<0x00 0x06E00600 0x0 0x200>,
+			<0x00 0x06E00400 0x0 0x200>,<0x00 0x06E00000 0x0 0x200>,
+			<0x00 0x07300600 0x0 0x200>,<0x00 0x07300200 0x0 0x200>,
+			<0x00 0x07300000 0x0 0x200>,<0x00 0x07117200 0x0 0x200>,
+			<0x00 0x07117000 0x0 0x200>,<0x00 0x0A006200 0x0 0x200>,
+			<0x00 0x0A006000 0x0 0x200>,<0x00 0x0A006600 0x0 0x200>,
+			<0x00 0x0A006400 0x0 0x200>,<0x00 0x0A006A00 0x0 0x200>,
+			<0x00 0x0A006800 0x0 0x200>,<0x00 0x08004200 0x0 0x200>,
+			<0x00 0x08004000 0x0 0x200>,<0x00 0x063F0000 0x0 0x200>,
+			<0x00 0x063F9000 0x0 0x200>,<0x00 0x063F8000 0x0 0x200>,
+			<0x00 0x063F6000 0x0 0x200>,<0x00 0x063F5000 0x0 0x200>,
+			<0x00 0x067F1000 0x0 0x200>,<0x00 0x067F0000 0x0 0x200>;
+			reg-names = "AON_PMIC_CTRL","VP_PCA","VP_WRAP_BPC","VP_WRAP_PCU",
+				"VP_R2P","VP_VENC_BPC","VP_VENC_PCU","VP_VDEC_BPC",
+				"VP_VDEC_PCU","GPU_PCA","GPU_BPC","GPU_PCU",
+				"NPU_PCA","NPU_WRAP_BPC","NPU_WRAP_PCU","NPU_IP_BPC",
+				"NPU_IP_PCU","PCIE0_BPC","PCIE0_PCU","PCIE1_BPC",
+				"PCIE1_PCU","SATA_BPC","SATA_PCU","USB_BPC",
+				"USB_PCU","VI_R2P","VI_WRAP_BPC","VI_WRAP_PCU",
+				"VI_ISP_BPC","VI_ISP_PCU","VO_BPC","VO_PCU";
+			power_top:power_top {
+				#power-domain-cells = <0>;
+				iopmps = <&device_pcie_mt_iopmp>,<&device_pcie_iommu_iopmp>, <&device_eip120i_iopmp>,
+						 <&device_eip120ii_iopmp>, <&device_eip120iii_iopmp>, <&device_tee_dmac_iopmp>;
+			};
+			power_gpu:power_gpu {
+				#power-domain-cells = <0>;
+				resets = <&rst GPU_PWR_WRAP_RGX_HOOD_RST>,
+					 <&rst GPU_PWR_WRAP_DFMU_RST>;
+				iopmps = <&device_gpu_iopmp>, <&device_gpu_mt_iopmp>;
+			};
+			power_npu_wrapper:power_npu_wrapper {
+				#power-domain-cells = <0>;
+			};
+			power_npu_ip:power_npu_ip {
+				power-domains = <&power_npu_wrapper>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_npu SW_NPU_IP_ACLK_EN>, <&clk_npu SW_NPU_IP_CCLK_EN>,
+					 <&clk_npu SW_NPU_IP_HCLK_EN>;
+				resets = <&rst NPU_ARST>, <&rst NPU_CRST>, <&rst NPU_HRST>;
+				iopmps = <&device_npu_iopmp>, <&device_npu_iommu_iopmp>, <&device_npu_mt_iopmp>;
+			};
+			power_pcie0:power_pcie0 {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_pcie E16PHY_PCLK_EN>, <&clk_pcie PCIE_DM_GEN3X4_AUX_CLK_EN>,
+					 <&clk_pcie PCIE_DM_GEN3X4_SLV_ACLK_EN>, <&clk_pcie PCIE_DM_GEN3X4_MST_ACLK_EN>,
+					 <&clk_pcie PCIE_DM_GEN3X4_PCLK_EN>;
+				resets = <&rst PCIE_E16PHY_PHY_RST>, <&rst PCIE_E16PHY_APBS_PRST>,
+					 <&rst PCIE_DM_GEN3X4_APBS_PRST>, <&rst PCIE_DM_GEN3X4_POWER_UP_RST>;
+				iopmps =  <&device_pcie_0_iopmp>;
+			};
+			power_pcie1:power_pcie1 {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_pcie E16PHY_PCLK_EN>, <&clk_pcie PCIE_RP_GEN3X1_AUX_CLK_EN>,
+					 <&clk_pcie PCIE_RP_GEN3X1_SLV_ACLK_EN>, <&clk_pcie PCIE_RP_GEN3X1_MST_ACLK_EN>,
+					 <&clk_pcie PCIE_RP_GEN3X1_PCLK_EN>;
+				resets = <&rst PCIE_E16PHY_PHY_RST>, <&rst PCIE_E16PHY_APBS_PRST>,
+					 <&rst PCIE_RP_GEN3X1_APBS_PRST>, <&rst PCIE_RP_GEN3X1_POWER_UP_RST>;
+				iopmps = <&device_pcie_1_iopmp>;
+			};
+			power_sata:power_sata {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_pcie E16PHY_PCLK_EN>, <&clk_pcie SATA_GEN3X2_ACLK_EN>, <&clk_pcie SATA_PMALIVE_CLK_EN>,
+					 <&clk_pcie SATA_RXOOB0_CLK_EN>, <&clk_pcie SATA_RXOOB1_CLK_EN>;
+				resets = <&rst PCIE_E16PHY_PHY_RST>, <&rst PCIE_E16PHY_APBS_PRST>, <&rst PCIE_SATA_ARESET>,
+					 <&rst PCIE_SATA_RST_PMALIVE>, <&rst PCIE_SATA_RST_ASIC0>, <&rst PCIE_SATA_RST_ASIC1>,
+					 <&rst PCIE_SATA_RST_RXOOB0>, <&rst PCIE_SATA_RST_RXOOB1>;
+				iopmps = <&device_sata_0_iopmp>;
+			};
+			power_usb:power_usb {
+				#power-domain-cells = <0>;
+				clocks = <&clk_usb DPTX_PCLK_EN>, <&clk_usb DPTX_GTC_CLK_EN>, <&clk_usb DPTX_AUX_CLK_EN>,
+					 <&clk_usb DPTX_IPI_CLK_EN>, <&clk_usb DPTX_I2S_CLK_EN>;
+				resets = <&rst USB_DPTX_APBS_PRST>, <&rst USB_DPTX_VCC_RST>,
+					 <&rst USB_USB31_PHY_RST>, <&rst USB_C10PHY_PHY_RST>,
+					 <&rst USB_USB20_BLK_USB0_PHY_PON_RESET>, <&rst USB_USB20_BLK_USB1_PHY_PON_RESET>;
+				iopmps = <&device_usb3_0_iopmp>, <&device_usb2_1_iopmp>, <&device_usb2_2_iopmp>, <&device_usb_iommu_iopmp>,
+						 <&device_usb_mt_iopmp>;
+			};
+			power_vi_wrapper:power_vi_wrapper {
+				#power-domain-cells = <0>;
+				clocks = <&clk_vi VI_MIPI0CSI0_PCLK_EN>, <&clk_vi VI_MIPI0CSI1_PCLK_EN>, <&clk_vi VI_MIPI0A_CFGCLK_EN>,
+					 <&clk_vi VI_MIPI0B_CFGCLK_EN>, <&clk_vi VI_MIPI0_CSI0_PIXCLK_EN>, <&clk_vi VI_MIPI0_CSI1_PIXCLK_EN>,
+					 <&clk_vi VI_MIPI1CSI0_PCLK_EN>, <&clk_vi VI_MIPI1CSI1_PCLK_EN>, <&clk_vi VI_MIPI1A_CFGCLK_EN>,
+					 <&clk_vi VI_MIPI1B_CFGCLK_EN>, <&clk_vi VI_MIPI1_CSI0_PIXCLK_EN>, <&clk_vi VI_MIPI1_CSI1_PIXCLK_EN>,
+					 <&clk_vi VI_VIPRE_PCLK_EN>, <&clk_vi VI_VIPRE_I0_PIXCLK_EN>, <&clk_vi VI_VIPRE_I1_PIXCLK_EN>,
+					 <&clk_vi VI_VIPRE_SCLK_EN>, <&clk_vi VI_VIPRE_ACLK_EN>,
+					 <&clk_vi VI_COMP_PCLK_EN>, <&clk_vi VI_COMP_ACLK_EN>,
+					 <&clk_vi VI_DECOUT_CLK_EN>, <&clk_vi VI_VSEOUT_CLK_EN>, <&clk_vi VI_COMP0_CLK_EN>,
+					 <&clk_vi VI_COMP1_CLK_EN>, <&clk_vi VI_DECOMP_CLK_EN>, <&clk_vi VI_DW200_HCLK_EN>,
+					 <&clk_vi VI_DW200_ACLK_EN>, <&clk_vi VI_DWE_CLK_EN>, <&clk_vi VI_VSE_CLK_EN>,
+					 <&clk_vi VI_DW_SCLK_EN>, <&clk_vi VI_PTW_ACLK_EN>, <&clk_vi VI_X2H0_CLK_EN>,
+					 <&clk_vi VI_X2H1_CLK_EN>, <&clk_vi VI_X2H2_CLK_EN>, <&clk_vi VI_MIPI0CSI0_FPCLK_EN>,
+					 <&clk_vi VI_MIPI0CSI1_FPCLK_EN>, <&clk_vi VI_MIPI1CSI0_FPCLK_EN>, <&clk_vi VI_MIPI1CSI1_FPCLK_EN>,
+					 <&clk_vi VI_REC_PCLK_EN>, <&clk_vi VI_REC_ACLK_EN>;
+				resets = <&rst VI_MIPI0_CSI0_PRST>, <&rst VI_MIPI0_CSI1_PRST>, <&rst VI_MIPI0_FIFO_RST>,
+					 <&rst VI_MIPI1_CSI0_PRST>, <&rst VI_MIPI1_CSI1_PRST>, <&rst VI_MIPI1_FIFO_RST>,
+					 <&rst VI_VIPRE_PRST>, <&rst VI_VIPRE_I0_PIX_RST>, <&rst VI_VIPRE_I1_PIX_RST>,
+					 <&rst VI_VIPRE_ISPIF_RST>, <&rst VI_VIPRE_ARST>, <&rst VI_COMP_PRST>,
+					 <&rst VI_COMP_ARST>, <&rst VI_COMP_ISPOUT_RST>, <&rst VI_COMP_DECOUT_RST>,
+					 <&rst VI_COMP_VSEOUT_RST>, <&rst VI_COMP0_RST>, <&rst VI_COMP1_RST>,
+					 <&rst VI_DECOMP_RST>, <&rst VI_DW200_RST>, <&rst VI_X2H0_HRST>,
+					 <&rst VI_X2H1_HRST>, <&rst VI_X2H2_HRST>, <&rst VI_REC_PRST>,
+					 <&rst VI_REC_ARST>;
+				iopmps = <&device_vi_iommu_iopmp>, <&device_vipre_iopmp>, <&device_dw200_iopmp>, <&device_vi_comp_decomp_iopmp>,
+						 <&device_vi_mt_iopmp>;
+			};
+			power_vi_isp:power_vi_isp {
+				power-domains = <&power_vi_wrapper>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_vi VI_ISP_CLK_EN>, <&clk_vi VI_ISPOUT_CLK_EN>;
+				resets = <&rst VI_ISP_RST>;
+				iopmps = <&device_isp_iopmp>;
+			};
+			power_vo:power_vo {
+				#power-domain-cells = <0>;
+				resets = <&rst VO_X2H0_RST>, <&rst VO_X2H1_RST>, <&rst VO_DPU_HRST>,
+					 <&rst VO_DPU_CRST>, <&rst VO_DPU_ARST>, <&rst VO_AUXDISP_PRST>,
+					 <&rst VO_AUXDISP_PIX_RST>, <&rst VO_AUXDISP_ARST>, <&rst VO_HDMI_PRST>,
+					 <&rst VO_HDMI_MAIN_RST>, <&rst VO_MIPI_PRST>, <&rst VO_DECOMP_PRST>,
+					 <&rst VO_DECOMP0_CRST>, <&rst VO_DECOMP1_CRST>, <&rst VO_DECOMP_ARST>;
+				iopmps = <&device_display_0_iopmp>, <&device_display_1_iopmp>,
+						 <&device_auxdisp_iopmp>, <&device_vo_iommu_iopmp>,
+						 <&device_vo_mt_iopmp>;
+			};
+			power_vp_wrapper:power_vp_wrapper {
+				#power-domain-cells = <0>;
+				clocks = <&clk_vp VP_G2D_PCLK_EN>, <&clk_vp VP_G2D_CCLK_EN>, <&clk_vp VP_G2D_ACLK_EN>,
+					 <&clk_vp VP_COMP_PCLK_EN>, <&clk_vp VP_COMP_CCLK_EN>, <&clk_vp VP_COMP_ACLK_EN>,
+					 <&clk_vp VP_DECOMP_PCLK_EN>, <&clk_vp VP_DECOMP_CCLK_EN>, <&clk_vp VP_DECOMP_ACLK_EN>,
+					 <&clk_vp VP_COMP_EXTPCLK_EN>, <&clk_vp VP_DECOMP_EXTPCLK_EN>;
+				resets = <&rst VP_G2D_PRST>, <&rst VP_G2D_CRST>,
+					 <&rst VP_G2D_ARST>, <&rst VP_COMP_PRST>,
+					 <&rst VP_COMP_CRST>, <&rst VP_COMP_ARST>,
+					 <&rst VP_DECOMP_PRST>, <&rst VP_DECOMP_CRST>,
+					 <&rst VP_DECOMP_ARST>, <&rst VP_COMP_EXTPRST>,
+					 <&rst VP_DECOMP_EXTPRST>;
+				iopmps = <&device_vp_iommu_iopmp>, <&device_g2d_iopmp>, <&device_vp_mt_iopmp>;
+			};
+			power_venc:power_venc {
+				power-domains = <&power_vp_wrapper>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_vp VP_VENC_PCLK_EN>, <&clk_vp VP_VENC_CCLK_EN>, <&clk_vp VP_VENC_ACLK_EN>;
+				resets = <&rst VP_VENC_PRST>, <&rst VP_VENC_CRST>, <&rst VP_VENC_ARST>;
+				iopmps = <&device_venc_iopmp>;
+			};
+			power_vdec:power_vdec {
+				power-domains = <&power_vp_wrapper>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_vp VP_VDEC_PCLK_EN>, <&clk_vp VP_VDEC_CCLK_EN>, <&clk_vp VP_VDEC_ACLK_EN>;
+				resets = <&rst VP_VDEC_PRST>, <&rst VP_VDEC_CRST>, <&rst VP_VDEC_ARST>;
+				iopmps = <&device_vdec_iopmp>;
+			};
+			power_peri0:power_peri0 {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
+				resets = <&rst PERI0_TIMER0_CRST>, <&rst PERI0_TIMER0_PRST>, <&rst PERI0_TIMER1_CRST>,
+					 <&rst PERI0_TIMER1_PRST>, <&rst PERI0_WDT0_PRST>, <&rst PERI0_MBOX0_PRST>,
+					 <&rst PERI0_MBOX1_PRST>;
+			};
+			power_peri1:power_peri1 {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_peri PERI1_GMAC0_ACLK_EN>, <&clk_peri PERI1_GMAC0_HCLK_EN>, <&clk_peri PERI1_GMAC1_ACLK_EN>,
+					 <&clk_peri PERI1_GMAC1_HCLK_EN>, <&clk_peri PERI1_I2C0_IC_CLK_EN>, <&clk_peri PERI1_I2C0_PCLK_EN>,
+					 <&clk_peri PERI1_I2C1_IC_CLK_EN>, <&clk_peri PERI1_I2C1_PCLK_EN>, <&clk_peri PERI1_I2C2_IC_CLK_EN>,
+					 <&clk_peri PERI1_I2C2_PCLK_EN>, <&clk_peri PERI1_I2S0_PCLK_EN>, <&clk_peri PERI1_I2S0_SRC_CLK_EN>,
+					 <&clk_peri PERI1_PWM0_CCLK_EN>, <&clk_peri PERI1_PWM0_PCLK_EN>, <&clk_peri PERI1_SPI0_PCLK_EN>,
+					 <&clk_peri PERI1_SPI0_SSI_CLK_EN>, <&clk_peri PERI1_UART1_PCLK_EN>, <&clk_peri PERI1_UART1_SCLK_EN>,
+					 <&clk_peri PERI1_UART2_PCLK_EN>, <&clk_peri PERI1_UART2_SCLK_EN>, <&clk_peri PERI1_UART3_PCLK_EN>,
+					 <&clk_peri PERI1_UART3_SCLK_EN>, <&clk_peri PERI1_X2H_GMAC0_ACLK_EN>, <&clk_peri PERI1_X2H_GMAC0_HCLK_EN>,
+					 <&clk_peri PERI1_X2H_GMAC1_ACLK_EN>, <&clk_peri PERI1_X2H_GMAC1_HCLK_EN>, <&clk_peri PERI1_CAN0_HIRES_CLK_EN>,
+					 <&clk_peri PERI1_CAN0_OSC_CLK_EN>, <&clk_peri PERI1_CAN0_PCLK_EN>, <&clk_peri PERI1_CAN1_HIRES_CLK_EN>,
+					 <&clk_peri PERI1_CAN1_OSC_CLK_EN>, <&clk_peri PERI1_CAN1_PCLK_EN>, <&clk_peri PERI1_PDM0_MCLK_EN>,
+					 <&clk_peri PERI1_PDM0_PCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>, <&clk_peri PERI1_TDM0_SCLK_EN>,
+					 <&clk_peri PERI1_X2H_GMAC2_ACLK_EN>, <&clk_peri PERI1_X2H_GMAC2_HCLK_EN>, <&clk_peri PERI1_GMAC2_ACLK_EN>,
+					 <&clk_peri PERI1_GMAC2_HCLK_EN>, <&clk_peri PERI1_ZGMAC_X2X_ACLK_EN>;
+				resets = <&rst PERI1_GMAC0_ARST>, <&rst PERI1_GMAC0_HRST>, <&rst PERI1_GMAC1_ARST>,
+					 <&rst PERI1_GMAC1_HRST>, <&rst PERI1_GPIO0_DBRST>, <&rst PERI1_GPIO0_PRST>,
+					 <&rst PERI1_GPIO1_DBRST>, <&rst PERI1_GPIO1_PRST>, <&rst PERI1_I2C0_IC_RST>,
+					 <&rst PERI1_I2C0_PRST>, <&rst PERI1_I2C1_IC_RST>, <&rst PERI1_I2C1_PRST>,
+					 <&rst PERI1_I2C2_IC_RST>, <&rst PERI1_I2C2_PRST>, <&rst PERI1_I2S0_PRST>,
+					 <&rst PERI1_PWM0_CRST>,
+					 <&rst PERI1_PWM0_PRST>, <&rst PERI1_QSPI0_PRST>, <&rst PERI1_QSPI0_SSI_RST>,
+					 <&rst PERI1_SPI0_PRST>, <&rst PERI1_SPI0_SSI_RST>, <&rst PERI1_UART0_PRST>,
+					 <&rst PERI1_UART0_S_RST>, <&rst PERI1_UART1_PRST>, <&rst PERI1_UART1_S_RST>,
+					 <&rst PERI1_UART2_PRST>, <&rst PERI1_UART2_S_RST>, <&rst PERI1_UART3_PRST>,
+					 <&rst PERI1_UART3_S_RST>, <&rst PERI1_X2H_GMAC0_ARST>, <&rst PERI1_X2H_GMAC0_HRST>,
+					 <&rst PERI1_X2H_GMAC1_ARST>, <&rst PERI1_X2H_GMAC1_HRST>, <&rst PERI1_PDM0_MRST>,
+					 <&rst PERI1_PDM0_PRST>, <&rst PERI1_TDM0_RST>, <&rst PERI1_CAN0_IPG_PE_RST>,
+					 <&rst PERI1_CAN0_IPG_RST>, <&rst PERI1_CAN0_IPG_SOFT_RST>, <&rst PERI1_CAN0_IPG_TS_RST>,
+					 <&rst PERI1_CAN0_PRST>, <&rst PERI1_CAN1_IPG_PE_RST>, <&rst PERI1_CAN1_IPG_RST>,
+					 <&rst PERI1_CAN1_IPG_SOFT_RST>, <&rst PERI1_CAN1_IPG_TS_RST>, <&rst PERI1_CAN1_PRST>,
+					 <&rst PERI1_CHIP_DBG_ARST>, <&rst PERI1_CHIP_DBG_CRST>, <&rst PERI1_CHIP_DBG_PRST>,
+					 <&rst PERI1_GMAC_CRST>, <&rst PERI1_X2H_GMAC2_ARST>, <&rst PERI1_X2H_GMAC2_HRST>,
+					 <&rst PERI1_ZGMAC_X2X_ARST>;
+				iopmps = <&device_aon_iopmp>, <&device_chip_dbg_iopmp> ,<&device_peri1_iommu_iopmp>,
+						 <&device_gmac_0_iopmp>, <&device_gmac_1_iopmp>, <&device_gmac_2_iopmp>,
+						 <&device_peri1_mt_iopmp>;
+			};
+			power_peri2:power_peri2 {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_peri PERI2_CAN2_HIRES_CLK_EN>, <&clk_peri PERI2_CAN2_OSC_CLK_EN>, <&clk_peri PERI2_SPI1_SSI_CLK_EN>,
+					 <&clk_peri PERI2_UART5_SCLK_EN>, <&clk_peri PERI2_UART6_SCLK_EN>, <&clk_peri PERI2_CAN2_PCLK_EN>,
+					 <&clk_peri PERI2_SPI1_PCLK_EN>, <&clk_peri PERI2_UART5_PCLK_EN>, <&clk_peri PERI2_UART6_PCLK_EN>,
+					 <&clk_peri PERI2_PAD_CTRL_PCLK_EN>, <&clk_peri PERI2_I2C3_PCLK_EN>, <&clk_peri PERI2_I2C3_IC_CLK_EN>,
+					 <&clk_peri PERI2_I2C4_PCLK_EN>, <&clk_peri PERI2_I2C4_IC_CLK_EN>, <&clk_peri PERI2_I2C5_PCLK_EN>,
+					 <&clk_peri PERI2_I2C5_IC_CLK_EN>, <&clk_peri PERI2_I2C6_PCLK_EN>, <&clk_peri PERI2_I2C6_IC_CLK_EN>,
+					 <&clk_peri PERI2_I2C7_PCLK_EN>, <&clk_peri PERI2_I2C7_IC_CLK_EN>, <&clk_peri PERI2_I2S1_SRC_CLK_EN>,
+					 <&clk_peri PERI2_I2S1_PCLK_EN>, <&clk_peri PERI2_I2S2_SRC_CLK_EN>, <&clk_peri PERI2_I2S2_PCLK_EN>,
+					 <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>, <&clk_peri PERI2_PWM1_CCLK_EN>,
+					 <&clk_peri PERI2_PWM1_PCLK_EN>, <&clk_peri PERI2_PWM2_CCLK_EN>, <&clk_peri PERI2_PWM2_PCLK_EN>,
+					 <&clk_peri PERI2_UART7_SCLK_EN>, <&clk_peri PERI2_UART7_PCLK_EN>, <&clk_peri PERI2_UART8_SCLK_EN>,
+					 <&clk_peri PERI2_UART8_PCLK_EN>, <&clk_peri PERI2_UART9_SCLK_EN>, <&clk_peri PERI2_UART9_PCLK_EN>;
+				resets = <&rst PERI2_CAN2_IPG_PE_RST>, <&rst PERI2_CAN2_IPG_RST>, <&rst PERI2_CAN2_IPG_SOFT_RST>,
+					 <&rst PERI2_CAN2_IPG_TS_RST>, <&rst PERI2_CAN2_PRST>, <&rst PERI2_GPIO2_DBRST>,
+					 <&rst PERI2_GPIO2_PRST>, <&rst PERI2_I2C4_IC_RST>, <&rst PERI2_I2C4_PRST>,
+					 <&rst PERI2_I2S2_PRST>, <&rst PERI2_SPI1_PRST>, <&rst PERI2_SPI1_SSI_RST>,
+					 <&rst PERI2_UART5_PRST>, <&rst PERI2_UART5_S_RST>, <&rst PERI2_UART6_PRST>,
+					 <&rst PERI2_UART6_S_RST>, <&rst PERI2_GPIO3_DBRST>,
+					 <&rst PERI2_GPIO3_PRST>, <&rst PERI2_I2C3_IC_RST>, <&rst PERI2_I2C3_PRST>,
+					 <&rst PERI2_I2C5_IC_RST>, <&rst PERI2_I2C5_PRST>, <&rst PERI2_I2C6_IC_RST>,
+					 <&rst PERI2_I2C6_PRST>, <&rst PERI2_I2C7_IC_RST>, <&rst PERI2_I2C7_PRST>,
+					 <&rst PERI2_I2S1_PRST>, <&rst PERI2_I2S3_PRST>, <&rst PERI2_UART7_PRST>,
+					 <&rst PERI2_UART7_S_RST>, <&rst PERI2_UART8_PRST>, <&rst PERI2_UART8_S_RST>,
+					 <&rst PERI2_UART9_PRST>, <&rst PERI2_UART9_S_RST>, <&rst PERI2_QSPI1_PRST>,
+					 <&rst PERI2_QSPI1_SSI_RST>, <&rst PERI2_PWM1_CRST>, <&rst PERI2_PWM1_PRST>,
+					 <&rst PERI2_PWM2_CRST>, <&rst PERI2_PWM2_PRST>;
+			};
+			power_peri3:power_peri3 {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				clocks = <&clk_peri PERI3_DMAC_ACLK_EN>, <&clk_peri PERI3_DMAC_HCLK_EN>, <&clk_peri PERI3_SDIO_ACLK_EN>,
+					 <&clk_peri PERI3_SDIO_HCLK_EN>, <&clk_peri PERI3_SDIO_OSC_CLK_EN>, <&clk_peri PERI3_SDIO_X2X_ACLK_M_EN>,
+					 <&clk_peri PERI3_SDIO_X2X_ACLK_S_EN>, <&clk_peri PERI3_ADC_PCLK_EN>;
+				resets = <&rst PERI3_DMAC_ARESET>, <&rst PERI3_DMAC_HRESET>, <&rst PERI3_ADC_PRST>;
+				iopmps = <&device_dmac_ap_iopmp>, <&device_emmc_iopmp>, <&device_sd_iopmp>;
+			};
+			power_tee:power_tee {
+				power-domains = <&power_top>;
+				#power-domain-cells = <0>;
+				resets = <&rst TEE_DMAC_ARST>, <&rst TEE_DMAC_HRST>, <&rst TEE_EIP120SI_ARST>,
+					 <&rst TEE_EIP120SI_HRST>, <&rst TEE_EIP120SII_ARST>, <&rst TEE_EIP120SII_HRST>,
+					 <&rst TEE_EIP120SIII_ARST>, <&rst TEE_EIP120SIII_HRST>, <&rst TEE_EIP150B_HRST>;
+			};
+		};
+
+		rst: reset-controller {
+			compatible =  "zhihe,p100-reset-controller";
+			reg = <0x00 0x06B20400 0x0 0x200>,
+			      <0x00 0x063A0400 0x0 0x200>,
+			      <0x00 0x07112200 0x0 0x10>,
+			      <0x00 0x06720400 0x0 0x200>,
+			      <0x00 0x00300400 0x0 0x200>,
+			      <0x00 0x02010400 0x0 0x200>,
+			      <0x00 0x08400400 0x0 0x200>,
+			      <0x00 0x00540400 0x0 0x200>,
+			      <0x00 0x0A000100 0x0 0x100>,
+			      <0x00 0x08000100 0x0 0x100>,
+			      <0x00 0x27420400 0x0 0x200>,
+			      <0x00 0x06D02000 0x0 0x200>;
+			reg-names = "VP_RST","VI_RST","NPU_RST","VO_RST",
+				"PERI0_RST","PERI1_RST","PERI2_RST","PERI3_RST",
+				"PCIE_RST","USB_RST","TEE_RST","GPU_RST";
+			#reset-cells = <1>;
+			status = "okay";
+		};
+
+		intc: interrupt-controller@0018000000 {
+			#interrupt-cells = <1>;
+			compatible = "riscv,plic0";
+			interrupt-controller;
+			interrupts-extended = <
+				&cpu0_intc 0xffffffff &cpu0_intc 9
+				&cpu1_intc 0xffffffff &cpu1_intc 9
+				&cpu2_intc 0xffffffff &cpu2_intc 9
+				&cpu3_intc 0xffffffff &cpu3_intc 9
+				&cpu4_intc 0xffffffff &cpu4_intc 9
+				&cpu5_intc 0xffffffff &cpu5_intc 9
+				&cpu6_intc 0xffffffff &cpu6_intc 9
+				&cpu7_intc 0xffffffff &cpu7_intc 9
+			>;
+			reg = <0x00 0x18000000 0x0 0x04000000>;
+			reg-names = "control";
+			riscv,max-priority = <7>;
+			riscv,ndev = <400>;
+		};
+
+		clocks {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			osc_32k: clock-osc-32k {
+				compatible = "fixed-clock";
+				clock-frequency = <32768>;
+				clock-output-names = "osc_32k";
+				#clock-cells = <0>;
+			};
+
+			osc_24m: clock-osc-24m {
+				compatible = "fixed-clock";
+				clock-frequency = <24000000>;
+				clock-output-names = "osc_24m";
+				#clock-cells = <0>;
+			};
+
+			aon_110m: clock-osc-110m {
+				compatible = "fixed-clock";
+				clock-frequency = <110000000>;
+				clock-output-names = "aon_110m";
+				#clock-cells = <0>;
+			};
+
+			rc_24m: clock-rc-24m {
+				compatible = "fixed-clock";
+				clock-frequency = <24000000>;
+				clock-output-names = "rc_24m";
+				#clock-cells = <0>;
+			};
+
+			apb_clk: apb-clk-clock {
+				compatible = "fixed-clock";
+				clock-frequency = <62500000>;
+				clock-output-names = "apb_clk";
+				#clock-cells = <0>;
+			};
+		};
+
+		iopmp_regions: iopmp-regions {
+			#address-cells = <2>;
+			#size-cells = <2>;
+			security_device_region: sec-dev-region {
+				reg = <0x00 0x20000000 0x00 0x18000000>;
+				permission = "no-access";
+				mode = "TOR";
+			};
+
+			trust_firmware_region:  tf-region {
+				reg = <0x00 0x80000000 0x00 0x200000>;
+				permission = "no-access";
+				mode = "NAPOT";
+			};
+
+			tee_os_region: tee-os-region{
+				reg = <0x00 0x9D000000 0x00 0x1000000>;
+				permission = "no-access";
+				mode = "NAPOT";
+			};
+
+			bypass_region: bypass-region {
+				reg = <0x00 0x00 0x80 0x00>;
+				permission = "rwx";
+				mode = "TOR";
+			};
+		};
+
+		iopmp: iopmp-controller {
+			compatible = "zhihe, A100-iopmp";
+			reg = <0x00 0x26B12000 0x00 0x1000>,
+				  <0x00 0x26372000 0x00 0x1000>,
+				  <0x00 0x27102000 0x00 0x1000>,
+				  <0x00 0x26712000 0x00 0x1000>,
+				  <0x00 0x22032000 0x00 0x1000>,
+				  <0x00 0x2A012000 0x00 0x1000>,
+				  <0x00 0x28022000 0x00 0x1000>,
+				  <0x00 0x26D12000 0x00 0x1000>,
+				  <0x00 0x29032000 0x00 0x1000>,
+				  <0x00 0x30150000 0x00 0x1000>;
+			reg-names = "VP-IOPMP", "VI-IOPMP", "NPU-IOPMP",
+						"VO-IOPMP", "PERI1-IOPMP", "PCIE-IOPMP",
+						"USB-IOPMP", "GPU-IOPMP", "D2D-RX-IOPMP",
+						"D2D-SS-IOPMP";
+		};
+
+		iopmp_devices {
+			/* PCIE iopmp*/
+			device_pcie_mt_iopmp: pcie-mt-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_PCIE_DFMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_pcie_0_iopmp: pcie-0-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_PCIE_0>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_pcie_1_iopmp: pcie-1-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_PCIE_1>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_sata_0_iopmp: sata-0-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_SATA_0>;
+				iopmp-regions = <&bypass_region>;
+			};
+			device_eip120i_iopmp: eip120i-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_TEE_EIP120SI>;
+				iopmp-regions = <&bypass_region>;
+			};
+			device_eip120ii_iopmp: eip120ii-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_TEE_EIP120SII>;
+				iopmp-regions = <&bypass_region>;
+			};
+			device_eip120iii_iopmp: eip120iii-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_TEE_EIP120SIII>;
+				iopmp-regions = <&bypass_region>;
+			};
+			device_tee_dmac_iopmp: tee-dmac-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_TEE_DMAC>;
+				iopmp-regions = <&bypass_region>;
+			};
+			device_dmac_ap_iopmp: dmac-ap-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_DMAC_AP>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_sd_iopmp: sd-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_SD>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_emmc_iopmp: emmc-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_EMMC>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_pcie_iommu_iopmp: pcie-iommu-iopmp {
+				iopmp-name = "PCIE-IOPMP";
+				device-id = <IOPMP_DEV_PCIE_IOMMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* VP iopmp*/
+			device_vp_mt_iopmp: vp-mt-iopmp {
+				iopmp-name = "VP-IOPMP";
+				device-id = <IOPMP_DEV_VP_DFMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_venc_iopmp: venc-iopmp {
+				iopmp-name = "VP-IOPMP";
+				device-id = <IOPMP_DEV_VENC>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_vdec_iopmp: vdec-iopmp {
+				iopmp-name = "VP-IOPMP";
+				device-id = <IOPMP_DEV_VDEC>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_g2d_iopmp: g2d-iopmp {
+				iopmp-name = "VP-IOPMP";
+				device-id = <IOPMP_DEV_G2D>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_vp_iommu_iopmp: vp-iommu-iopmp {
+				iopmp-name = "VP-IOPMP";
+				device-id = <IOPMP_DEV_VP_IOMMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* VI iopmp*/
+			device_vi_mt_iopmp: vi-mt-iopmp {
+				iopmp-name = "VI-IOPMP";
+				device-id = <IOPMP_DEV_VI_DFMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_isp_iopmp: isp-iopmp {
+				iopmp-name = "VI-IOPMP";
+				device-id = <IOPMP_DEV_ISP>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_vipre_iopmp: vipre-iopmp {
+				iopmp-name = "VI-IOPMP";
+				device-id = <IOPMP_DEV_VIPRE>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_dw200_iopmp: dw200-iopmp {
+				iopmp-name = "VI-IOPMP";
+				device-id = <IOPMP_DEV_DW200>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_vi_comp_decomp_iopmp: vi_comp_decomp-iopmp {
+				iopmp-name = "VI-IOPMP";
+				device-id = <IOPMP_DEV_VI_COMP_DECOMP>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_vi_iommu_iopmp: vi-iommu-iopmp {
+				iopmp-name = "VI-IOPMP";
+				device-id = <IOPMP_DEV_VI_IOMMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* NPU iopmp*/
+			device_npu_mt_iopmp: npu-mt-iopmp {
+				iopmp-name = "NPU-IOPMP";
+				device-id = <IOPMP_DEV_NPU_DFMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_npu_iopmp: npu-iopmp {
+				iopmp-name = "NPU-IOPMP";
+				device-id = <IOPMP_DEV_NPU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_npu_iommu_iopmp: npu-iommu-iopmp {
+				iopmp-name = "NPU-IOPMP";
+				device-id = <IOPMP_DEV_NPU_IOMMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* VO iopmp */
+			device_vo_mt_iopmp: vo-mt-iopmp {
+				iopmp-name = "VO-IOPMP";
+				device-id = <IOPMP_DEV_VO_DFMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_display_0_iopmp: display-0-iopmp {
+				iopmp-name = "VO-IOPMP";
+				device-id = <IOPMP_DEV_DISPLAY_0>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_display_1_iopmp: display-1-iopmp {
+				iopmp-name = "VO-IOPMP";
+				device-id = <IOPMP_DEV_DISPLAY_1>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_auxdisp_iopmp: auxdisp-iopmp {
+				iopmp-name = "VO-IOPMP";
+				device-id = <IOPMP_DEV_AUXDISP>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_vo_iommu_iopmp: vo-iommu-iopmp {
+				iopmp-name = "VO-IOPMP";
+				device-id = <IOPMP_DEV_VO_IOMMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* PERI1 iopmp */
+			device_peri1_mt_iopmp: peri1-mt-iopmp {
+				iopmp-name = "PERI1-IOPMP";
+				device-id = <IOPMP_DEV_PERI1_DFMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_gmac_0_iopmp: gmac-0-iopmp {
+				iopmp-name = "PERI1-IOPMP";
+				device-id = <IOPMP_DEV_GMAC_0>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_gmac_1_iopmp: gmac-1-iopmp {
+				iopmp-name = "PERI1-IOPMP";
+				device-id = <IOPMP_DEV_GMAC_1>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_gmac_2_iopmp: gmac-2-iopmp {
+				iopmp-name = "PERI1-IOPMP";
+				device-id = <IOPMP_DEV_GMAC_2>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_chip_dbg_iopmp: chip-dbg-iopmp {
+				iopmp-name = "PERI1-IOPMP";
+				device-id = <IOPMP_DEVICE_CHIP_DBG>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_aon_iopmp: aon-iopmp {
+				iopmp-name = "PERI1-IOPMP";
+				device-id = <IOPMP_DEVICE_AON>;
+				iopmp-regions = <&bypass_region>;
+			};
+			device_peri1_iommu_iopmp: peri1-iommu-iopmp {
+				iopmp-name = "PERI1-IOPMP";
+				device-id = <IOPMP_DEV_PERI1_IOMMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* USB iopmp*/
+			device_usb_mt_iopmp: usb-mt-iopmp {
+				iopmp-name = "USB-IOPMP";
+				device-id = <IOPMP_DEV_USB_DFMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_usb3_0_iopmp: usb3-0-iopmp {
+				iopmp-name = "USB-IOPMP";
+				device-id = <IOPMP_DEV_USB3_0>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_usb2_1_iopmp: usb2-1-iopmp {
+				iopmp-name = "USB-IOPMP";
+				device-id = <IOPMP_DEV_USB2_1>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_usb2_2_iopmp: usb2-2-iopmp {
+				iopmp-name = "USB-IOPMP";
+				device-id = <IOPMP_DEV_USB2_2>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_usb_iommu_iopmp: usb-iommu-iopmp {
+				iopmp-name = "USB-IOPMP";
+				device-id = <IOPMP_DEV_USB_IOMMU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* GPU iopmp*/
+			device_gpu_mt_iopmp: gpu-mt-iopmp {
+				iopmp-name = "GPU-IOPMP";
+				device-id = <IOPMP_DEV_GPU_SS>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+			device_gpu_iopmp: gpu-iopmp {
+				iopmp-name = "GPU-IOPMP";
+				device-id = <IOPMP_DEV_GPU>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* D2D RX iopmp*/
+			device_d2d_rx_iopmp: d2d-rx-iopmp {
+				iopmp-name = "D2D-RX-IOPMP";
+				device-id = <IOPMP_DEV_D2D_RX>;
+				global = <1>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+
+			/* D2D CPU iopmp*/
+			device_d2d_cpu_iopmp: d2d-cpu-iopmp {
+				iopmp-name = "D2D-SS-IOPMP";
+				device-id = <IOPMP_DEV_REMOTE_CPU>;
+				global = <1>;
+				iopmp-regions = <&security_device_region>, <&trust_firmware_region>, <&bypass_region>;
+			};
+		};
+
+		pvt: pvt@3084C000 {
+			compatible = "moortec,mr75203";
+			reg = <0x00 0x3084c000 0x0 0x80>,
+			      <0x00 0x3084c080 0x0 0x180>, // ts regs=5 sensor*0x40,common reg=0x40, 0x40*6=0x180
+			      <0x00 0x3084c200 0x0 0x200>, // pd regs=5 sensor*0x40,common reg=0x40
+			      <0x00 0x3084c400 0x0 0x200>; // vm=1
+			reg-names = "common", "ts", "pd", "vm";
+			clocks = <&aon_110m>;
+			#thermal-sensor-cells = <1>;
+			moortec,ts-coeff-h = <220500>;
+			moortec,ts-coeff-g = <42740>;
+			moortec,ts-coeff-j = <0xFFFFFF60>;		// -160
+			moortec,ts-coeff-cal5 = <4094>;
+		};
+
+	};
+};

@@ -1,0 +1,104 @@
+stages:
+  - init
+  - build
+  - test
+  - deploy
+  - cleanup
+
+mr-code-review:
+  stage: build
+  script:
+    - zb gitlab review
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+mr-build-virt:
+  stage: build
+  script:
+    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -oboard=virt --tar
+  artifacts:
+    paths:
+      - build/Release/*.tar.gz
+    expire_in: 1 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+mr-build-p1:
+  stage: build
+  script:
+    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -oboard=p1 --tar
+  artifacts:
+    paths:
+      - build/Release/*.tar.gz
+    expire_in: 1 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+mr-build-p100-evb:
+  stage: build
+  script:
+    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -oboard=p100-evb --tar
+  artifacts:
+    paths:
+      - build/Release/*.tar.gz
+    expire_in: 1 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+mr-test-virt:
+  stage: test
+  script:
+    - echo "无需测试"
+  dependencies:
+    - mr-build-virt
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+mr-test-p1:
+  stage: test
+  script:
+    - zb gitlab run --timeout 600 --board "p1-evb_develop-*" .cicd/runtest-p1.sh
+  dependencies:
+    - mr-build-p1
+  tags:
+    - board-runner
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+mr-test-p100-evb:
+  stage: test
+  script:
+    - echo "无测试"
+    # - zb gitlab run --timeout 600 --board "a210-evb-*" .cicd/runtest-p100-evb.sh
+  dependencies:
+    - mr-build-p100-evb
+  tags:
+    - board-runner
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+mr-deploy:
+  stage: deploy
+  script:
+    - zb kernel -f -esource-path=$PWD -oboard=p100-evb
+    - zb kernel -f -esource-path=$PWD -oboard=p1
+    - zb kernel -f -esource-path=$PWD -oboard=virt
+    - zb upload kernel --all
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+before_script:
+  - .cicd/version.sh
+
+  - export ZB_CACHE_PATH=$HOME/download_cache
+  - export SDK_VERSION=${CI_COMMIT_BRANCH:-$CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
+  - export DISK_IMAGE=diskimage_${SDK_VERSION//\//_}
+
+  - export VIRT_TARGZ=${DISK_IMAGE}_virt-release_test.tar.gz
+  - export P1_TARGZ=${DISK_IMAGE}_p1-release_test.tar.gz
+  - export P100_EVB_EMMC_TARGZ=${DISK_IMAGE}_p100-evb-release_test.tar.gz
+  - export
+
+variables:
+  CONAN_USER_HOME: $CI_BUILDS_DIR/$CI_JOB_ID
+  MERGE_REQUEST_URL: $CI_MERGE_REQUEST_PROJECT_URL/-/merge_requests/$CI_MERGE_REQUEST_IID

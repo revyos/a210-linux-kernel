@@ -1,0 +1,443 @@
+/ {
+	soc {
+		clocks {
+		};
+	};
+};
+
+&cpus {
+//	use default timebase-frequency
+};
+
+&c908_0 {
+// 	status = "disabled";
+};
+
+&c908_1 {
+	status = "disabled";
+};
+
+&c908_2 {
+	status = "disabled";
+};
+
+&c908_3 {
+	status = "disabled";
+};
+
+&c920_4 {
+	// status = "disabled";
+};
+
+&c920_5 {
+	status = "disabled";
+};
+
+&c920_6 {
+	status = "disabled";
+};
+
+&c920_7 {
+	status = "disabled";
+};
+
+&nvmem_controller {
+	status = "disabled";
+};
+
+&watchdog0 {
+	status = "disabled";
+};
+
+&can0 {
+	status = "disabled";
+};
+
+&can1 {
+	status = "disabled";
+};
+
+&can2 {
+	status = "disabled";
+};
+
+&rtc {
+	status = "disabled";
+};
+
+&dmac0 {
+	status = "okay";
+};
+
+&dmac1 {
+	status = "disabled";
+};
+
+&uart0 {
+	current-speed = <115200>; /* OpenSBI */
+};
+
+&uart1 {
+	status = "disabled";
+};
+
+&uart2 {
+	status = "disabled";
+};
+
+&uart3 {
+	status = "disabled";
+};
+
+&uart4 {
+	current-speed = <115200>; /* OpenSBI */
+};
+
+&uart5 {
+	status = "disabled";
+};
+
+&uart6 {
+	status = "disabled";
+};
+
+&uart7 {
+	status = "disabled";
+};
+
+&uart8 {
+	status = "disabled";
+};
+
+&uart9 {
+	status = "disabled";
+};
+
+&adc {
+	status = "disabled";
+};
+
+&spi0 {
+	status = "disabled";
+};
+
+&spi1 {
+	status = "disabled";
+};
+
+&qspi0 {
+	status = "disabled";
+};
+
+&qspi1 {
+	status = "disabled";
+};
+
+&emmc {
+	status = "disabled";
+};
+
+&sdhci0 {
+	status = "disabled";
+};
+
+/* 125M->1Gbps 25M->100Mbps 2.5M->10Mbps */
+&gmac0 {
+	status = "disabled";
+};
+
+&gmac1 {
+	status = "disabled";
+};
+
+&gpio0 {
+	status = "disabled";
+};
+
+&gpio1 {
+	status = "disabled";
+};
+
+&gpio2 {
+	status = "disabled";
+};
+
+&gpio3 {
+	status = "disabled";
+};
+
+&gpio4 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "disabled";
+};
+
+&pwm1 {
+	status = "disabled";
+};
+
+&pwm2 {
+	status = "disabled";
+};
+
+&timer0 {
+	status = "disabled";
+};
+
+&timer1 {
+	status = "disabled";
+};
+
+&timer2 {
+	status = "disabled";
+};
+
+&timer3 {
+	status = "disabled";
+};
+
+&timer4 {
+	status = "disabled";
+};
+
+&timer5 {
+	status = "disabled";
+};
+
+&timer6 {
+	status = "disabled";
+};
+
+&timer7 {
+	status = "disabled";
+};
+
+&i2c0 {
+	status = "disabled";
+};
+
+&i2c1 {
+	status = "disabled";
+};
+
+&i2c2 {
+	status = "disabled";
+};
+
+&i2c3 {
+	status = "disabled";
+};
+
+&i2c4 {
+	status = "disabled";
+};
+
+&i2c5 {
+	status = "disabled";
+};
+
+&i2c6 {
+	status = "disabled";
+};
+
+&i2c7 {
+	status = "disabled";
+};
+
+&rp3x1{
+	status = "disabled";
+};
+
+&dm3x4{
+	status = "disabled";
+};
+
+&sata {
+	status = "disabled";
+};
+
+&npu0 {
+	status = "disabled";
+};
+
+&g2d {
+	status = "disabled";
+};
+
+&audio_i2s0 {
+	status = "disabled";
+};
+
+&audio_i2s1 {
+	status = "disabled";
+};
+
+&audio_i2s2 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd0 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd1 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd2 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd3 {
+	status = "disabled";
+};
+
+&audio_tdm_slot0 {
+	status = "disabled";
+};
+
+&audio_tdm_slot1 {
+	status = "disabled";
+};
+
+&audio_tdm_slot2 {
+	status = "disabled";
+};
+
+&audio_tdm_slot3 {
+	status = "disabled";
+};
+
+&audio_tdm_slot4 {
+	status = "disabled";
+};
+
+&audio_tdm_slot5 {
+	status = "disabled";
+};
+
+&audio_tdm_slot6 {
+	status = "disabled";
+};
+
+&audio_tdm_slot7 {
+	status = "disabled";
+};
+
+&audio_pdm0 {
+	status = "disabled";
+};
+
+&audio_pdm1 {
+	status = "disabled";
+};
+
+&audio_pdm2 {
+	status = "disabled";
+};
+
+&audio_pdm3 {
+	status = "disabled";
+};
+
+&audio_pdm4 {
+	status = "disabled";
+};
+
+&audio_pdm5 {
+	status = "disabled";
+};
+
+&audio_pdm6 {
+	status = "disabled";
+};
+
+&audio_pdm7 {
+	status = "disabled";
+};
+
+&clk_gpu {
+	status = "disabled";
+};
+
+&clk_pcie {
+	status = "disabled";
+};
+
+&clk_usb {
+	status = "disabled";
+};
+
+&clk_vi {
+	status = "disabled";
+};
+
+&clk_vp {
+	status = "disabled";
+};
+
+&clk_vo {
+	status = "disabled";
+};
+
+&clk_npu {
+	status = "disabled";
+};
+
+&clk_d2d {
+	status = "disabled";
+};
+
+&power_gpu {
+	status = "disabled";
+};
+
+&power_pcie0 {
+	status = "disabled";
+};
+
+&power_pcie1 {
+	status = "disabled";
+};
+
+&power_sata {
+	status = "disabled";
+};
+
+&power_usb {
+	status = "disabled";
+};
+
+&power_vi_wrapper {
+	status = "disabled";
+};
+
+&power_vi_isp {
+	status = "disabled";
+};
+
+&power_vp_wrapper {
+	status = "disabled";
+};
+
+&power_venc {
+	status = "disabled";
+};
+
+&power_vdec {
+	status = "disabled";
+};
+
+&power_vo {
+	status = "disabled";
+};
+
+&power_npu_wrapper {
+	status = "disabled";
+};
+
+&power_npu_ip {
+	status = "disabled";
+};

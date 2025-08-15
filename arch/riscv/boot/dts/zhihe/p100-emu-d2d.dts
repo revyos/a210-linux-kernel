@@ -1,0 +1,179 @@
+/dts-v1/;
+
+#include "p100-soc-core.dtsi"
+#include "p100-soc-peri.dtsi"
+#include "p100-soc-core-die1.dtsi"
+#include "p100-soc-peri-die1.dtsi"
+#include "p100-platform-emu.dtsi"
+
+/ {
+	model = "P100 EMU configuration";
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+	};
+
+	/* The first 2M will be reserved in the Kernel, and the entire available range is set here */
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00 0x80000000  0x01 0x00000000>; /* 4G - 64MB */
+		numa-node-id = <0>;
+	};
+
+	memory@2080000000 {
+		device_type = "memory";
+		reg = <0x20 0x80000000  0x01 0x00000000>; // 4G
+		numa-node-id = <1>;
+	};
+
+	reserved-memory {
+		#address-cells = <0x02>;
+		#size-cells = <0x02>;
+		ranges;
+
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x00 0x4000000>;
+			alloc-ranges = <0x00 0x90000000 0x00 0x4000000>;
+			linux,cma-default;
+		};
+
+		memory@1c000000 {
+			reg = <0x00 0x1c000000 0x00 0x2000000>;
+			no-map;
+		};
+
+		framebuffer@10000000 {
+			reg = <0x00 0x10000000 0x00 0x6700000>;
+			no-map;
+		};
+
+		zh_videomem@100000000 {
+			reg = <0x01 0x00 0x00 0x20000000>;
+			no-map;
+		};
+
+		memblock-memory@17c000000 {
+			reg = <0x01 0x7c000000 0x00 0x04000000>;
+			no-map;
+		};
+	};
+
+	/* The bootargs in U-Boot will override the configuration set here. */
+	chosen {
+		bootargs = "console=ttyS0,1000000 crashkernel=256M-:128M earlycon clk_ignore_unused";
+		stdout-path = "serial4";
+	};
+	aon_subsys_die0_to_die1:aon_subsys_die0_to_die1 {
+		compatible = "zhihe,p100-aon";
+		mbox-names = "aon1";
+		mboxes = <&mbox_920 2 0>;
+		#mbox-cells = <2>;
+		status = "okay";
+	};
+};
+
+// &c908_8 {
+// 	status = "disable";
+// };
+
+&c908_9 {
+	status = "disable";
+};
+
+&c908_10 {
+	status = "disable";
+};
+
+&c908_11 {
+	status = "disable";
+};
+
+// &c920_12 {
+// 	status = "disable";
+// };
+
+&c920_13 {
+	status = "disable";
+};
+
+&c920_14 {
+	status = "disable";
+};
+
+&c920_15 {
+	status = "disable";
+};
+
+&mbox_920 {
+	compatible = "zhihe,p100-mbox";
+	reg = <0x00 0x00321000 0x0 0x1000>,
+	      <0x00 0x00320000 0x0 0x1000>,
+	      <0x00 0x00322000 0x0 0x1000>,
+	      <0x00 0x00311000 0x0 0x1000>,
+	      <0x20 0x00311000 0x0 0x1000>;
+	reg-names = "interrupt_addr",
+		    "local_addr0",
+		    "local_addr1",
+		    "remote_icu0",
+		    "remote_icu1";
+	interrupt-parent = <&intc>;
+	interrupts = <336 IRQ_TYPE_LEVEL_HIGH>;
+	icu_cpu_id = <0>;
+	#mbox-cells = <2>;
+};
+
+/*
+* The reference frequency of the serial is limited and cannot be modified.
+* To ensure normal printing through the serial port,
+* it is necessary to ensure consistency between the frequency division and boot stages,
+* and force the setting of a reference frequency of 24M.
+*/
+&clk_peri {
+	uart_sclk_frequency = <24000000>;
+};
+
+&bmu0 {
+        status = "okay";
+};
+
+&bmu1 {
+        status = "disabled";
+};
+
+&bmu2 {
+        status = "disabled";
+};
+
+&bmu3 {
+        status = "disabled";
+};
+
+&bmu4 {
+        status = "disabled";
+};
+
+&bmu5 {
+        status = "disabled";
+};
+
+&bmu6 {
+        status = "disabled";
+};
+
+&bmu7 {
+        status = "disabled";
+};
+
+&bmu8 {
+        status = "disabled";
+};
+
+&bmu9 {
+        status = "disabled";
+};

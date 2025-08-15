@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: GPL-2.0-only
+menuconfig IOPMP
+	bool "iopmp Support"
+	help
+	  Support for iopmp devices 
+if IOPMP
+menu "Generic IOPMP Support"
+
+config ZH_IOPMP
+	tristate "ZhiHe iopmp Support"
+	depends on ARCH_ZHIHE || COMPILE_TEST
+	help
+	Say Y here to include support for zhihe iopmp found on found on
+	P100 fullmask devices
+	To compile this driver as a module, choose M here: the module
+	will be called zh-iopmp.
+
+endmenu
+
+endif # IOPMP

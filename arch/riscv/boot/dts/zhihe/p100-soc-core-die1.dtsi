@@ -1,0 +1,317 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2021 Alibaba Group Holding Limited.
+ */
+
+#include <dt-bindings/thermal/thermal.h>
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus: cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <24000000>; /*24M*/
+		c908_8: cpu@8 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <8>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu8_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c908_9: cpu@9 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <9>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu9_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c908_10: cpu@10 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <10>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu10_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c908_11: cpu@11 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <11>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <768>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu11_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+
+		c920_12: cpu@12 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <12>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu12_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c920_13: cpu@13 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <13>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu13_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c920_14: cpu@14 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <14>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu14_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+		c920_15: cpu@15 {
+			status = "okay";
+			device_type = "cpu";
+			reg = <15>;
+			compatible = "riscv";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "svpbmt", "sscofpmf";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "2.6Ghz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-l2cache = "512KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			cpu-vector = "1.0";
+			capacity-dmips-mhz = <1024>;
+			#cooling-cells = <2>;
+			numa-node-id = <1>;
+			cpu15_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+
+		cpu-map {
+			cluster2 {
+				core0 {
+					cpu = <&c908_8>;
+				};
+
+				core1 {
+					cpu = <&c908_9>;
+				};
+
+				core2 {
+					cpu = <&c908_10>;
+				};
+
+				core3 {
+					cpu = <&c908_11>;
+				};
+			};
+			cluster3 {
+				core0 {
+					cpu = <&c920_12>;
+				};
+
+				core1 {
+					cpu = <&c920_13>;
+				};
+
+				core2 {
+					cpu = <&c920_14>;
+				};
+
+				core3 {
+					cpu = <&c920_15>;
+				};
+			};
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		d2d: d2d {
+			compatible = "zhihe,d2d";
+			nr_dies = <2>;
+		};
+/* OPENSBI */
+		reset: reset-sample {
+			compatible = "zhihe,reset-sample";
+			reg = <0x00 0x00 0x00 0x00>;
+			plic-delegate = <0x00 0x181ffffc>; /* PLIC_CTRL */
+			plic1-delegate = <0x00 0x1a1ffffc>; /* PLIC_CTRL */
+			entry-reg = <0x00 0x10148040 0x00 0x10148060 0x20 0x10148040 0x20 0x10148060>;	/* SYSREG set rst boot address*/
+			entry-cnt = <4 4 4 4>;								/* The number of CPUs in each cluster */
+			control-reg = <0x00 0x10144004 0x00 0x10144008 0x20 0x10144004 0x20 0x10144008 >;/* SWRST C908 C920*/
+			control-val = <0x1f 0x1f 0x1f 0x1f>;	/* bit0:clust, bit1~4:core0~core3 */
+
+			d2d-info = <&d2d>;
+		};
+
+		clint0: clint@001c000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <
+				&cpu0_intc  3 &cpu0_intc  7
+				&cpu1_intc  3 &cpu1_intc  7
+				&cpu2_intc  3 &cpu2_intc  7
+				&cpu3_intc  3 &cpu3_intc  7
+				&cpu4_intc  3 &cpu4_intc  7
+				&cpu5_intc  3 &cpu5_intc  7
+				&cpu6_intc  3 &cpu6_intc  7
+				&cpu7_intc  3 &cpu7_intc  7
+				&cpu8_intc  3 &cpu8_intc  7
+				&cpu9_intc  3 &cpu9_intc  7
+				&cpu10_intc  3 &cpu10_intc  7
+				&cpu11_intc  3 &cpu11_intc  7
+				&cpu12_intc  3 &cpu12_intc  7
+				&cpu13_intc  3 &cpu13_intc  7
+				&cpu14_intc  3 &cpu14_intc  7
+				&cpu15_intc  3 &cpu15_intc  7
+			>;
+			reg = <0x00 0x1c000000 0x0 0x0000d000>;
+			clint,has-no-64bit-mmio;
+		};
+
+		intc_die1: interrupt-controller1@001a000000 {
+			#interrupt-cells = <1>;
+			compatible = "riscv,plic1";
+			interrupt-controller;
+			interrupts-extended = <
+				&cpu8_intc 0xffffffff &cpu8_intc 9
+				&cpu9_intc 0xffffffff &cpu9_intc 9
+				&cpu10_intc 0xffffffff &cpu10_intc 9
+				&cpu11_intc 0xffffffff &cpu11_intc 9
+				&cpu12_intc 0xffffffff &cpu12_intc 9
+				&cpu13_intc 0xffffffff &cpu13_intc 9
+				&cpu14_intc 0xffffffff &cpu14_intc 9
+				&cpu15_intc 0xffffffff &cpu15_intc 9
+			>;
+			reg = <0x00 0x1a000000 0x0 0x02000000>;
+			reg-names = "control";
+			riscv,max-priority = <7>;
+			riscv,ndev = <400>;
+			cpu-id = <8>;
+		};
+	};
+};
