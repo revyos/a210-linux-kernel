@@ -532,7 +532,6 @@ struct dc_hw {
     enum dc_hw_out      out[DC_DISPLAY_NUM];
     void            *hi_base;
     void            *reg_base;
-    void            *vo_sysreg;
 #ifdef CONFIG_VERISILICON_MMU
     void            *mmu_base;
 #endif

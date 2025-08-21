@@ -55,6 +55,10 @@
 	status = "disabled";
 };
 
+&uart7 {
+	status = "disabled";
+};
+
 &uart8 {
 	status = "disabled";
 };
@@ -80,6 +84,14 @@
 };
 
 &i2c3 {
+	status = "disabled";
+};
+
+&i2c5 {
+	status = "disabled";
+};
+
+&i2c6 {
 	status = "disabled";
 };
 
@@ -124,6 +136,10 @@
 };
 
 &gpio4 {
+        status = "disabled";
+};
+
+&gmac1 {
         status = "disabled";
 };
 

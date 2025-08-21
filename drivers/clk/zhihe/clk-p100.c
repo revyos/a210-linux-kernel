@@ -25,7 +25,7 @@ static const char * const noc_cclk_mux_parents[] = {"dpu1_pll_foutvco", "video_p
 static const char * const top_cpu_ddr1_aclk_parents[] = {"cbus2ddr_aclk1", "gmac_pll_foutpostdiv"};
 static const char * const top_cpu_ddr0_aclk_parents[] = {"cbus2ddr_aclk0", "gmac_pll_foutpostdiv"};
 static const char * const ddr_pll_clkout_parents[] = {"ddr_pll_foutpostdiv", "ddr_pll_fout1ph0", "ddr_pll_fout2"};
-static const char * const top_cpu_bak_pll0_clk_mux0_parents[] = {"audio0_pll_foutvco", "dvfs_pll_foutvco", 
+static const char * const top_cpu_bak_pll0_clk_mux0_parents[] = {"audio0_pll_foutvco", "dvfs_pll_foutvco",
 	"top_cpu_bak_pll0_clk_div0", "top_cpu_bak_pll0_clk_div1"};
 static const char * const top_cpu_bak_pll0_clk_mux_parents[] = {"dpu1_pll_foutvco", "top_cpu_bak_pll0_clk_mux0",
 	"dvfs_pll_foutvco", "audio0_pll_foutvco", "top_cpu_bak_pll0_clk_div0", "top_cpu_bak_pll0_clk_div4",
@@ -61,13 +61,13 @@ static const char * const pad_sensor_vclk1_mux_parents[] = {"dpu0_pll_foutvco", 
 	"dpu2_pll_foutvco", "aon_osc_clk_logic"};
 static const char * const vp_aclk_mux_parents[] = {"video_pll_foutvco", "audio0_pll_foutvco"};
 static const char * const g2d_cclk_mux_parents[] = {"audio0_pll_foutvco", "gmac_pll_foutvco", "video_pll_foutvco"};
-static const char * const vdec_cclk_mux_parents[] = {"audio0_pll_foutvco", "video_pll_foutvco", "gmac_pll_foutvco", 
+static const char * const vdec_cclk_mux_parents[] = {"audio0_pll_foutvco", "video_pll_foutvco", "gmac_pll_foutvco",
 	 "audio1_pll_foutvco"};
-static const char * const venc_cclk_mux_parents[] = {"gmac_pll_foutvco", "video_pll_foutvco", 
+static const char * const venc_cclk_mux_parents[] = {"gmac_pll_foutvco", "video_pll_foutvco",
 	"audio0_pll_foutvco", "audio1_pll_foutvco"};
-static const char * const npu_aclk_mux_parents[] = {"gmac_pll_foutvco", "video_pll_foutvco", 
+static const char * const npu_aclk_mux_parents[] = {"gmac_pll_foutvco", "video_pll_foutvco",
 	"audio0_pll_foutvco", "audio1_pll_foutvco"};
-static const char * const npu_cclk_mux_parents[] = {"gmac_pll_foutvco", "video_pll_foutvco", 
+static const char * const npu_cclk_mux_parents[] = {"gmac_pll_foutvco", "video_pll_foutvco",
 	"audio0_pll_foutvco", "audio1_pll_foutvco"};
 static const char * const c908_cpu_clk_parents[] = {"c908_pll_foutvco", "top_cpu_bak_pll0_clk"};
 static const char * const c920_cpu_clk_parents[] = {"c920_pll_foutvco", "top_cpu_bak_pll1_clk"};
@@ -410,7 +410,7 @@ static struct p100_clk_info info_top[] = {
 	MUX(TOP_VP_G2D_CCLK_MUX, "g2d_cclk_mux", TOP_CRG, 0x38, 16, 2,
 	    g2d_cclk_mux_parents, ARRAY_SIZE(g2d_cclk_mux_parents), CLK_SET_RATE_PARENT),
 	DIV(TOP_VP_VDEC_CCLK_DIV, "vdec_cclk", "vdec_cclk_mux", TOP_CRG, 0x38, 12, 4,
-	    NO_DIV_EN, MUX_TYPE_DIV, 5, 15),
+	    NO_DIV_EN, MUX_TYPE_DIV, 3, 15),
 	MUX(TOP_VP_VDEC_CCLK_MUX, "vdec_cclk_mux", TOP_CRG, 0x38, 8, 2,
 	    vdec_cclk_mux_parents, ARRAY_SIZE(vdec_cclk_mux_parents), CLK_SET_RATE_PARENT),
 	DIV(TOP_VP_VENC_CCLK_DIV, "venc_cclk", "venc_cclk_mux", TOP_CRG, 0x38, 4, 4,
@@ -651,7 +651,7 @@ static struct p100_clk_info info_vo[] = {
 	MUX(VO_HDMI_PIXCLK, "vo_hdmi_pixclk", VO_PATH_CTRL, 0x0, 2, 2,
 	    vo_hdmi_pixclk_mux_parents, ARRAY_SIZE(vo_hdmi_pixclk_mux_parents), CLK_SET_RATE_PARENT|CLK_SET_RATE_NO_REPARENT),
 	MUX(VO_DPTX_PIXCLK, "vo_dptx_pixclk", VO_PATH_CTRL, 0x0, 4, 2,
-	    vo_dptx_pixclk_mux_parents, ARRAY_SIZE(vo_dptx_pixclk_mux_parents), CLK_SET_RATE_PARENT|CLK_SET_RATE_NO_REPARENT),	
+	    vo_dptx_pixclk_mux_parents, ARRAY_SIZE(vo_dptx_pixclk_mux_parents), CLK_SET_RATE_PARENT|CLK_SET_RATE_NO_REPARENT),
 };
 
 static struct p100_clk_info info_npu[] = {

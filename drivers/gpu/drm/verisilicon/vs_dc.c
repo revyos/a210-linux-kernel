@@ -317,28 +317,34 @@ static void vs_dc_dump_disable(struct device *dev)
     dc_hw_disable_dump(&dc->hw);
 }
 
-static void vs_dc_set_display_path(struct device *dev, struct vs_dc *dc, unsigned crtc_idx){
-    int ret = 0;
-    switch (crtc_idx){
-        case 0:
-            ret = clk_set_parent(dc->hdmi_pixclk, dc->pixclk[0]);
-            break;
-        case 1:
-            ret = clk_set_parent(dc->hdmi_pixclk, dc->pixclk[1]);           
-            break;
-        case 2: //auxdisp
-            ret = clk_set_parent(dc->hdmi_pixclk, dc->pixclk[2]);           
-            break;
-        default:
-            dev_err(dev, "invalid crtc id:%d\n", crtc_idx);
-            return;
-    }
+static void vs_dc_set_display_path(struct device *dev, struct drm_atomic_state *state, struct vs_dc *dc, struct drm_crtc *crtc)
+{
+    int i = 0;  
+    struct drm_connector *connector;
+    struct drm_connector_state *conn_state;
+    struct clk *clk = dc->pixclk[crtc->index];
 
-    if(ret != 0 ){
-	    dev_err(dev, "DRM Failed to set parent: %d\n", ret);
+    for_each_new_connector_in_state(state, connector, conn_state, i) {
+        if (conn_state->crtc != crtc)
+            continue;
+
+        switch (connector->connector_type) {
+            case DRM_MODE_CONNECTOR_HDMIA:
+                clk_set_parent(dc->hdmi_pixclk, clk);
+                break;
+            case DRM_MODE_CONNECTOR_DSI:
+                clk_set_parent(dc->mipi_pixclk, clk);
+                break;
+            case DRM_MODE_CONNECTOR_DisplayPort:
+                clk_set_parent(dc->dptx_pixclk, clk);
+                break;
+            default:
+                dev_err(dev, "invalid connector type:%d\n", connector->connector_type);                
+        }
     }
 }
-static void vs_dc_enable(struct device *dev, struct drm_crtc *crtc)
+
+static void vs_dc_enable(struct device *dev, struct drm_crtc *crtc, struct drm_atomic_state *state)
 {
     struct vs_dc *dc = dev_get_drvdata(dev);
     struct vs_crtc_state *crtc_state = to_vs_crtc_state(crtc->state);
@@ -394,7 +400,7 @@ static void vs_dc_enable(struct device *dev, struct drm_crtc *crtc)
     dc_hw_setup_display(&dc->hw, &display);
 
     if (dc->is_zhihe_a210)
-        vs_dc_set_display_path(dev, dc, crtc->index);
+        vs_dc_set_display_path(dev, state, dc, crtc);
 
 }
 
@@ -1167,12 +1173,6 @@ static int dc_probe(struct platform_device *pdev)
     dc->hw.reg_base = devm_platform_ioremap_resource(pdev, 1);
     if (IS_ERR(dc->hw.reg_base))
         return PTR_ERR(dc->hw.reg_base);
-    
-    dc->hw.vo_sysreg = ioremap(0x06720000, 0x1000);
-    if (!dc->hw.vo_sysreg) {
-        dev_err(dev, "Failed to ioremap vo_sysreg\n");
-        return -ENOMEM;
-    }
 
 #ifdef CONFIG_VERISILICON_MMU
     dc->hw.mmu_base = devm_platform_ioremap_resource(pdev, 2);

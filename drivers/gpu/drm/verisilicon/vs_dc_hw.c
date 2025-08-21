@@ -1278,11 +1278,6 @@ static inline u32 dc_read(struct dc_hw *hw, u32 reg)
 
     return value;
 }
-static inline void vo_sysreg_write(struct dc_hw *hw, u32 reg, u32 value)
-{
-    writel(value, hw->vo_sysreg + reg);
-}
-
 static inline void dc_set_clear(struct dc_hw *hw, u32 reg, u32 set, u32 clear)
 {
     u32 value = dc_read(hw, reg);

@@ -88,6 +88,15 @@
 			status = "okay";
 		};
 
+		reg_vref_1v8: regulator-adc-verf {
+			compatible = "regulator-fixed";
+			regulator-name = "vref-1v8";
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-boot-on;
+			regulator-always-on;
+		};
+
 		hdmi_tx: dw-hdmi-tx@6600000 {
 			compatible = "thead,light-hdmi-tx";
 			reg = <0x00 0x6600000 0x0 0x40000>;
@@ -120,15 +129,14 @@
 			         <&clk_vo VO_DPU_HCLK_EN>,
 			         <&clk_vo VO_CH0_PIXCLK_EN>,
 			         <&clk_vo VO_CH1_PIXCLK_EN>,
-			         <&clk_vo VO_CH2_PIXCLK_EN>,
 			         <&clk    DPU0_PLL_FOUTPOSTDIV>,
 			         <&clk    DPU1_PLL_FOUTPOSTDIV>,
 			         <&clk_vo VO_MIPI_PIXCLK>,
 			         <&clk_vo VO_HDMI_PIXCLK>,
 			         <&clk_vo VO_DPTX_PIXCLK>;
 
-			clock-names = "core_clk", "axi_clk",  "cfg_clk", "pixclk0",
-			              "pixclk1",  "pixclk2",  "dpu0_pll_foutpostdiv", "dpu1_pll_foutpostdiv",
+			clock-names = "core_clk", "axi_clk",  "cfg_clk",
+			              "pixclk0",  "pixclk1",  "dpu0_pll_foutpostdiv", "dpu1_pll_foutpostdiv",
 			              "mipi_pixclk", "hdmi_pixclk", "dptx_pixclk";
 			status = "okay";
 			vosys-regmap = <&vosys_reg>;
@@ -1012,6 +1020,8 @@
 			interrupt-parent = <&intc>;
 			interrupts = <229>, <231>;
 			power-domains = <&power_vdec>;
+			clocks = <&clk_vp VP_VDEC_CCLK_EN>;
+			clock-names = "vdec_cclk";
 			status = "okay";
 		};
 
@@ -1024,6 +1034,8 @@
 			interrupt-parent = <&intc>;
 			interrupts = <230>, <350>;
 			power-domains = <&power_venc>;
+			clocks = <&clk_vp VP_VENC_CCLK_EN>;
+			clock-names = "venc_cclk";
 			status = "okay";
 		};
 
@@ -1294,7 +1306,7 @@
 			reg-names = "usb20-blk-sysreg";
 			resets = <&rst USB_USB20_BLK_USB0_PHY_PON_RESET>,
 				 <&rst USB_USB20_BLK_USB1_PHY_PON_RESET>;
-			reset-names = "usb0-phy-rst", "usb1-phy-rst";			
+			reset-names = "usb0-phy-rst", "usb1-phy-rst";
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges;
@@ -1752,7 +1764,7 @@
 		mipi0_csi0: csi@0006300000 {
 			compatible = "zhihe,bm-csi";
 			reg = < 0x00 0x06300000 0x0 0x10000
-					0x00 0x063a0020 0x0 0x4
+					0x00 0x063a0024 0x0 0x4
 					0x00 0x063a0028 0x0 0x4>;
 			interrupt-parent = <&intc>;
 			interrupts = <192>;
@@ -1770,7 +1782,7 @@
 		mipi0_csi1: csi@0006310000 {
 			compatible = "zhihe,bm-csi";
 			reg = < 0x00 0x06310000 0x0 0x10000
-					0x00 0x063a0024 0x0 0x4
+					0x00 0x063a0020 0x0 0x4
 					0x00 0x063a0028 0x0 0x4>;
 			interrupt-parent = <&intc>;
 			interrupts = <193>;
@@ -1788,7 +1800,7 @@
 		mipi1_csi0: csi@0006320000 {
 			compatible = "zhihe,bm-csi";
 			reg = < 0x00 0x06320000 0x0 0x10000
-					0x00 0x063a0030 0x0 0x4
+					0x00 0x063a0034 0x0 0x4
 					0x00 0x063a0038 0x0 0x4>;
 			interrupt-parent = <&intc>;
 			interrupts = <194>;
@@ -1806,7 +1818,7 @@
 		mipi1_csi1: csi@0006330000 {
 			compatible = "zhihe,bm-csi";
 			reg = < 0x00 0x06330000 0x0 0x10000
-					0x00 0x063a0034 0x0 0x4
+					0x00 0x063a0030 0x0 0x4
 					0x00 0x063a0038 0x0 0x4>;
 			interrupt-parent = <&intc>;
 			interrupts = <195>;

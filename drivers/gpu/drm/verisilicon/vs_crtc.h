@@ -14,7 +14,7 @@
 extern int vs_crtc_reset_count;
 
 struct vs_crtc_funcs {
-    void (*enable)(struct device *dev, struct drm_crtc *crtc);
+    void (*enable)(struct device *dev, struct drm_crtc *crtc, struct drm_atomic_state *state);
     void (*disable)(struct device *dev, struct drm_crtc *crtc);
     bool (*mode_fixup)(struct device *dev,
                struct drm_crtc *crtc,

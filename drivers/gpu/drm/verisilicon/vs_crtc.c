@@ -282,7 +282,7 @@ static void vs_crtc_atomic_enable(struct drm_crtc *crtc,
 
     pm_runtime_get_sync(vs_crtc->dev);
 
-    vs_crtc->funcs->enable(vs_crtc->dev, crtc);
+    vs_crtc->funcs->enable(vs_crtc->dev, crtc, old_state);
 
     drm_crtc_vblank_on(crtc);
 }

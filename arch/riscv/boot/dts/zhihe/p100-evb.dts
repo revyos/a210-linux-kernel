@@ -1423,6 +1423,7 @@
 };
 
 &adc {
+	vref-supply = <&reg_vref_1v8>;
 	#io-channel-cells = <1>;
 	sampling-frequency = <1000000>;
 	resolution = <12>;
@@ -1493,10 +1494,10 @@
 	GPMUX_SEL_00 -> 1
 	GPMUX_SEL_02 -> 1
 */
-// &audio_i2s1 {
-// 	pinctrl-names = "default";
-// 	pinctrl-0 = <&i2s1_pins>;
-// };
+&audio_i2s1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s1_pins>;
+};
 
 /*
  expansion IO: audio_i2s3

@@ -255,7 +255,7 @@
 		regulator-name = "vref-1v8";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-		regulator-alaways-on;
+		regulator-always-on;
 		vin-supply = <&reg_vdd_3v3>;
 	};
 
