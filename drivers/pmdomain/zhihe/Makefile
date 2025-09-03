@@ -1,2 +1,2 @@
 # SPDX-License-Identifier: GPL-2.0-only
-obj-$(CONFIG_P100_POWER_DOMAIN)		+= p100-pd.o
+obj-$(CONFIG_A210_POWER_DOMAIN)		+= a210-pd.o

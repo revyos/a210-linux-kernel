@@ -25,7 +25,7 @@
 #include <dt-bindings/iopmp/zh-iopmp.h>
 #include <asm/zh-iopmp.h>
 
-#include "p100-pd.h"
+#include "a210-pd.h"
 
 static const struct p100_pd_range p100_pd_ranges[] = {
 	{"power_gpu", P100_PD_GPU},

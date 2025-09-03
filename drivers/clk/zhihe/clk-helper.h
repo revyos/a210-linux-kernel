@@ -9,7 +9,7 @@
 #include <linux/spinlock.h>
 #include <linux/clk-provider.h>
 #include <linux/platform_device.h>
-#include <dt-bindings/clock/p100-clock.h>
+#include <dt-bindings/clock/a210-clock.h>
 
 extern spinlock_t zhihe_p100_clk_lock;
 

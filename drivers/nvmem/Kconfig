@@ -433,7 +433,7 @@ config NVMEM_ZH_EFUSE
 	depends on HAS_IOMEM
 	help
 	Say Y here to include support for Thead efuse found on found on
-	P100 fullmask devices
+	A210 fullmask devices
 	To compile this driver as a module, choose M here: the module
 	will be called nvmem-zh-efuse.
 

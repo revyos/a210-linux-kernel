@@ -199,9 +199,10 @@ struct dw_spi {
 
 	int			cs_override;
 	u32			reg_io_width;	/* DR I/O width in bytes */
-	u16			bus_num;
-	u16			num_cs;		/* supported slave numbers */
-	u16			rx_sample_delay;/* timing value for rx sample delay */
+	u32			bus_num;
+	u32			num_cs;		/* supported slave numbers */
+	u32			rx_sample_delay;/* timing value for rx sample delay */
+	u32			swap_data;
 	struct gpio_desc	*slave_cs;	/* gpio cs handle */
 	void (*set_cs)(struct spi_device *spi, bool enable);
 	/* used by spi_controller_mem_ops interface */

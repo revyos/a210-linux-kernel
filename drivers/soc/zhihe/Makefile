@@ -1,3 +1,3 @@
 # SPDX-License-Identifier: GPL-2.0-only
-obj-$(CONFIG_P100_MEMTESTER)		+= p100-memtester.o
-obj-$(CONFIG_P100_BMU)				+= p100-bmu.o
+obj-$(CONFIG_A210_MEMTESTER)		+= a210-memtester.o
+obj-$(CONFIG_A210_BMU)				+= a210-bmu.o

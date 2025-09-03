@@ -1,5 +1,5 @@
 #include <dt-bindings/interrupt-controller/irq.h>
-#include <dt-bindings/clock/p100-clock.h>
+#include <dt-bindings/clock/a210-clock.h>
 
 / {
 	soc {
@@ -85,7 +85,7 @@
 			status = "okay";
 		};
 		mbox_920_die1: mbox@2000320000 {
-                        compatible = "zhihe,p100-mbox";
+                        compatible = "zhihe,a210-mbox";
 			reg = <0x20 0x00321000 0x0 0x1000>,        //mailbox1的中断通道
 			      <0x20 0x00320000 0x0 0x1000>,
 			      <0x20 0x00322000 0x0 0x1000>,
@@ -103,14 +103,14 @@
 			status = "okay";
 		};
 		aon_die1_to_die0: aon_subsys_die1_to_die0 {
-			compatible = "zhihe,p100-aon";
+			compatible = "zhihe,a210-aon";
 			mbox-names = "aon2";
 			mboxes = <&mbox_920_die1 1 0>;                     //parent / channel / type
 			#mbox-cells = <2>;
 			status = "okay";
 		};
 		aon_die1_to_die1: aon_subsys_die1_to_die1 {
-			compatible = "zhihe,p100-aon";
+			compatible = "zhihe,a210-aon";
 			mbox-names = "aon3";
 			mboxes = <&mbox_920_die1 1 0>;
 			#mbox-cells = <2>;

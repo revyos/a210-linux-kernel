@@ -7,7 +7,7 @@
 #include <linux/platform_device.h>
 #include <linux/reset-controller.h>
 #include <linux/io.h>
-#include <dt-bindings/reset/p100-reset.h>
+#include <dt-bindings/reset/a210-reset.h>
 
 
 #define P100_RST_NAME_SIZE 20

@@ -3,8 +3,8 @@
  * Copyright (C) 2025 Zhihe Computing Limited.
  */
 
-#ifndef __P100_PD_H
-#define __P100_PD_H
+#ifndef __A210_PD_H
+#define __A210_PD_H
 
 #define P100_PD_NAME_SIZE 20
 #define P100_PD_STATE_NAME_SIZE 10

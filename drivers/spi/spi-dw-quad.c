@@ -272,10 +272,17 @@ static void dw_writer(struct dw_spi *dws)
 		if (dws->tx_end - dws->len) {
 			if (dws->n_bytes == 1)
 				txw = *(u8 *)(dws->tx);
-			else if(dws->n_bytes == 2)
-				txw = *(u16 *)(dws->tx);
-			else
-				txw = *(u32 *)(dws->tx);
+			else if(dws->n_bytes == 2) {
+				if (dws->swap_data)
+					txw = swab16(*(u16 *)(dws->tx));
+				else
+					txw = *(u16 *)(dws->tx);
+			} else {
+				if (dws->swap_data)
+					txw = swab32(*(u32 *)(dws->tx));
+				else
+					txw = *(u32 *)(dws->tx);
+			}
 		}
 		dw_write_io_reg(dws, DW_SPI_DR, txw);
 		dws->tx += dws->n_bytes;
@@ -296,10 +303,17 @@ static void dw_reader(struct dw_spi *dws)
 		if (dws->rx_end - dws->len) {
 			if (dws->n_bytes == 1)
 				*(u8 *)(dws->rx) = rxw;
-			else if(dws->n_bytes ==2)
-				*(u16 *)(dws->rx) = rxw;
-			else
-				*(u32 *)(dws->rx) = rxw;
+			else if(dws->n_bytes == 2) {
+				if (dws->swap_data)
+					*(u16 *)(dws->rx) = swab16(rxw);
+				else
+					*(u16 *)(dws->rx) = rxw;
+			} else {
+				if (dws->swap_data)
+					*(u32 *)(dws->rx) = swab32(rxw);
+				else
+					*(u32 *)(dws->rx) = rxw;
+			}
 		}
 		dws->rx += dws->n_bytes;
 	}

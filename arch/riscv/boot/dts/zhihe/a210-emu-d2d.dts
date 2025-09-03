@@ -1,11 +1,13 @@
 /dts-v1/;
 
-#include "p100-soc-core.dtsi"
-#include "p100-soc-peri.dtsi"
-#include "p100-platform-emu.dtsi"
+#include "a210-soc-core.dtsi"
+#include "a210-soc-peri.dtsi"
+#include "a210-soc-core-die1.dtsi"
+#include "a210-soc-peri-die1.dtsi"
+#include "a210-platform-emu.dtsi"
 
 / {
-	model = "P100 EMU configuration";
+	model = "A210 EMU configuration";
 
 	aliases {
 		serial0 = &uart0;
@@ -13,8 +15,6 @@
 		serial2 = &uart2;
 		serial3 = &uart3;
 		serial4 = &uart4;
-		pcie3x4 = &dm3x4;
-		pcie3x1 = &rp3x1;
 	};
 
 	/* The first 2M will be reserved in the Kernel, and the entire available range is set here */
@@ -22,6 +22,12 @@
 		device_type = "memory";
 		reg = <0x00 0x80000000  0x01 0x00000000>; /* 4G - 64MB */
 		numa-node-id = <0>;
+	};
+
+	memory@2080000000 {
+		device_type = "memory";
+		reg = <0x20 0x80000000  0x01 0x00000000>; // 4G
+		numa-node-id = <1>;
 	};
 
 	reserved-memory {
@@ -42,18 +48,13 @@
 			no-map;
 		};
 
-		framebuffer: framebuffer@10000000 {
+		framebuffer@10000000 {
 			reg = <0x00 0x10000000 0x00 0x6700000>;
 			no-map;
 		};
 
 		zh_videomem@100000000 {
 			reg = <0x01 0x00 0x00 0x20000000>;
-			no-map;
-		};
-
-		npu_mmu_memory@130000000 {
-			reg = <0x01 0x30000000 0x00 0x04000000>;
 			no-map;
 		};
 
@@ -65,73 +66,66 @@
 
 	/* The bootargs in U-Boot will override the configuration set here. */
 	chosen {
+		bootargs = "console=ttyS0,1000000 crashkernel=256M-:128M earlycon clk_ignore_unused";
 		stdout-path = "serial4";
+	};
+	aon_subsys_die0_to_die1:aon_subsys_die0_to_die1 {
+		compatible = "zhihe,a210-aon";
+		mbox-names = "aon1";
+		mboxes = <&mbox_920 2 0>;
+		#mbox-cells = <2>;
+		status = "okay";
 	};
 };
 
-&clk {
-	compatible = "zhihe,p100-clk-emu";
+// &c908_8 {
+// 	status = "disable";
+// };
+
+&c908_9 {
+	status = "disable";
 };
 
-&vidmem {
-  status = "okay";
-  memory-region = <&framebuffer>;
+&c908_10 {
+	status = "disable";
 };
 
-&vp_dfmu_iommu {
-    status = "disabled";
+&c908_11 {
+	status = "disable";
 };
 
-&vp_dfmu_mt {
-    status = "disabled";
+// &c920_12 {
+// 	status = "disable";
+// };
+
+&c920_13 {
+	status = "disable";
 };
 
-&npu_dfmu_iommu {
-    status = "disabled";
+&c920_14 {
+	status = "disable";
 };
 
-&npu_dfmu_mt {
-    status = "disabled";
+&c920_15 {
+	status = "disable";
 };
 
-&vi_dfmu_iommu {
-    status = "disabled";
-};
-
-&vi_dfmu_mt {
-    status = "disabled";
-};
-
-&vo_dfmu_iommu {
-    status = "disabled";
-};
-
-&vo_dfmu_mt {
-    status = "disabled";
-};
-
-&peri1_dfmu_iommu {
-    status = "okay";
-};
-
-&peri1_dfmu_mt {
-    status = "disabled";
-};
-
-&pcie_dfmu_iommu {
-    status = "okay";
-};
-
-&pcie_dfmu_mt {
-    status = "disabled";
-};
-
-&usb_dfmu_iommu {
-    status = "okay";
-};
-
-&usb_dfmu_mt {
-    status = "disabled";
+&mbox_920 {
+	compatible = "zhihe,a210-mbox";
+	reg = <0x00 0x00321000 0x0 0x1000>,
+	      <0x00 0x00320000 0x0 0x1000>,
+	      <0x00 0x00322000 0x0 0x1000>,
+	      <0x00 0x00311000 0x0 0x1000>,
+	      <0x20 0x00311000 0x0 0x1000>;
+	reg-names = "interrupt_addr",
+		    "local_addr0",
+		    "local_addr1",
+		    "remote_icu0",
+		    "remote_icu1";
+	interrupt-parent = <&intc>;
+	interrupts = <336 IRQ_TYPE_LEVEL_HIGH>;
+	icu_cpu_id = <0>;
+	#mbox-cells = <2>;
 };
 
 /*

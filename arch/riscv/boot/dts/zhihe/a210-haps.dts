@@ -1,8 +1,8 @@
 /dts-v1/;
 
-#include "p100-soc-core.dtsi"
-#include "p100-soc-peri.dtsi"
-#include "p100-platform-haps.dtsi"
+#include "a210-soc-core.dtsi"
+#include "a210-soc-peri.dtsi"
+#include "a210-platform-haps.dtsi"
 
 #define SOUND_CARD_LINK(REG, FMT, CPU, M, CODEC, N) \
 	simple-audio-card,dai-link@##REG { \
@@ -17,7 +17,7 @@
 	}
 
 / {
-	model = "P100 HAPS configuration";
+	model = "A210 HAPS configuration";
 
 	aliases {
 		ethernet0 = &gmac0;

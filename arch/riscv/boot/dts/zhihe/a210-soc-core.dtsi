@@ -3,8 +3,8 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited.
  */
 
-#include <dt-bindings/clock/p100-clock.h>
-#include <dt-bindings/reset/p100-reset.h>
+#include <dt-bindings/clock/a210-clock.h>
+#include <dt-bindings/reset/a210-reset.h>
 #include <dt-bindings/iopmp/zh-iopmp.h>
 
 / {
@@ -444,7 +444,7 @@
 			#clock-cells = <1>;
 			clocks = <&clk TOP_GPU_CORE_CLK_DIV>;
 			clock-names = "top_gpu_core_clk";
-			top_gpu_core_clk_frequency = <786432000>;
+			top_gpu_core_clk_frequency = <792000000>;
 			status = "okay";
 		};
 
@@ -560,15 +560,15 @@
 				 <&clk TOP_PERI_I2S_8CH0_SRC_CLK_MUX>, <&clk TOP_PERI_SPI_SSI_CLK0_DIV>,
 				 <&clk TOP_PERI_SPI_SSI_CLK1_DIV>, <&clk TOP_PERI_QSPI_SSI_CLK_MUX0>,
 				 <&clk TOP_PERI_QSPI_SSI_CLK_MUX1>, <&clk TOP_PERI_PDM_MCLK_DIV>,
-				 <&clk TOP_UART_SCLK_MUX>, <&clk TOP_PERI_TDM_SRC_CLK_MUX>,
-				 <&clk TOP_PAD_SENSOR_VCLK0_DIV>, <&clk TOP_PAD_SENSOR_VCLK1_DIV>,
-				 <&clk TOP_PERI_HIRES_CLK0_DIV>, <&clk TOP_PERI_HIRES_CLK1_DIV>,
-				 <&clk TOP_TEE_CLK_DIV>, <&clk TOP_PERI_EMMC_REF_CLK_DIV>,
-				 <&clk TOP_PERI_MST_ACLK0_DIV>, <&clk TOP_PERI_MST_CLK1_DIV>;
+				 <&clk TOP_PERI_TDM_SRC_CLK_MUX>, <&clk TOP_PAD_SENSOR_VCLK0_DIV>,
+				 <&clk TOP_PAD_SENSOR_VCLK1_DIV>, <&clk TOP_PERI_HIRES_CLK0_DIV>,
+				 <&clk TOP_PERI_HIRES_CLK1_DIV>, <&clk TOP_TEE_CLK_DIV>,
+				 <&clk TOP_PERI_EMMC_REF_CLK_DIV>, <&clk TOP_PERI_MST_ACLK0_DIV>, 
+				 <&clk TOP_PERI_MST_CLK1_DIV>;
 			clock-names = "peri0_timer_clk", "peri1_i2s0_src_clk", "peri2_i2s1_src_clk",
 				      "peri2_i2s2_src_clk", "peri2_i2s3_src_clk", "peri1_spi_ssi_clk",
 				      "peri2_spi_ssi_clk", "peri1_qspi_ssi_clk", "peri2_qspi_ssi_clk",
-				      "peri1_pdm_mclk", "uart_sclk", "peri1_tdm_src_clk",
+				      "peri1_pdm_mclk", "peri1_tdm_src_clk",
 				      "top_pad_sensor_vclk0_div", "top_pad_sensor_vclk1_div", "peri1_hires_clk",
 				      "peri2_hires_clk", "tee_clk", "emmc_ref_clk",
 				      "peri1_mst_aclk", "peri3_mst_aclk";
@@ -582,7 +582,6 @@
 			peri1_qspi_ssi_clk_frequency = <421478400>;
 			peri2_qspi_ssi_clk_frequency = <421478400>;
 			peri1_pdm_mclk_frequency = <31610880>;
-			uart_sclk_frequency = <24000000>;
 			peri1_tdm_src_clk_frequency = <316108800>;
 			top_pad_sensor_vclk0_div_frequency = <74250000>;
 			top_pad_sensor_vclk1_div_frequency = <148500000>;

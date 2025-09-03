@@ -1,6 +1,6 @@
 #include <dt-bindings/i2c/i2c.h>
 #include <dt-bindings/interrupt-controller/irq.h>
-#include <dt-bindings/clock/p100-clock.h>
+#include <dt-bindings/clock/a210-clock.h>
 #include <dt-bindings/iommu/zh-iommu.h>
 #include <dt-bindings/ata/ahci.h>
 
@@ -180,12 +180,12 @@
 		};
 
 		can0: flexcan@2000000 {
-			compatible = "fsl,a210-flexcan";
+			compatible = "fsl,zha210-flexcan";
 			reg = <0x00 0x2000000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <261>;
 			clocks = <&clk_peri PERI1_CAN0_HIRES_CLK_EN>,
-					<&clk_peri PERI1_CAN0_OSC_CLK_EN>;
+					<&clk_peri PERI1_CAN0_PCLK_EN>;
 			clock-names = "ipg", "per";
 			power-domains = <&power_peri1>;
 			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
@@ -193,12 +193,12 @@
 		};
 
 		can1: flexcan@2004000 {
-			compatible = "fsl,a210-flexcan";
+			compatible = "fsl,zha210-flexcan";
 			reg = <0x00 0x2004000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <262>;
 			clocks = <&clk_peri PERI1_CAN1_HIRES_CLK_EN>,
-					<&clk_peri PERI1_CAN1_OSC_CLK_EN>;
+					<&clk_peri PERI1_CAN1_PCLK_EN>;
 			clock-names = "ipg", "per";
 			power-domains = <&power_peri1>;
 			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
@@ -206,12 +206,12 @@
 		};
 
 		can2: flexcan@8420000 {
-			compatible = "fsl,a210-flexcan";
+			compatible = "fsl,zha210-flexcan";
 			reg = <0x00 0x8420000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <263>;
 			clocks = <&clk_peri PERI2_CAN2_HIRES_CLK_EN>,
-					<&clk_peri PERI2_CAN2_OSC_CLK_EN>;
+					<&clk_peri PERI2_CAN2_PCLK_EN>;
 			clock-names = "ipg", "per";
 			power-domains = <&power_peri2>;
 			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
@@ -278,7 +278,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -292,7 +291,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -306,7 +304,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -320,7 +317,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -334,7 +330,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -348,7 +343,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -362,7 +356,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -376,7 +369,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -390,7 +382,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -404,7 +395,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -424,9 +414,8 @@
 			reg = <0x00 0x02023000 0x0 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <310>;
-			clocks = <&clk_peri PERI1_SPI0_SSI_CLK_EN>,
-					<&clk_peri PERI1_SPI0_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI1_SPI0_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri1>;
 			dmas = <&dmac0 9>, <&dmac0 8>;
 			dma-names = "tx", "rx";
@@ -444,9 +433,8 @@
 			reg = <0x00 0x08413000 0x0 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <311>;
-			clocks = <&clk_peri PERI2_SPI1_SSI_CLK_EN>,
-					<&clk_peri PERI2_SPI1_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI2_SPI1_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri2>;
 			dmas = <&dmac0 62>, <&dmac0 61>;
 			dma-names = "tx", "rx";
@@ -464,9 +452,8 @@
 			reg = <0x00 0x01000000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <308>;
-			clocks = <&clk_peri PERI1_QSPI0_SSI_CLK_EN>,
-					<&clk_peri PERI1_QSPI0_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI1_QSPI0_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri1>;
 			num-cs = <2>;
 			#address-cells = <1>;
@@ -479,9 +466,8 @@
 			reg = <0x00 0x08428000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <309>;
-			clocks = <&clk_peri PERI2_QSPI1_SSI_CLK_EN>,
-					<&clk_peri PERI2_QSPI1_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI2_QSPI1_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri2>;
 			num-cs = <2>;
 			#address-cells = <1>;
@@ -1552,7 +1538,7 @@
 		};
 
 		mbox_920: mbox@0000310000 {
-			compatible = "zhihe,p100-mbox";
+			compatible = "zhihe,a210-mbox";
 			reg = <0x00 0x00321000 0x0 0x1000>,
 				  <0x00 0x00320000 0x0 0x1000>,
 				  <0x00 0x00311000 0x0 0x1000>;
@@ -1566,7 +1552,7 @@
 			status = "okay";
 		};
 		aon: aon_subsys {
-			compatible = "zhihe,p100-aon";
+			compatible = "zhihe,a210-aon";
 			mbox-names = "aon0";
 			mboxes = <&mbox_920 1 0>;					 //parent / channel / type
 			#mbox-cells = <2>;

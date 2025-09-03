@@ -222,6 +222,14 @@
 	status = "disabled";
 };
 
+&dm3x4 {
+	status = "okay";
+};
+
+&rp3x1 {
+	status = "disabled";
+};
+
 // &usb31_zhihe {
 //	status = "disabled";
 // };

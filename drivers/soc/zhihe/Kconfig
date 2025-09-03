@@ -2,24 +2,24 @@
 
 menu "ZHIHE SoC drivers"
 
-config P100_MEMTESTER
-	tristate "ZHIHE P100 memtester support"
+config A210_MEMTESTER
+	tristate "ZHIHE A210 memtester support"
 	default y
 	help
-	  This driver supports P100 memtester feature.
+	  This driver supports A210 memtester feature.
 
-config P100_POWER_DOMAIN
-	bool "P100 Power Domain driver"
+config A210_POWER_DOMAIN
+	bool "A210 Power Domain driver"
 	depends on PM
 	select PM_GENERIC_DOMAINS
 	default y
 	help
-	  This is the power domain driver that controls PCU/PPU for P100 Soc.
+	  This is the power domain driver that controls PCU/PPU for A210 Soc.
 
-config P100_BMU
-        tristate "p100-bmu driver"
+config A210_BMU
+        tristate "A210 bmu driver"
         default n
         help
-          This driver provides support for p100 bmu.
+          This driver provides support for A210 bmu.
 
 endmenu
