@@ -581,7 +581,7 @@ static const struct dw_hdmi_mpll_gen_config mpll_configs[] = {
 	  	.divider = { .prep_div = 0x0, .mpll_cko_div = 0x3, .ref_cntrl = 0x0,
 			     .mpll_n_cntrl = 0x0, .vco_cntrl = 0x0, .mpll_multiplier = 0x5, },
 		.charge_pump = { .gmp_cntrl = 0x3, .prop_cntrl = 0x2, .int_cntrl = 0x0, },
-		.voltage = { .txterm = TXTERM_100_OHM, .sup_txlvl = 0xf, .tx_traon = 0x0,
+		.voltage = { .txterm = TXTERM_200_OHM, .sup_txlvl = 0x11, .tx_traon = 0x0,
 			     .tx_trbon = 0x0, .tx_symon = 0xf, .ck_symon = 0xa, },
 	},
 };

@@ -101,6 +101,7 @@ static int ES7210_CHANNELS_MAX = 1;
 /*  to set internal mclk and adclrclk ratio   */
 
 #define RATIO_768  0xC3
+#define RATIO_384  0x03
 #define RATIO_256  0xC1
 #define RATIO_128  0x01
 #define RATIO_64  0x41 /* mclk from bclk pin */
@@ -314,6 +315,9 @@ static void es7210_tdm_init_ratio(struct es7210_priv *priv)
                         break;
                 case 256:
                         priv->mclk_lrck_ratio = RATIO_256;
+                        break;
+                case 384:
+                        priv->mclk_lrck_ratio = RATIO_384;
                         break;
                 case 768:
                         priv->mclk_lrck_ratio = RATIO_768;
@@ -776,11 +780,11 @@ static int es7210_pcm_hw_params(struct snd_pcm_substream *substream,
                         es7210_update_bits(0x11, 0xE0, 0x20,
                                            i2c_clt1[i]);
                         break;
+                case SNDRV_PCM_FORMAT_S24_LE:
                 case SNDRV_PCM_FORMAT_S24_3LE:
                         es7210_update_bits(0x11, 0xE0, 0x00,
                                            i2c_clt1[i]);
                         break;
-                case SNDRV_PCM_FORMAT_S24_LE:
                 case SNDRV_PCM_FORMAT_S32_LE:
                         es7210_update_bits(0x11, 0xE0, 0x80,
                                            i2c_clt1[i]);

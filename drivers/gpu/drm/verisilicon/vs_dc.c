@@ -1125,32 +1125,28 @@ MODULE_DEVICE_TABLE(of, dc_driver_dt_match);
 
 static void dc_get_display_pll(struct device *dev, struct vs_dc *dc)
 {
-	struct device_node *np;
+	struct device_node *child;
+	u32 reg;
 
-	np = of_find_node_by_name(NULL, "dw-mipi-dsi0");
-	if (!np)
-		dev_err(dev, "Failed to get dsi0\n");
-	else
-		dc->dpu0pll_on = of_device_is_available(np);
+	dc->dpu0pll_on = 0;
+	dc->dpu1pll_on = 0;
 
-	np = of_find_node_by_name(NULL, "dw-mipi-dsi1");
-	if (!np)
-		dev_err(dev, "Failed to get dsi1\n");
-	else
-		dc->dpu1pll_on = of_device_is_available(np);
+	for_each_child_of_node(dev->of_node, child) {
+		if (!child->name || strcmp(child->name, "port") != 0)
+			continue;
 
-	/* dsi1/hdmi share the same pll1, hdmi detect again if dsi1 not use */
-	if (!dc->dpu1pll_on) {
-		np = of_find_node_by_name(NULL, "dw-hdmi-tx");
-		if (!np)
-			dev_err(dev, "Failed to get hdmi\n");
-		else
-			dc->dpu1pll_on = of_device_is_available(np);
+		if (of_property_read_u32(child, "reg", &reg)) {
+			continue;
+		}
+
+		if (reg == 0) {
+			dc->dpu0pll_on = of_device_is_available(child);
+		} else if (reg == 1) {
+			dc->dpu1pll_on = of_device_is_available(child);
+		}
 	}
 
-
-	dev_info(dev, "dpu0pll_on:%d dpu1pll_on:%d\n", dc->dpu0pll_on,
-			dc->dpu1pll_on);
+	dev_info(dev, "dpu0pll_on:%d dpu1pll_on:%d\n", dc->dpu0pll_on, dc->dpu1pll_on);
 }
 
 static int dc_probe(struct platform_device *pdev)
@@ -1161,7 +1157,6 @@ static int dc_probe(struct platform_device *pdev)
     char pixclk[16];
     struct device_node *np = dev->of_node;
 
-    printk("%s:%d\n", __FUNCTION__, __LINE__);
     dc = devm_kzalloc(dev, sizeof(*dc), GFP_KERNEL);
     if (!dc)
         return -ENOMEM;

@@ -26,7 +26,8 @@ static int i2s3_probe_flag = 0;
 
 static unsigned int a200_special_sample_rates[] = { 11025, 22050, 44100, 88200 };
 
-static int a200_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate)
+static int a200_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate,
+			    unsigned int ratio)
 {
 	unsigned int div, div0;
 	unsigned int i2s_src_clk = 0;
@@ -42,9 +43,9 @@ static int a200_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate)
 		}
 		/* choose src clk between 48000 and 44100 fsb for div */
 		if (i2s_src_clk)
-			div = AUDIO_IIS_SRC1_CLK / IIS_MCLK_SEL_256;	// 44100 fsb
+			div = AUDIO_IIS_SRC1_CLK / ratio;	// 44100 fsb
 		else
-			div = AUDIO_IIS_SRC0_CLK / IIS_MCLK_SEL_256;	// 48000 fsb
+			div = AUDIO_IIS_SRC0_CLK / ratio;	// 48000 fsb
 		/* set audio cpr reg for i2s0/1/2 */
 		if (strstr(i2s_priv->drvdata->name, I2S0)) {
 			if (i2s_src_clk)
@@ -81,7 +82,7 @@ static int a200_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate)
 						   CPR_I2S2_SRC_SEL(0));
 		}
 	} else
-		div = IIS_SRC_CLK / IIS_MCLK_SEL_256;
+		div = IIS_SRC_CLK / ratio;
 
 	div0 = (div + div % rate) / rate;
 	regmap_write(i2s_priv->regmap, I2S_DIV0_LEVEL, div0);
@@ -93,11 +94,12 @@ static int a200_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate)
 	return 0;
 }
 
-static int a210_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate)
+static int a210_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate,
+			    unsigned int ratio)
 {
 	unsigned int div0, div3;
 	unsigned int __maybe_unused sclk;
-	unsigned int __maybe_unused mclk = rate * IIS_MCLK_SEL_256;
+	unsigned int __maybe_unused mclk = rate * ratio;
 	int ret = 0;
 
 	if (ZHIHE_IIS_44100_SRC_CLK % mclk)
@@ -286,6 +288,7 @@ static int zhihe_i2s_dai_hw_params(struct snd_pcm_substream *substream,
 	unsigned int format = params_format(params);
 	unsigned int rate = params_rate(params);
 	unsigned int fssta = 0, iiscnf_out = 0, iiscnf_in = 0;
+	unsigned int ratio = IIS_MCLK_SEL_256;
 	unsigned int funcmode;
 	int ret = 0;
 	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
@@ -296,26 +299,32 @@ static int zhihe_i2s_dai_hw_params(struct snd_pcm_substream *substream,
 	switch (format) {
 	case SNDRV_PCM_FORMAT_S8:
 		fssta |= I2S_DATA_8BIT_WIDTH_32BIT;
+		fssta |= FSSTA_SCLK_SEL_64;
+		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	case SNDRV_PCM_FORMAT_S16_LE:
 		fssta |= I2S_DATA_WIDTH_16BIT;
+		fssta |= FSSTA_SCLK_SEL_32;
+		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	case SNDRV_PCM_FORMAT_S24_LE:
 		fssta |= I2S_DATA_24BIT_WIDTH_32BIT;
+		fssta |= FSSTA_SCLK_SEL_64;
+		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	case SNDRV_PCM_FORMAT_S32_LE:
 	case SNDRV_PCM_FORMAT_FLOAT_LE:
 		fssta |= I2S_DATA_WIDTH_32BIT;
+		fssta |= FSSTA_SCLK_SEL_64;
+		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	default:
 		dev_err(i2s_priv->dev, "Unknown data format: %u\n", format);
 		return -EINVAL;
 	}
 
-	/* default sclk frequency select 64*fs */
-	fssta |= FSSTA_SCLK_SEL_64;
 	regmap_update_bits(i2s_priv->regmap, I2S_FSSTA, FSSTA_DATAWTH_Msk |
-			   FSSTA_SCLK_SEL_Msk, fssta);
+			   FSSTA_SCLK_SEL_Msk | FSSTA_MCLK_SEL_Msk, fssta);
 
 	regmap_read(i2s_priv->regmap, I2S_FUNCMODE, &funcmode);
 
@@ -352,9 +361,9 @@ static int zhihe_i2s_dai_hw_params(struct snd_pcm_substream *substream,
 			   CNFIN_RX_CH_SEL_Msk | CNFIN_RVOICEEN_Msk, iiscnf_in);
 
 	if (i2s_priv->board == ZHIHE_A210)
-		ret = a210_i2s_set_div(i2s_priv, rate);
+		ret = a210_i2s_set_div(i2s_priv, rate, ratio);
 	else if (i2s_priv->board == ZHIHE_A200)
-		ret = a200_i2s_set_div(i2s_priv, rate);
+		ret = a200_i2s_set_div(i2s_priv, rate, ratio);
 
 	return ret;
 }
@@ -368,6 +377,7 @@ static int zhihe_hdmi_dai_hw_params(struct snd_pcm_substream *substream,
 	unsigned int format = params_format(params);
 	unsigned int rate = params_rate(params);
 	unsigned int fssta = 0, iiscnf_out = 0;
+	unsigned int ratio = IIS_MCLK_SEL_256;
 	int ret = 0;
 
 	if (strstr(i2s_priv->drvdata->name, I2S3) && !i2s_priv->regmap)
@@ -376,19 +386,21 @@ static int zhihe_hdmi_dai_hw_params(struct snd_pcm_substream *substream,
 	switch (format) {
 	case SNDRV_PCM_FORMAT_S16_LE:
 		fssta |= I2S_DATA_WIDTH_16BIT;
+		fssta |= FSSTA_SCLK_SEL_32;
+		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	case SNDRV_PCM_FORMAT_S24_LE:
 		fssta |= I2S_DATA_WIDTH_24BIT;
+		fssta |= FSSTA_SCLK_SEL_64;
+		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	default:
 		dev_err(i2s_priv->dev, "Unknown data format: %d\n", format);
 		return -EINVAL;
 	}
 
-	/* default sclk frequency select 64*fs */
-	fssta |= FSSTA_SCLK_SEL_64;
 	regmap_update_bits(i2s_priv->regmap, I2S_FSSTA, FSSTA_DATAWTH_Msk |
-			   FSSTA_SCLK_SEL_Msk, fssta);
+			   FSSTA_SCLK_SEL_Msk | FSSTA_MCLK_SEL_Msk, fssta);
 
 	if (channels == MONO_SOURCE)
 		iiscnf_out |= CNFOUT_TX_VOICE_EN_MONO;
@@ -398,9 +410,9 @@ static int zhihe_hdmi_dai_hw_params(struct snd_pcm_substream *substream,
 			   CNFOUT_TX_VOICE_EN_Msk, iiscnf_out);
 
 	if (i2s_priv->board == ZHIHE_A210)
-		ret = a210_i2s_set_div(i2s_priv, rate);
+		ret = a210_i2s_set_div(i2s_priv, rate, ratio);
 	else if (i2s_priv->board == ZHIHE_A200)
-		ret = a200_i2s_set_div(i2s_priv, rate);
+		ret = a200_i2s_set_div(i2s_priv, rate, ratio);
 
 	return ret;
 }
@@ -446,6 +458,7 @@ static struct snd_soc_dai_driver zhihe_i2s_soc_dai[] = {
 		},
 		.ops = &zhihe_i2s_dai_ops,
 		.symmetric_rate = 1,
+		.symmetric_sample_bits = 1,
 	},
 	/* i2s hdmi dai. */
 	{

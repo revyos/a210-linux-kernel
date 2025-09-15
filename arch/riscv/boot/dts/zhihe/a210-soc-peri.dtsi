@@ -117,6 +117,34 @@
 			};
 		};
 
+		dp0: dp-tx@8010000 {
+			compatible = "zhihe,dw-dp";
+			reg = <0x0 0x8010000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <179>;
+			clocks = <&clk_vo DPTX_I2S_CLK_EN>,
+					 <&clk_vo DPTX_IPI_CLK_EN>,
+					 <&clk_vo DPTX_AUX_CLK_EN>,
+					 <&clk_vo DPTX_GTC_CLK_EN>,
+					 <&clk_vo DPTX_PCLK_EN>;
+			clock-names = "i2s", "ipi", "aux", "gtc", "pclk";
+			force-hpd = <1>;
+			#sound-dai-cells = <1>;
+			status = "okay";
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					status = "okay";
+					dp_tx_in: endpoint {
+						reg = <0>;
+						remote-endpoint = <&disp0_out>;
+						status = "okay";
+					};
+				};
+			};
+		};
+
 		dpu: dc8200@6400000{
 			compatible = "verisilicon,dc8200";
 			reg = <0x00 0x6400000 0x0 0x100>,  <0x00 0x6400800 0x0 0x2000>, <0x00 0x6430010 0x0 0x60>;
@@ -144,7 +172,7 @@
 			dpu_disp0: port@0 {
 				reg = <0>;
 				disp0_out: endpoint {
-					remote-endpoint = <&enc0_in>;
+					remote-endpoint = <&dp_tx_in>;
 				};
 			};
 

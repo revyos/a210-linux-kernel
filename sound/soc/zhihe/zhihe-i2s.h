@@ -26,7 +26,7 @@
 #define AUDIO_I2S2		"audio-i2s2"
 
 #define IIS_SRC_CLK		294912000
-#define AUDIO_IIS_SRC0_CLK	49152000
+#define AUDIO_IIS_SRC0_CLK	147456000
 #define AUDIO_IIS_SRC1_CLK	135475200
 
 enum {
@@ -216,7 +216,8 @@ enum {
 
 #define FSSTA_MCLK_SEL_Pos		(16U)
 #define FSSTA_MCLK_SEL_Msk		(0x1U << FSSTA_MCLK_SEL_Pos)
-#define FSSTA_MCLK_SEL_384		FSSTA_MCLK_SEL_Msk
+#define FSSTA_MCLK_SEL_256		(0x0U << FSSTA_MCLK_SEL_Pos)
+#define FSSTA_MCLK_SEL_384		(0x1U << FSSTA_MCLK_SEL_Pos)
 
 /* IISCNFOUT, offset: 0x10 */
 #define CNFOUT_TSAFS_POS		(0U)

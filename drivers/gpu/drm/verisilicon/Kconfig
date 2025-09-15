@@ -43,6 +43,17 @@ config VERISILICON_DW_HDMI_TH1520
 	  This driver supports Synopsys DW HDMI controller on TH1520
 	  platform from XUANTIE Corp.
 
+config VERISILICON_DW_DP_P100
+	bool "THEAD sepcific driver for Synopsys DW DP on P100"
+	depends on DRM_VERISILICON
+	select DRM_DW_DP
+	select DRM_DP
+	select DRM_DISPLAY_HDCP_HELPER
+	select DRM_DISPLAY_DP_HELPER
+	help
+	  This driver supports Synopsys DW DP controller on P100
+	  platform from THEAD Corp.
+
 config VERISILICON_MMU
 	bool "MMU support for VeriSilicon display controller"
 	depends on DRM_VERISILICON

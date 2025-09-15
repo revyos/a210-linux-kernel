@@ -357,7 +357,7 @@
 	};
 	uart3_pins: uart3-0 {
 		tx-pins {
-			pins = "GPIO0_3", "GPIO0_5";
+			pins = "GPIO0_3", "GPIO0_6";	// TXD, RTSN
 			function = "uart3";
 			bias-disable;
 			drive-strength = <3>;
@@ -367,7 +367,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO0_4", "GPIO0_6";
+			pins = "GPIO0_4", "GPIO0_5";	// RXD, CTSN
 			function = "uart3";
 			bias-disable;
 			drive-strength = <1>;
@@ -399,7 +399,7 @@
 	};
 	uart0_pins: uart0-0 {
 		tx-pins {
-			pins = "GPIO0_14", "GPIO0_16";
+			pins = "GPIO0_14", "GPIO0_17";	// TXD, RTSN
 			function = "uart0";
 			bias-disable;
 			drive-strength = <3>;
@@ -409,7 +409,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO0_15", "GPIO0_17";
+			pins = "GPIO0_15", "GPIO0_16";	// RXD, CTSN
 			function = "uart0";
 			bias-disable;
 			drive-strength = <1>;
@@ -550,7 +550,7 @@
 	};
 	uart1_pins: uart1-1 {
 		tx-pins {
-			pins = "GPIO0_28", "GPIO0_30";
+			pins = "GPIO0_28", "GPIO0_31";	// TXD, RTSN
 			function = "uart1";
 			bias-disable;
 			drive-strength = <3>;
@@ -560,7 +560,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO0_29", "GPIO0_31";
+			pins = "GPIO0_29", "GPIO0_30";	// RXD, CTSN
 			function = "uart1";
 			bias-disable;
 			drive-strength = <1>;
@@ -660,6 +660,17 @@
 			slew-rate = <0>;
 		};
 	};
+	sdhci_pins: sdhci0-1 {
+		sd-pins {
+			pins = "GPIO1_1";
+			function = "sdio";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 	pdm_pins: pdm-0 {
 		pdm-pins {
 			pins = "GPIO1_12", "GPIO1_13", "GPIO1_14", "GPIO1_15"; // PDM_SDIN3(GPIO1_8) conflicts with CHIP_DBG_RXD
@@ -740,7 +751,7 @@
 	};
 	uart6_pins: uart6-0 {
 		tx-pins {
-			pins = "GPIO2_4";
+			pins = "GPIO2_4", "GPIO2_9";	// TXD, RTSN
 			function = "uart6";
 			bias-disable;
 			drive-strength = <3>;
@@ -750,7 +761,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO2_5";
+			pins = "GPIO2_5", "GPIO2_8";	// RXD, CTSN
 			function = "uart6";
 			bias-disable;
 			drive-strength = <1>;
@@ -816,7 +827,7 @@
 			pins = "GPIO2_7"; // PWM2_CH5
 			function = "pwm2";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <13>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <0>;
@@ -913,7 +924,7 @@
 			pins = "GPIO2_28"; // PWM1_CH0
 			function = "pwm1";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <13>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <0>;
@@ -1418,8 +1429,13 @@
 };
 
 &sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdhci_pins>;
 	max-frequency = <196608000>;
+	cap-sd-highspeed;
 	bus-width = <4>;
+	sd-uhs-sdr104;
+	no-sdio;
 	pull_up;
 	wprtn_ignore;
 };
@@ -1660,7 +1676,7 @@
 
 /*
  expansion IO: spi0-0
- Conflict with: uart1-1/pcie_x4
+ Conflict with: uart1-1/pcie_x4/sdhci0
  Switch mode:
 	GPMUX_SEL_07 -> 1
 	GPMUX_SEL_08 -> 1
@@ -1702,4 +1718,8 @@
 &vidmem {
   status = "okay";
   memory-region = <&framebuffer>;
+};
+
+&usb2_0 {
+  status = "disabled";
 };
