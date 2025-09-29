@@ -8,7 +8,7 @@
 #include <dt-bindings/iopmp/zh-iopmp.h>
 
 / {
-	compatible = "zhihe,p100";
+	compatible = "zhihe,a210";
 	#address-cells = <2>;
 	#size-cells = <2>;
 
@@ -1248,7 +1248,7 @@
 			reg-names = "common", "ts", "pd", "vm";
 			clocks = <&aon_110m>;
 			#thermal-sensor-cells = <1>;
-			moortec,ts-coeff-h = <220500>;
+			moortec,ts-coeff-h = <220000>;
 			moortec,ts-coeff-g = <42740>;
 			moortec,ts-coeff-j = <0xFFFFFF60>;		// -160
 			moortec,ts-coeff-cal5 = <4094>;

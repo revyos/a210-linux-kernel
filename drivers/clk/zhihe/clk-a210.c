@@ -892,7 +892,7 @@ static int p100_clocks_probe(struct platform_device *pdev)
 		goto unregister_clks;
 	}
 
-	dev_err(dev, "succeed to register p100 %s driver\n", priv->name);
+	dev_info(dev, "succeed to register p100 %s driver\n", priv->name);
 
 	return 0;
 

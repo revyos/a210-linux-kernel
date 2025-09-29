@@ -82,12 +82,11 @@ static int a210_wdt_is_running(struct a210_wdt_device *wdt_dev)
 	struct a210_aon_ipc *ipc = wdt_dev->ipc_handle;
 	struct a210_aon_msg_wdg_ctrl_ack ack_msg= {0};
 	int ret;
-	
+
 	a210_wdt_msg_hdr_fill(&wdt_dev->msg.hdr, A210_AON_WDG_FUNC_GET_STATE);
 	wdt_dev->msg.running_state = -1;
-	
+
 	ret = a210_aon_call_rpc(ipc, &wdt_dev->msg, &ack_msg, true);
-	printk("a210_wdt_is_running ret %d",ret);
 	if (ret)
 		return ret;
 
@@ -96,8 +95,6 @@ static int a210_wdt_is_running(struct a210_wdt_device *wdt_dev)
 
 	pr_debug("ret = %d, timeout = %d, running_state = %d\n", ret, wdt_dev->msg.timeout,
 			wdt_dev->msg.running_state);
-	printk("ret = %d, timeout = %d, running_state = %d\n", ret, wdt_dev->msg.timeout,
-			wdt_dev->msg.running_state);	
 	return wdt_dev->msg.running_state;
 }
 
@@ -206,12 +203,10 @@ static int a210_wdt_restart(struct watchdog_device *wdd, unsigned long action, v
 	a210_wdt_msg_hdr_fill(&wdt_dev->msg.hdr, A210_AON_WDG_FUNC_RESTART);
 
 	pr_debug("[%s,%d]: Inform aon to restart the whole system....\n", __func__, __LINE__);
-	printk("a210_wdt_restart msg 0x%x\n",wdt_dev->msg.hdr);
 	ret = a210_aon_call_rpc(ipc, &wdt_dev->msg, NULL, false);
 	if (ret)
 		return ret;
 	pr_debug("[%s,%d]: Finish to inform aon to restart the whole system....\n", __func__, __LINE__);
-	printk("Finish to inform aon to restart the whole system....\n");
 
 	return 0;
 }
@@ -301,7 +296,6 @@ static int a210_wdt_probe(struct platform_device *pdev)
 	int ret;
 	struct watchdog_device *wdd;
 
-	printk("a210_wdt_probe\n");
 	msleep(1000);
 	wdt_dev = devm_kzalloc(dev, sizeof(*wdt_dev), GFP_KERNEL);
 	if (!wdt_dev)
@@ -309,11 +303,8 @@ static int a210_wdt_probe(struct platform_device *pdev)
 	wdt_dev->is_aon_wdt_ena = 0;
 
 	ret = a210_aon_get_handle(&(wdt_dev->ipc_handle),"aon0");
-	printk("a210_wdt_probe wdt_dev->ipc_handle 0x%x",wdt_dev->ipc_handle);
-	printk("a210_wdt_probe ret %d",ret);
 	if (ret == -EPROBE_DEFER)
 		return ret;
-	printk("a210_wdt_probe get_handleOK %d",ret);
 	wdd = devm_kzalloc(dev, sizeof(*wdd), GFP_KERNEL);
 	if (!wdd)
 		return -ENOMEM;
@@ -336,7 +327,6 @@ static int a210_wdt_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, wdt_dev);
 	ret = a210_wdt_is_running(wdt_dev);
 	if (ret < 0) {
-		printk("a210_wdt_probe failed to get pmic wdt running state\n");
 		pr_err("failed to get pmic wdt running state\n");
 		return ret;
 	}
@@ -350,9 +340,6 @@ static int a210_wdt_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
-	printk("[%s,%d] register power off callback\n", __func__, __LINE__);
-	pr_info("[%s,%d] register power off callback\n", __func__, __LINE__);
-
 	pm_power_off = a210_pm_power_off;
 	a210_power_off_wdt = wdt_dev;
 	ret = sysfs_create_group(&pdev->dev.kobj, &dev_attr_aon_sys_wdt_group);
@@ -362,7 +349,6 @@ static int a210_wdt_probe(struct platform_device *pdev)
 	}
 
 	pr_info("succeed to register p100 pmic watchdog\n");
-	printk("a210_wdt_probe succeed to register p100 pmic watchdog\n");
 
 	return 0;
 }
@@ -427,7 +413,6 @@ static int __init a210_wdt_init(void)
 	}
 
 	pr_info("Watchdog module: %s loaded\n", DRV_NAME);
-	printk("Watchdog module: %s loaded\n", DRV_NAME);
 	return 0;
 }
 device_initcall(a210_wdt_init);

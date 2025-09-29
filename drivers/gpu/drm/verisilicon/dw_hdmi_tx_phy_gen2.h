@@ -500,8 +500,8 @@ static const struct dw_hdmi_mpll_gen_config mpll_configs[] = {
 	  	.divider = { .prep_div = 0x0, .mpll_cko_div = 0x0, .ref_cntrl = 0x0,
 			     .mpll_n_cntrl = 0x1, .vco_cntrl = 0x1, .mpll_multiplier = 0xa, },
 		.charge_pump = { .gmp_cntrl = 0x2, .prop_cntrl = 0x2, .int_cntrl = 0x0, },
-		.voltage = { .txterm = TXTERM_OPEN_CIRCUIT, .sup_txlvl = 0xd, .tx_traon = 0x0,
-			     .tx_trbon = 0x0, .tx_symon = 0x8, .ck_symon = 0x8, },
+		.voltage = { .txterm = TXTERM_OPEN_CIRCUIT, .sup_txlvl = 0xc, .tx_traon = 0x0,
+			     .tx_trbon = 0x1, .tx_symon = 0x8, .ck_symon = 0x8, },
 	}, {
 		.pixelclock = 154000,
 		.colordepth = 8,
@@ -554,8 +554,8 @@ static const struct dw_hdmi_mpll_gen_config mpll_configs[] = {
 	  	.divider = { .prep_div = 0x0, .mpll_cko_div = 0x0, .ref_cntrl = 0x0,
 			     .mpll_n_cntrl = 0x0, .vco_cntrl = 0x1, .mpll_multiplier = 0x5, },
 		.charge_pump = { .gmp_cntrl = 0x3, .prop_cntrl = 0x1, .int_cntrl = 0x1, },
-		.voltage = { .txterm = TXTERM_133_33_OHM, .sup_txlvl = 0x10, .tx_traon = 0x0,
-			     .tx_trbon = 0x1, .tx_symon = 0xd, .ck_symon = 0xc, },
+		.voltage = { .txterm = TXTERM_66_67_OHM, .sup_txlvl = 0xc, .tx_traon = 0x1,
+			     .tx_trbon = 0x0, .tx_symon = 0xc, .ck_symon = 0x8, },
 	}, {
 		.pixelclock = 371250,
 	  	.colordepth = 8,
@@ -581,8 +581,8 @@ static const struct dw_hdmi_mpll_gen_config mpll_configs[] = {
 	  	.divider = { .prep_div = 0x0, .mpll_cko_div = 0x3, .ref_cntrl = 0x0,
 			     .mpll_n_cntrl = 0x0, .vco_cntrl = 0x0, .mpll_multiplier = 0x5, },
 		.charge_pump = { .gmp_cntrl = 0x3, .prop_cntrl = 0x2, .int_cntrl = 0x0, },
-		.voltage = { .txterm = TXTERM_200_OHM, .sup_txlvl = 0x11, .tx_traon = 0x0,
-			     .tx_trbon = 0x0, .tx_symon = 0xf, .ck_symon = 0xa, },
+		.voltage = { .txterm = TXTERM_66_67_OHM, .sup_txlvl = 0xc, .tx_traon = 0x1,
+			     .tx_trbon = 0x1, .tx_symon = 0xf, .ck_symon = 0x3, },
 	},
 };
 

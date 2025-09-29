@@ -121,13 +121,13 @@
 		#size-cells = <0>;
 		status = "okay";
 
-		simple-audio-card,widgets = "Speaker";
+		simple-audio-card,widgets = "Speaker", "Speaker";
 		simple-audio-card,routing =
 			"Speaker", "AW87565_PA2 VO",
 			"AW87565_PA2 IN", "ES8156_DAC1 LOUT";
 		simple-audio-card,aux-devs = <&audio_aw87565_pa2>;
-		SOUND_CARD_LINK(0, i2s, i2s1, 0, es8156_dac1, 0);  /* I2S1 <-> es8156_dac1 */
-		SOUND_CARD_LINK(1, i2s, i2s1, 0, es7210_adc1, 0);  /* I2S1 <-> es7210_adc1 */
+		SOUND_CARD_LINK(0, i2s, i2s1, 0, es8156_dac1, 0);
+		SOUND_CARD_LINK(1, i2s, i2s1, 0, es7210_adc1, 0);
 	};
 
 	/* The bootargs in U-Boot will override the configuration set here. */
@@ -136,10 +136,25 @@
 	};
 };
 
+&aon_padctrl {
+	rtc_pins: rtc {
+		rtc-pins {
+			pins = "AOGPIO0_27";
+			function = "aogpio0";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+};
+
 &peri1_padctrl {
 	gmac0_pins: gmac0-0 {
 		txclk-pins {
-			pins = "GPIO0_0"; /* GMAC0_TX_CLK */
+			pins = "GPIO0_0", /* GMAC0_TX_CLK */
+					"GPIO0_12"; /* GMAC0_MDC */
 			function = "gmac0";
 			bias-disable;
 			drive-strength = <13>;
@@ -150,10 +165,10 @@
 
 		tx-pins {
 			pins = "GPIO0_2", /* GMAC0_TXEN */
-			       "GPIO0_3", /* GMAC0_TXD0 */
-			       "GPIO0_4", /* GMAC0_TXD1 */
-			       "GPIO0_5", /* GMAC0_TXD2 */
-			       "GPIO0_6"; /* GMAC0_TXD3 */
+					"GPIO0_3", /* GMAC0_TXD0 */
+					"GPIO0_4", /* GMAC0_TXD1 */
+					"GPIO0_5", /* GMAC0_TXD2 */
+					"GPIO0_6"; /* GMAC0_TXD3 */
 			function = "gmac0";
 			bias-disable;
 			drive-strength = <20>;
@@ -164,37 +179,17 @@
 
 		rx-pins {
 			pins = "GPIO0_1",  /* GMAC0_RX_CLK */
-			       "GPIO0_7",  /* GMAC0_RXDV */
-			       "GPIO0_8",  /* GMAC0_RXD0 */
-			       "GPIO0_9",  /* GMAC0_RXD1 */
-			       "GPIO0_10", /* GMAC0_RXD2 */
-			       "GPIO0_11"; /* GMAC0_RXD3 */
+					"GPIO0_7",  /* GMAC0_RXDV */
+					"GPIO0_8",  /* GMAC0_RXD0 */
+					"GPIO0_9",  /* GMAC0_RXD1 */
+					"GPIO0_10", /* GMAC0_RXD2 */
+					"GPIO0_11", /* GMAC0_RXD3 */
+					"GPIO0_13"; /* GMAC0_MDIO */
 			function = "gmac0";
 			bias-disable;
 			drive-strength = <13>;
 			input-enable;
 			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-	};
-	mdio0_pins: mdio0-0 {
-		mdc-pins {
-			pins = "GPIO0_12"; /* GMAC0_MDC */
-			function = "gmac0";
-			bias-disable;
-			drive-strength = <13>;
-			input-disable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-
-		mdio-pins {
-			pins = "GPIO0_13"; /* GMAC0_MDIO */
-			function = "gmac0";
-			bias-disable;
-			drive-strength = <13>;
-			input-enable;
-			input-schmitt-enable;
 			slew-rate = <0>;
 		};
 	};
@@ -253,7 +248,7 @@
 	};
 	pcie_x4_pins: pcie_x4-1 {
 		pcie_x4-pins {
-			pins = "GPIO0_28", "GPIO0_29", "GPIO0_30", "GPIO0_31";
+			pins = "GPIO0_28", "GPIO0_29", "GPIO0_31";
 			function = "pcie_x4";
 			bias-disable;
 			drive-strength = <7>;
@@ -264,7 +259,8 @@
 	};
 	gmac1_pins: gmac1-0 {
 		txclk-pins {
-			pins = "GPIO1_2"; /* GMAC1_TX_CLK */
+			pins = "GPIO1_2", /* GMAC1_TX_CLK */
+					"GPIO1_14"; /* GMAC1_MDC */
 			function = "gmac1";
 			bias-disable;
 			drive-strength = <13>;
@@ -274,10 +270,10 @@
 		};
 		tx-pins {
 			pins = "GPIO1_4", /* GMAC1_TXEN */
-			       "GPIO1_5", /* GMAC1_TXD0 */
-			       "GPIO1_6", /* GMAC1_TXD1 */
-			       "GPIO1_7", /* GMAC1_TXD2 */
-			       "GPIO1_8"; /* GMAC1_TXD3 */
+					"GPIO1_5", /* GMAC1_TXD0 */
+					"GPIO1_6", /* GMAC1_TXD1 */
+					"GPIO1_7", /* GMAC1_TXD2 */
+					"GPIO1_8"; /* GMAC1_TXD3 */
 			function = "gmac1";
 			bias-disable;
 			drive-strength = <20>;
@@ -287,37 +283,17 @@
 		};
 		rx-pins {
 			pins = "GPIO1_3",  /* GMAC1_RX_CLK */
-			       "GPIO1_9",  /* GMAC1_RXDV */
-			       "GPIO1_10", /* GMAC1_RXD0 */
-			       "GPIO1_11", /* GMAC1_RXD1 */
-			       "GPIO1_12", /* GMAC1_RXD2 */
-			       "GPIO1_13"; /* GMAC1_RXD3 */
+					"GPIO1_9",  /* GMAC1_RXDV */
+					"GPIO1_10", /* GMAC1_RXD0 */
+					"GPIO1_11", /* GMAC1_RXD1 */
+					"GPIO1_12", /* GMAC1_RXD2 */
+					"GPIO1_13", /* GMAC1_RXD3 */
+					"GPIO1_15"; /* GMAC1_MDIO */
 			function = "gmac1";
 			bias-disable;
 			drive-strength = <13>;
 			input-enable;
 			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-	};
-	mdio1_pins: mdio1-0 {
-		mdc-pins {
-			pins = "GPIO1_14"; /* GMAC1_MDC */
-			function = "gmac1";
-			bias-disable;
-			drive-strength = <13>;
-			input-disable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-
-		mdio-pins {
-			pins = "GPIO1_15"; /* GMAC1_MDIO */
-			function = "gmac1";
-			bias-disable;
-			drive-strength = <13>;
-			input-enable;
-			input-schmitt-enable;
 			slew-rate = <0>;
 		};
 	};
@@ -466,7 +442,7 @@
 	};
 	uart8_pins: uart8-1 {
 		tx-pins {
-			pins = "GPIO3_2", "GPIO2_22";	// TXD, RTSN
+			pins = "GPIO3_2";	// TXD
 			function = "uart8";
 			bias-disable;
 			drive-strength = <3>;
@@ -476,7 +452,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO3_3", "GPIO2_21";	// RXD, CTSN
+			pins = "GPIO3_3";	// RXD
 			function = "uart8";
 			bias-disable;
 			drive-strength = <1>;
@@ -497,9 +473,6 @@
 };
 
 &mdio0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mdio0_pins>;
-
 	phy0: ethernet-phy@0 {
 		reg = <0x0>;
 	};
@@ -513,9 +486,6 @@
 };
 
 &mdio1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mdio1_pins>;
-
 	phy1: ethernet-phy@1 {
 		reg = <0x0>;
 	};
@@ -545,6 +515,13 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c4_pins>;
 	clock-frequency = <400000>;
+
+	pcf8563: rtc@51 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&rtc_pins>;
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
+	};
 };
 
 &i2c5 {
@@ -556,9 +533,9 @@
 		compatible = "everest,es8156";
 		reg = <0x8>;
 		#sound-dai-cells = <1>;
-		sound-name-prefix = "ES8156_DAC1";
+		sound-name-prefix = "ES8156_DAC0";
 		mclk-sclk-ratio = <4>;
-		status = "okay";
+		status = "disabled";
 	};
 
 	codec_es7210_adc0: es7210@40 {
@@ -568,8 +545,8 @@
 		work-mode = "ES7210_NORMAL_I2S";
 		channels-max = <2>;
 		mclk-sclk-ratio = <4>;
-		sound-name-prefix = "ES7210_ADC1";
-		status = "okay";
+		sound-name-prefix = "ES7210_ADC0";
+		status = "disabled";
 	};
 
 	codec_es8156_dac1: es8156@9 {
@@ -582,7 +559,7 @@
 	};
 
 	codec_es7210_adc1: es7210@41 {
-		compatible = "MicArray_1";
+		compatible = "MicArray_0";
 		reg = <0x41>;
 		#sound-dai-cells = <1>;
 		work-mode = "ES7210_NORMAL_I2S";

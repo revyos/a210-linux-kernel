@@ -17,7 +17,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		dpu_enc0: dpu-encoder@0 {
-			/* default encoder is DSI */
+			/* default encoder is DSI. */
 			compatible = "verisilicon,dsi-encoder";
 			reg = <0>;
 			status = "disabled";
@@ -110,9 +110,21 @@
 			reg-io-width = <4>;
 			phy_version = <301>;
 			status = "okay";
-			port@0 {
-				hdmi_tx_in: endpoint {
-					remote-endpoint = <&disp1_out>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+					hdmi_tx_in: endpoint {
+						remote-endpoint = <&disp1_out>;
+					};
+				};
+				/* i2s input */
+				port@1 {
+					reg = <1>;
+					hdmi_i2s_rx: endpoint {
+						remote-endpoint = <&hdmi_i2s_tx>;
+					};
 				};
 			};
 		};
@@ -504,7 +516,7 @@
 		};
 
 		emmc: sdhci@00500000 {
-			compatible = "zhihe,p100-dwcmshc";
+			compatible = "zhihe,a210-dwcmshc";
 			reg = <0x0 0x00500000 0x0 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <265>;
@@ -518,7 +530,7 @@
 		};
 
 		sdhci0: sd@00510000 {
-			compatible = "zhihe,p100-dwcmshc";
+			compatible = "zhihe,a210-dwcmshc";
 			reg = <0x00 0x00510000 0x0 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <337>;
@@ -598,8 +610,10 @@
 		};
 
 		aon_padctrl: aon-padctrl@30848000 {
-			compatible = "zhihe,p100-group0-pinctrl";
+			compatible = "zhihe,a210-group0-pinctrl";
 			reg = <0x00 0x30848000 0x0 0x2000>;
+			clocks = <&aon_110m>;
+			clock-names = "pclk";
 			status = "okay";
 		};
 
@@ -608,14 +622,16 @@
 			reg = <0x00 0x30841000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&aon_110m>, <&osc_32k>;
+			clock-names = "bus", "db";
 			status = "okay";
 
 			ao_gpio0_porta: ao_gpio0-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
 				gpio-controller;
 				#gpio-cells = <2>;
-				ngpios = <26>;
-				gpio-ranges = <&aon_padctrl 0 7 26>;
+				ngpios = <32>;
+				gpio-ranges = <&aon_padctrl 0 8 15>, <&aon_padctrl 21 23 11>;
 				reg = <0>;
 
 				interrupt-controller;
@@ -630,6 +646,8 @@
 			reg = <0x00 0x30897000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&aon_110m>, <&osc_32k>;
+			clock-names = "bus", "db";
 			status = "okay";
 
 			ao_gpio1_porta: ao_gpio1-controller@0 {
@@ -637,7 +655,7 @@
 				gpio-controller;
 				#gpio-cells = <2>;
 				ngpios = <10>;
-				gpio-ranges = <&aon_padctrl 0 33 10>;
+				gpio-ranges = <&aon_padctrl 0 34 10>;
 				reg = <0>;
 
 				interrupt-controller;
@@ -648,7 +666,7 @@
 		};
 
 		peri1_padctrl: peri1-padctrl@02026000 {
-			compatible = "zhihe,p100-group1-pinctrl";
+			compatible = "zhihe,a210-group1-pinctrl";
 			reg = <0x00 0x02026000 0x0 0x1000>;
 			clocks = <&clk_peri PERI1_PAD_CTRL_PCLK_EN>;
 			clock-names = "pclk";
@@ -656,7 +674,7 @@
 		};
 
 		peri2_padctrl: peri2-padctrl@08411000 {
-			compatible = "zhihe,p100-group2-pinctrl";
+			compatible = "zhihe,a210-group2-pinctrl";
 			reg = <0x00 0x08411000 0x0 0x1000>;
 			clocks = <&clk_peri PERI2_PAD_CTRL_PCLK_EN>;
 			clock-names = "pclk";
@@ -664,7 +682,7 @@
 		};
 
 		peri3_padctrl: peri3-padctrl@00542000 {
-			compatible = "zhihe,p100-group3-pinctrl";
+			compatible = "zhihe,a210-group3-pinctrl";
 			reg = <0x00 0x00542000 0x0 0x1000>;
 			clocks = <&clk_peri PERI3_PAD_CTRL_PCLK_EN>;
 			clock-names = "pclk";
@@ -1105,7 +1123,8 @@
 
 		audio_i2s_8ch_sd0: audio_i2s_8ch_sd0@000840c000 {
 			compatible = "zhihe,i2s3-8ch-sd0";
-			reg = <0x0 0x0840c000 0x0 0x1000>;
+			reg = <0x0 0x0840c000 0x0 0x1000>,
+			      <0x0 0x00240000 0x0 0x4>;
 			interrupt-parent = <&intc>;
 			interrupts = <304>;
 			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
@@ -1116,6 +1135,17 @@
 			dma-names = "tx", "rx";
 			snd-soc-zhihe-a210;
 			status = "okay";
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				/* i2s transmit to hdmi */
+				port@0 {
+					reg = <0>;
+					hdmi_i2s_tx: endpoint {
+						remote-endpoint = <&hdmi_i2s_rx>;
+					};
+				};
+			};
 		};
 
 		audio_i2s_8ch_sd1: audio_i2s_8ch_sd1@000840c000 {

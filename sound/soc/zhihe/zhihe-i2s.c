@@ -12,6 +12,7 @@
 #include <linux/mfd/syscon.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
+#include <linux/of_graph.h>
 #include <linux/pm_runtime.h>
 #include <linux/slab.h>
 #include <sound/initval.h>
@@ -25,6 +26,22 @@
 static int i2s3_probe_flag = 0;
 
 static unsigned int a200_special_sample_rates[] = { 11025, 22050, 44100, 88200 };
+
+static bool is_csr_available(struct device_node *i2s_node, int port_reg, int reg)
+{
+	struct device_node *remote_node;
+
+	if (!i2s_node)
+		return false;
+
+	remote_node = of_graph_get_remote_node(i2s_node, port_reg, reg);
+	if (remote_node) {
+		of_node_put(remote_node);
+		return true;
+	}
+
+	return false;
+}
 
 static int a200_i2s_set_div(struct zhihe_i2s_priv *i2s_priv, unsigned int rate,
 			    unsigned int ratio)
@@ -386,18 +403,19 @@ static int zhihe_hdmi_dai_hw_params(struct snd_pcm_substream *substream,
 	switch (format) {
 	case SNDRV_PCM_FORMAT_S16_LE:
 		fssta |= I2S_DATA_WIDTH_16BIT;
-		fssta |= FSSTA_SCLK_SEL_32;
 		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	case SNDRV_PCM_FORMAT_S24_LE:
 		fssta |= I2S_DATA_WIDTH_24BIT;
-		fssta |= FSSTA_SCLK_SEL_64;
 		fssta |= FSSTA_MCLK_SEL_256;
 		break;
 	default:
 		dev_err(i2s_priv->dev, "Unknown data format: %d\n", format);
 		return -EINVAL;
 	}
+
+	/* HDMI audio interface operates with a SCLK at 64fs. */
+	fssta |= FSSTA_SCLK_SEL_64;
 
 	regmap_update_bits(i2s_priv->regmap, I2S_FSSTA, FSSTA_DATAWTH_Msk |
 			   FSSTA_SCLK_SEL_Msk | FSSTA_MCLK_SEL_Msk, fssta);
@@ -427,6 +445,30 @@ static int zhihe_i2s_dai_probe(struct snd_soc_dai *dai)
 	return 0;
 }
 
+static int zhihe_hdmi_dai_probe(struct snd_soc_dai *dai)
+{
+	struct zhihe_i2s_priv *i2s_priv = snd_soc_dai_get_drvdata(dai);
+
+	if (i2s_priv->board == ZHIHE_A210) {
+		u32 val;
+		if (!i2s_priv->sys_csr) {
+			dev_err(i2s_priv->dev,
+				"sys_csr is null, can't init hdmi dai\n");
+			return -EINVAL;
+		}
+
+		val = readl(i2s_priv->sys_csr + SYS_CSR_OFFSET);
+		if (i2s_priv->hdmi_connected)
+			val |= HDMI_AUDIO_EN;
+		writel(val, i2s_priv->sys_csr + SYS_CSR_OFFSET);
+	}
+
+	snd_soc_dai_init_dma_data(dai, &i2s_priv->dma_params_tx,
+				  &i2s_priv->dma_params_rx);
+
+	return 0;
+}
+
 static const struct snd_soc_dai_ops zhihe_i2s_dai_ops = {
 	.probe		= zhihe_i2s_dai_probe,
 	.trigger	= zhihe_i2s_dai_trigger,
@@ -435,7 +477,7 @@ static const struct snd_soc_dai_ops zhihe_i2s_dai_ops = {
 };
 
 static const struct snd_soc_dai_ops zhihe_hdmi_dai_ops = {
-	.probe		= zhihe_i2s_dai_probe,
+	.probe		= zhihe_hdmi_dai_probe,
 	.trigger	= zhihe_i2s_dai_trigger,
 	.set_fmt	= zhihe_i2s_set_fmt_dai,
 	.hw_params	= zhihe_hdmi_dai_hw_params,
@@ -908,6 +950,16 @@ static int zhihe_i2s_probe(struct platform_device *pdev)
 				dev_err(&pdev->dev, "failed to create attr group\n");
 				goto err_suspend;
 			}
+		}
+
+		/* CSR transmit channel config, only i2s3 on A210 is supported */
+		if (!strcmp(i2s_priv->drvdata->name, "i2s3-8ch-sd0")) {
+			i2s_priv->sys_csr = devm_platform_ioremap_resource(pdev, 1);
+			if (!i2s_priv->sys_csr)
+				dev_warn(&pdev->dev, "failed to map sys_csr\n");
+			else
+				i2s_priv->hdmi_connected =
+					is_csr_available(np, TRANSFER_PORT_HDMI, -1);
 		}
 	}
 

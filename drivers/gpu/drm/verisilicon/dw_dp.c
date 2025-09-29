@@ -3480,7 +3480,6 @@ static bool dw_dp_detect_dpcd(struct dw_dp *dp)
 #endif
 	ret = drm_dp_dpcd_readb(&dp->aux, DP_DPCD_REV, &value);
 	if (ret < 0) {
-		dev_err(dp->dev, "aux failed to read dpcd: %d\n", ret);
 		goto fail_probe;
 	}
 

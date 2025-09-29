@@ -945,7 +945,7 @@ static const struct sdhci_pltfm_data sdhci_dwcmshc_th1520_pdata = {
 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
 };
 
-static const struct sdhci_pltfm_data sdhci_dwcmshc_p100_pdata = {
+static const struct sdhci_pltfm_data sdhci_dwcmshc_a210_pdata = {
 	.ops = &sdhci_dwcmshc_th1520_ops,
 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN |
 			SDHCI_QUIRK_SINGLE_POWER_WRITE | SDHCI_QUIRK_BROKEN_ADMA,
@@ -1025,8 +1025,8 @@ static const struct of_device_id sdhci_dwcmshc_dt_ids[] = {
 		.data = &sdhci_dwcmshc_th1520_pdata,
 	},
 	{
-		.compatible = "zhihe,p100-dwcmshc",
-		.data = &sdhci_dwcmshc_p100_pdata,
+		.compatible = "zhihe,a210-dwcmshc",
+		.data = &sdhci_dwcmshc_a210_pdata,
 	},
 	{},
 };
@@ -1176,7 +1176,7 @@ static int dwcmshc_probe(struct platform_device *pdev)
 			goto err_clk;
 	}
 
-	if (pltfm_data == &sdhci_dwcmshc_th1520_pdata || pltfm_data == &sdhci_dwcmshc_p100_pdata) {
+	if (pltfm_data == &sdhci_dwcmshc_th1520_pdata || pltfm_data == &sdhci_dwcmshc_a210_pdata) {
 		priv->delay_line = PHY_SDCLKDL_DC_DEFAULT;
 
 		if ((device_property_read_bool(dev, "mmc-ddr-1_8v")) |

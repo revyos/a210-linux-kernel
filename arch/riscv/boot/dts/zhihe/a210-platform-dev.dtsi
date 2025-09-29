@@ -103,7 +103,7 @@
 };
 
 &dm3x4 {
-	status = "disabled";
+	status = "okay";
 };
 
 &audio_i2s0 {
@@ -111,7 +111,7 @@
 };
 
 &audio_i2s1 {
-	status = "disabled";
+	status = "okay";
 };
 
 &audio_i2s2 {
@@ -239,6 +239,10 @@
 	status = "disabled";
 };
 
+&rtc {
+	status = "disabled";
+};
+
 /* Temporarily disable gpio4 */
 &peri3_padctrl {
 	status = "disabled";
@@ -247,22 +251,3 @@
 &gpio4 {
 	status = "disabled";
 };
-
-/* FIX aon_padctrl init failed issue */
-/ {
-	soc {
-		clocks {
-			evb_clock_24m: clock-24m {
-				compatible = "fixed-clock";
-				clock-frequency = <24000000>;
-				clock-output-names = "evb_clock_24m";
-				#clock-cells = <0>;
-			};
-		};
-	};
-};
-
-&aon_padctrl {
-	clocks = <&evb_clock_24m>;
-};
-

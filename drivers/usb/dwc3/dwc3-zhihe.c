@@ -56,6 +56,7 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
 	struct device_node	*np  = dev->of_node;
 	struct dwc3_zhihe	*zhihe;
 	struct device_node 	*dwc3_np;
+        struct resource	        dwc3_res;
 	int			ret;
 
 	if (!np) {
@@ -135,7 +136,7 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
 		dev_err(dev, "No DWC3 subnode found\n");
 		return -ENODEV;
 	}
-	ret = of_address_to_resource(dwc3_np, 0, res);
+	ret = of_address_to_resource(dwc3_np, 0, &dwc3_res);
 	if (ret) {
 		dev_err(dev, "failed to get subnode's resource\n");
 		of_node_put(dwc3_np);
@@ -145,7 +146,7 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
 	of_node_put(dwc3_np);
 	dwc3_np = NULL;
 
-	zhihe->dwc3_ctrl = devm_ioremap(dev, res->start, resource_size(res));
+	zhihe->dwc3_ctrl = devm_ioremap(dev, dwc3_res.start, resource_size(&dwc3_res));
 	if (IS_ERR(zhihe->dwc3_ctrl)) {
 		dev_err(dev, "dwc3_ctrl has ERROR\n");
 		return PTR_ERR(zhihe->dwc3_ctrl);
@@ -153,7 +154,7 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
 
 	/* Update TX deemphasis parameters used in compliance mode, pattern 14 */
 	writel(0x10540, zhihe->dwc3_ctrl + DWC3_LCSR_TX_DEEMPH_2);
-	devm_release_region(dev, res->start, resource_size(res));
+	devm_release_region(dev, dwc3_res.start, resource_size(&dwc3_res));
 
 	clk_disable(zhihe->ref_clk);
 	clk_disable(zhihe->slv_aclk);

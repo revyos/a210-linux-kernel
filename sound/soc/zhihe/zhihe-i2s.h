@@ -107,6 +107,8 @@ enum {
 #define I2S_DR2		0x064 /* CH2_Data Register */
 #define I2S_DR3		0x068 /* CH3_Data Register */
 
+#define SYS_CSR_OFFSET	0x000 /* System Control and Status Register */
+
 /* IISEN , offset: 0x00 */
 #define IISEN_I2SEN_POS			(0U)
 #define IISEN_I2SEN_MSK			(0x1U << IISEN_I2SEN_POS)
@@ -512,9 +514,24 @@ enum {
 #define I2S_DATA_WIDTH_32BIT		(0xAU << FSSTA_DATAWTH_Pos)
 #define I2S_DATA_WIDTH_32BIT_OUPUT	(0x8U << FSSTA_DATAWTH_Pos)
 
+/* SYS_CSR, offset: 0x00 */
+#define DP_AUDIO_EN_Pos			(4U)
+#define DP_AUDIO_EN_Msk			(0x1U << DP_AUDIO_EN_Pos)
+#define DP_AUDIO_EN			DP_AUDIO_EN_Msk
+
+#define HDMI_AUDIO_EN_Pos		(5U)
+#define HDMI_AUDIO_EN_Msk		(0x1U << HDMI_AUDIO_EN_Pos)
+#define HDMI_AUDIO_EN			HDMI_AUDIO_EN_Msk
+
 #define TXFIFO_IRQ_TH			(0x8U)
 #define RXFIFO_IRQ_TH			(0x20U)
 #define I2S_MAX_FIFO			(0x20U)
+
+typedef enum {
+	TRANSFER_PORT_HDMI = 0,
+	TRANSFER_PORT_DP,
+	TRANSFER_PORT_UNKNOWN,
+} transfer_port_t;
 
 struct zhihe_i2s_soc_drvdata {
 	char name[32];
@@ -530,6 +547,7 @@ struct zhihe_i2s_priv {
 	struct device *dev;
 	struct regmap *regmap;
 	struct regmap *audio_cpr_regmap;
+	void __iomem *sys_csr;
 	struct reset_control *rst;
 	struct snd_dmaengine_dai_dma_data dma_params_tx;
 	struct snd_dmaengine_dai_dma_data dma_params_rx;
@@ -538,6 +556,7 @@ struct zhihe_i2s_priv {
 	int irq;
 	bool alolrc_high;
 	bool rx_ch_left;
+	bool hdmi_connected;
 	int board;
 
 	spinlock_t zhihe_i2s_lock;
