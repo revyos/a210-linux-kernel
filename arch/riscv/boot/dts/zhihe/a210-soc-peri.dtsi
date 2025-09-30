@@ -1,6 +1,6 @@
 #include <dt-bindings/i2c/i2c.h>
 #include <dt-bindings/interrupt-controller/irq.h>
-#include <dt-bindings/clock/p100-clock.h>
+#include <dt-bindings/clock/a210-clock.h>
 #include <dt-bindings/iommu/zh-iommu.h>
 #include <dt-bindings/ata/ahci.h>
 
@@ -17,7 +17,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		dpu_enc0: dpu-encoder@0 {
-			/* default encoder is DSI */
+			/* default encoder is DSI. */
 			compatible = "verisilicon,dsi-encoder";
 			reg = <0>;
 			status = "disabled";
@@ -110,9 +110,49 @@
 			reg-io-width = <4>;
 			phy_version = <301>;
 			status = "okay";
-			port@0 {
-				hdmi_tx_in: endpoint {
-					remote-endpoint = <&disp1_out>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+					hdmi_tx_in: endpoint {
+						remote-endpoint = <&disp1_out>;
+					};
+				};
+				/* i2s input */
+				port@1 {
+					reg = <1>;
+					hdmi_i2s_rx: endpoint {
+						remote-endpoint = <&hdmi_i2s_tx>;
+					};
+				};
+			};
+		};
+
+		dp0: dp-tx@8010000 {
+			compatible = "zhihe,dw-dp";
+			reg = <0x0 0x8010000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <179>;
+			clocks = <&clk_vo DPTX_I2S_CLK_EN>,
+					 <&clk_vo DPTX_IPI_CLK_EN>,
+					 <&clk_vo DPTX_AUX_CLK_EN>,
+					 <&clk_vo DPTX_GTC_CLK_EN>,
+					 <&clk_vo DPTX_PCLK_EN>;
+			clock-names = "i2s", "ipi", "aux", "gtc", "pclk";
+			force-hpd = <1>;
+			#sound-dai-cells = <1>;
+			status = "okay";
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					status = "okay";
+					dp_tx_in: endpoint {
+						reg = <0>;
+						remote-endpoint = <&disp0_out>;
+						status = "okay";
+					};
 				};
 			};
 		};
@@ -144,7 +184,7 @@
 			dpu_disp0: port@0 {
 				reg = <0>;
 				disp0_out: endpoint {
-					remote-endpoint = <&enc0_in>;
+					remote-endpoint = <&dp_tx_in>;
 				};
 			};
 
@@ -180,12 +220,12 @@
 		};
 
 		can0: flexcan@2000000 {
-			compatible = "fsl,a210-flexcan";
+			compatible = "fsl,zha210-flexcan";
 			reg = <0x00 0x2000000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <261>;
 			clocks = <&clk_peri PERI1_CAN0_HIRES_CLK_EN>,
-					<&clk_peri PERI1_CAN0_OSC_CLK_EN>;
+					<&clk_peri PERI1_CAN0_PCLK_EN>;
 			clock-names = "ipg", "per";
 			power-domains = <&power_peri1>;
 			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
@@ -193,12 +233,12 @@
 		};
 
 		can1: flexcan@2004000 {
-			compatible = "fsl,a210-flexcan";
+			compatible = "fsl,zha210-flexcan";
 			reg = <0x00 0x2004000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <262>;
 			clocks = <&clk_peri PERI1_CAN1_HIRES_CLK_EN>,
-					<&clk_peri PERI1_CAN1_OSC_CLK_EN>;
+					<&clk_peri PERI1_CAN1_PCLK_EN>;
 			clock-names = "ipg", "per";
 			power-domains = <&power_peri1>;
 			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
@@ -206,12 +246,12 @@
 		};
 
 		can2: flexcan@8420000 {
-			compatible = "fsl,a210-flexcan";
+			compatible = "fsl,zha210-flexcan";
 			reg = <0x00 0x8420000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <263>;
 			clocks = <&clk_peri PERI2_CAN2_HIRES_CLK_EN>,
-					<&clk_peri PERI2_CAN2_OSC_CLK_EN>;
+					<&clk_peri PERI2_CAN2_PCLK_EN>;
 			clock-names = "ipg", "per";
 			power-domains = <&power_peri2>;
 			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
@@ -278,7 +318,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -292,7 +331,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -306,7 +344,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -320,7 +357,6 @@
 			power-domains = <&power_peri1>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -334,7 +370,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -348,7 +383,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -362,7 +396,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -376,7 +409,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -390,7 +422,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -404,7 +435,6 @@
 			power-domains = <&power_peri2>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
-			hw-flow-control = "unsupport";
 			status = "okay";
 		};
 
@@ -424,9 +454,8 @@
 			reg = <0x00 0x02023000 0x0 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <310>;
-			clocks = <&clk_peri PERI1_SPI0_SSI_CLK_EN>,
-					<&clk_peri PERI1_SPI0_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI1_SPI0_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri1>;
 			dmas = <&dmac0 9>, <&dmac0 8>;
 			dma-names = "tx", "rx";
@@ -444,9 +473,8 @@
 			reg = <0x00 0x08413000 0x0 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <311>;
-			clocks = <&clk_peri PERI2_SPI1_SSI_CLK_EN>,
-					<&clk_peri PERI2_SPI1_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI2_SPI1_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri2>;
 			dmas = <&dmac0 62>, <&dmac0 61>;
 			dma-names = "tx", "rx";
@@ -464,9 +492,8 @@
 			reg = <0x00 0x01000000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <308>;
-			clocks = <&clk_peri PERI1_QSPI0_SSI_CLK_EN>,
-					<&clk_peri PERI1_QSPI0_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI1_QSPI0_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri1>;
 			num-cs = <2>;
 			#address-cells = <1>;
@@ -479,9 +506,8 @@
 			reg = <0x00 0x08428000 0x0 0x4000>;
 			interrupt-parent = <&intc>;
 			interrupts = <309>;
-			clocks = <&clk_peri PERI2_QSPI1_SSI_CLK_EN>,
-					<&clk_peri PERI2_QSPI1_PCLK_EN>;
-			clock-names = "sclk", "pclk";
+			clocks = <&clk_peri PERI2_QSPI1_SSI_CLK_EN>;
+			clock-names = "sclk";
 			power-domains = <&power_peri2>;
 			num-cs = <2>;
 			#address-cells = <1>;
@@ -490,7 +516,7 @@
 		};
 
 		emmc: sdhci@00500000 {
-			compatible = "zhihe,p100-dwcmshc";
+			compatible = "zhihe,a210-dwcmshc";
 			reg = <0x0 0x00500000 0x0 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <265>;
@@ -504,7 +530,7 @@
 		};
 
 		sdhci0: sd@00510000 {
-			compatible = "zhihe,p100-dwcmshc";
+			compatible = "zhihe,a210-dwcmshc";
 			reg = <0x00 0x00510000 0x0 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <337>;
@@ -584,8 +610,10 @@
 		};
 
 		aon_padctrl: aon-padctrl@30848000 {
-			compatible = "zhihe,p100-group0-pinctrl";
+			compatible = "zhihe,a210-group0-pinctrl";
 			reg = <0x00 0x30848000 0x0 0x2000>;
+			clocks = <&aon_110m>;
+			clock-names = "pclk";
 			status = "okay";
 		};
 
@@ -594,14 +622,16 @@
 			reg = <0x00 0x30841000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&aon_110m>, <&osc_32k>;
+			clock-names = "bus", "db";
 			status = "okay";
 
 			ao_gpio0_porta: ao_gpio0-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
 				gpio-controller;
 				#gpio-cells = <2>;
-				ngpios = <26>;
-				gpio-ranges = <&aon_padctrl 0 7 26>;
+				ngpios = <32>;
+				gpio-ranges = <&aon_padctrl 0 8 15>, <&aon_padctrl 21 23 11>;
 				reg = <0>;
 
 				interrupt-controller;
@@ -616,6 +646,8 @@
 			reg = <0x00 0x30897000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&aon_110m>, <&osc_32k>;
+			clock-names = "bus", "db";
 			status = "okay";
 
 			ao_gpio1_porta: ao_gpio1-controller@0 {
@@ -623,7 +655,7 @@
 				gpio-controller;
 				#gpio-cells = <2>;
 				ngpios = <10>;
-				gpio-ranges = <&aon_padctrl 0 33 10>;
+				gpio-ranges = <&aon_padctrl 0 34 10>;
 				reg = <0>;
 
 				interrupt-controller;
@@ -634,7 +666,7 @@
 		};
 
 		peri1_padctrl: peri1-padctrl@02026000 {
-			compatible = "zhihe,p100-group1-pinctrl";
+			compatible = "zhihe,a210-group1-pinctrl";
 			reg = <0x00 0x02026000 0x0 0x1000>;
 			clocks = <&clk_peri PERI1_PAD_CTRL_PCLK_EN>;
 			clock-names = "pclk";
@@ -642,7 +674,7 @@
 		};
 
 		peri2_padctrl: peri2-padctrl@08411000 {
-			compatible = "zhihe,p100-group2-pinctrl";
+			compatible = "zhihe,a210-group2-pinctrl";
 			reg = <0x00 0x08411000 0x0 0x1000>;
 			clocks = <&clk_peri PERI2_PAD_CTRL_PCLK_EN>;
 			clock-names = "pclk";
@@ -650,7 +682,7 @@
 		};
 
 		peri3_padctrl: peri3-padctrl@00542000 {
-			compatible = "zhihe,p100-group3-pinctrl";
+			compatible = "zhihe,a210-group3-pinctrl";
 			reg = <0x00 0x00542000 0x0 0x1000>;
 			clocks = <&clk_peri PERI3_PAD_CTRL_PCLK_EN>;
 			clock-names = "pclk";
@@ -1091,7 +1123,8 @@
 
 		audio_i2s_8ch_sd0: audio_i2s_8ch_sd0@000840c000 {
 			compatible = "zhihe,i2s3-8ch-sd0";
-			reg = <0x0 0x0840c000 0x0 0x1000>;
+			reg = <0x0 0x0840c000 0x0 0x1000>,
+			      <0x0 0x00240000 0x0 0x4>;
 			interrupt-parent = <&intc>;
 			interrupts = <304>;
 			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
@@ -1102,6 +1135,17 @@
 			dma-names = "tx", "rx";
 			snd-soc-zhihe-a210;
 			status = "okay";
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				/* i2s transmit to hdmi */
+				port@0 {
+					reg = <0>;
+					hdmi_i2s_tx: endpoint {
+						remote-endpoint = <&hdmi_i2s_rx>;
+					};
+				};
+			};
 		};
 
 		audio_i2s_8ch_sd1: audio_i2s_8ch_sd1@000840c000 {
@@ -1552,7 +1596,7 @@
 		};
 
 		mbox_920: mbox@0000310000 {
-			compatible = "zhihe,p100-mbox";
+			compatible = "zhihe,a210-mbox";
 			reg = <0x00 0x00321000 0x0 0x1000>,
 				  <0x00 0x00320000 0x0 0x1000>,
 				  <0x00 0x00311000 0x0 0x1000>;
@@ -1566,7 +1610,7 @@
 			status = "okay";
 		};
 		aon: aon_subsys {
-			compatible = "zhihe,p100-aon";
+			compatible = "zhihe,a210-aon";
 			mbox-names = "aon0";
 			mboxes = <&mbox_920 1 0>;					 //parent / channel / type
 			#mbox-cells = <2>;

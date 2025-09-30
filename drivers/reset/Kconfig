@@ -328,12 +328,12 @@ config RESET_ZYNQ
 	help
 	  This enables the reset controller driver for Xilinx Zynq SoCs.
 
-config RESET_P100
-	bool "P100 Reset Driver"
+config RESET_A210
+	bool "A210 Reset Driver"
 	depends on ARCH_ZHIHE
 	default y
 	help
-	    Build the driver for zhihe p100 Reset Driver
+	    Build the driver for ZhiHe A210 Reset Driver
 
 source "drivers/reset/starfive/Kconfig"
 source "drivers/reset/sti/Kconfig"

@@ -11,7 +11,7 @@ config ZH_IOPMP
 	depends on ARCH_ZHIHE || COMPILE_TEST
 	help
 	Say Y here to include support for zhihe iopmp found on found on
-	P100 fullmask devices
+	A210 fullmask devices
 	To compile this driver as a module, choose M here: the module
 	will be called zh-iopmp.
 

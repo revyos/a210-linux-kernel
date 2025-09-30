@@ -40,6 +40,7 @@
 #include "vs_virtual.h"
 #include "dw_mipi_dsi.h"
 #include "dw_hdmi_th1520.h"
+#include "dw_dp.h"
 
 /* debug sysfs */
 #include <drm/drm_auth.h>
@@ -559,6 +560,7 @@ static const struct component_master_ops vs_drm_ops = {
     .unbind = vs_drm_unbind,
 };
 
+extern struct platform_driver dw_dp_driver;
 static struct platform_driver *drm_sub_drivers[] = {
     /* put display control driver at start */
     &dc_platform_driver,
@@ -572,6 +574,10 @@ static struct platform_driver *drm_sub_drivers[] = {
 
 #ifdef CONFIG_VERISILICON_DW_HDMI_TH1520
     &dw_hdmi_th1520_platform_driver,
+#endif
+
+#ifdef CONFIG_VERISILICON_DW_DP_P100
+	&dw_dp_driver,
 #endif
 
     /* encoder */

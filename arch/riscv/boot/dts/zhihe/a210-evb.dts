@@ -1,8 +1,8 @@
 /dts-v1/;
 
-#include "p100-soc-core.dtsi"
-#include "p100-soc-peri.dtsi"
-#include "p100-platform-evb.dtsi"
+#include "a210-soc-core.dtsi"
+#include "a210-soc-peri.dtsi"
+#include "a210-platform-evb.dtsi"
 
 #define SOUND_CARD_LINK(REG, FMT, CPU, M, CODEC, N) \
 	simple-audio-card,dai-link@##REG { \
@@ -17,7 +17,7 @@
 	}
 
 / {
-	model = "P100 EVB configuration";
+	model = "A210 EVB configuration";
 
 	aliases {
 		ethernet0 = &gmac0;
@@ -295,16 +295,26 @@
 
 &peri1_padctrl {
 	gmac0_pins: gmac0-0 {
-		tx-pins {
+		txclk-pins {
 			pins = "GPIO0_0", /* GMAC0_TX_CLK */
-			       "GPIO0_2", /* GMAC0_TXEN */
-			       "GPIO0_3", /* GMAC0_TXD0 */
-			       "GPIO0_4", /* GMAC0_TXD1 */
-			       "GPIO0_5", /* GMAC0_TXD2 */
-			       "GPIO0_6"; /* GMAC0_TXD3 */
+					"GPIO0_12"; /* GMAC0_MDC */
 			function = "gmac0";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <13>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		tx-pins {
+			pins = "GPIO0_2", /* GMAC0_TXEN */
+					"GPIO0_3", /* GMAC0_TXD0 */
+					"GPIO0_4", /* GMAC0_TXD1 */
+					"GPIO0_5", /* GMAC0_TXD2 */
+					"GPIO0_6"; /* GMAC0_TXD3 */
+			function = "gmac0";
+			bias-disable;
+			drive-strength = <20>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <0>;
@@ -312,43 +322,23 @@
 
 		rx-pins {
 			pins = "GPIO0_1",  /* GMAC0_RX_CLK */
-			       "GPIO0_7",  /* GMAC0_RXDV */
-			       "GPIO0_8",  /* GMAC0_RXD0 */
-			       "GPIO0_9",  /* GMAC0_RXD1 */
-			       "GPIO0_10", /* GMAC0_RXD2 */
-			       "GPIO0_11"; /* GMAC0_RXD3 */
-			function = "gmac0";
-			bias-disable;
-			drive-strength = <1>;
-			input-enable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-	};
-	mdio0_pins: mdio0-0 {
-		mdc-pins {
-			pins = "GPIO0_12"; /* GMAC0_MDC */
-			function = "gmac0";
-			bias-disable;
-			drive-strength = <13>;
-			input-disable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-
-		mdio-pins {
-			pins = "GPIO0_13"; /* GMAC0_MDIO */
+					"GPIO0_7",  /* GMAC0_RXDV */
+					"GPIO0_8",  /* GMAC0_RXD0 */
+					"GPIO0_9",  /* GMAC0_RXD1 */
+					"GPIO0_10", /* GMAC0_RXD2 */
+					"GPIO0_11", /* GMAC0_RXD3 */
+					"GPIO0_13"; /* GMAC0_MDIO */
 			function = "gmac0";
 			bias-disable;
 			drive-strength = <13>;
 			input-enable;
-			input-schmitt-enable;
+			input-schmitt-disable;
 			slew-rate = <0>;
 		};
 	};
 	uart3_pins: uart3-0 {
 		tx-pins {
-			pins = "GPIO0_3", "GPIO0_5";
+			pins = "GPIO0_3", "GPIO0_6";	// TXD, RTSN
 			function = "uart3";
 			bias-disable;
 			drive-strength = <3>;
@@ -358,7 +348,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO0_4", "GPIO0_6";
+			pins = "GPIO0_4", "GPIO0_5";	// RXD, CTSN
 			function = "uart3";
 			bias-disable;
 			drive-strength = <1>;
@@ -390,7 +380,7 @@
 	};
 	uart0_pins: uart0-0 {
 		tx-pins {
-			pins = "GPIO0_14", "GPIO0_16";
+			pins = "GPIO0_14", "GPIO0_17";	// TXD, RTSN
 			function = "uart0";
 			bias-disable;
 			drive-strength = <3>;
@@ -400,7 +390,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO0_15", "GPIO0_17";
+			pins = "GPIO0_15", "GPIO0_16";	// RXD, CTSN
 			function = "uart0";
 			bias-disable;
 			drive-strength = <1>;
@@ -414,7 +404,7 @@
 			pins = "GPIO0_18", "GPIO0_20", "GPIO0_21", "GPIO0_22", "GPIO0_23";
 			function = "qspi0";
 			bias-disable;
-			drive-strength = <7>;
+			drive-strength = <13>;
 			input-enable;
 			input-schmitt-enable;
 			slew-rate = <0>;
@@ -469,7 +459,7 @@
 			pins = "GPIO0_25";
 			function = "can0";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <5>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <1>;
@@ -501,7 +491,7 @@
 			pins = "GPIO0_27";
 			function = "can1";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <5>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <1>;
@@ -541,7 +531,7 @@
 	};
 	uart1_pins: uart1-1 {
 		tx-pins {
-			pins = "GPIO0_28", "GPIO0_30";
+			pins = "GPIO0_28", "GPIO0_31";	// TXD, RTSN
 			function = "uart1";
 			bias-disable;
 			drive-strength = <3>;
@@ -551,7 +541,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO0_29", "GPIO0_31";
+			pins = "GPIO0_29", "GPIO0_30";	// RXD, CTSN
 			function = "uart1";
 			bias-disable;
 			drive-strength = <1>;
@@ -572,54 +562,42 @@
 		};
 	};
 	gmac1_pins: gmac1-0 {
-		tx-pins {
+		txclk-pins {
 			pins = "GPIO1_2", /* GMAC1_TX_CLK */
-			       "GPIO1_4", /* GMAC1_TXEN */
-			       "GPIO1_5", /* GMAC1_TXD0 */
-			       "GPIO1_6", /* GMAC1_TXD1 */
-			       "GPIO1_7", /* GMAC1_TXD2 */
-			       "GPIO1_8"; /* GMAC1_TXD3 */
+					"GPIO1_14"; /* GMAC1_MDC */
 			function = "gmac1";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <13>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <0>;
 		};
-
+		tx-pins {
+			pins = "GPIO1_4", /* GMAC1_TXEN */
+					"GPIO1_5", /* GMAC1_TXD0 */
+					"GPIO1_6", /* GMAC1_TXD1 */
+					"GPIO1_7", /* GMAC1_TXD2 */
+					"GPIO1_8"; /* GMAC1_TXD3 */
+			function = "gmac1";
+			bias-disable;
+			drive-strength = <20>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
 		rx-pins {
 			pins = "GPIO1_3",  /* GMAC1_RX_CLK */
-			       "GPIO1_9",  /* GMAC1_RXDV */
-			       "GPIO1_10", /* GMAC1_RXD0 */
-			       "GPIO1_11", /* GMAC1_RXD1 */
-			       "GPIO1_12", /* GMAC1_RXD2 */
-			       "GPIO1_13"; /* GMAC1_RXD3 */
-			function = "gmac1";
-			bias-disable;
-			drive-strength = <1>;
-			input-enable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-	};
-	mdio1_pins: mdio1-0 {
-		mdc-pins {
-			pins = "GPIO1_14"; /* GMAC1_MDC */
-			function = "gmac1";
-			bias-disable;
-			drive-strength = <13>;
-			input-disable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-
-		mdio-pins {
-			pins = "GPIO1_15"; /* GMAC1_MDIO */
+					"GPIO1_9",  /* GMAC1_RXDV */
+					"GPIO1_10", /* GMAC1_RXD0 */
+					"GPIO1_11", /* GMAC1_RXD1 */
+					"GPIO1_12", /* GMAC1_RXD2 */
+					"GPIO1_13", /* GMAC1_RXD3 */
+					"GPIO1_15"; /* GMAC1_MDIO */
 			function = "gmac1";
 			bias-disable;
 			drive-strength = <13>;
 			input-enable;
-			input-schmitt-enable;
+			input-schmitt-disable;
 			slew-rate = <0>;
 		};
 	};
@@ -639,6 +617,17 @@
 			function = "uart2";
 			bias-disable;
 			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+	sdhci_pins: sdhci0-1 {
+		sd-pins {
+			pins = "GPIO1_1";
+			function = "sdio";
+			bias-disable;
+			drive-strength = <13>;
 			input-enable;
 			input-schmitt-enable;
 			slew-rate = <0>;
@@ -724,7 +713,7 @@
 	};
 	uart6_pins: uart6-0 {
 		tx-pins {
-			pins = "GPIO2_4";
+			pins = "GPIO2_4", "GPIO2_9";	// TXD, RTSN
 			function = "uart6";
 			bias-disable;
 			drive-strength = <3>;
@@ -734,7 +723,7 @@
 		};
 
 		rx-pins {
-			pins = "GPIO2_5";
+			pins = "GPIO2_5", "GPIO2_8";	// RXD, CTSN
 			function = "uart6";
 			bias-disable;
 			drive-strength = <1>;
@@ -800,7 +789,7 @@
 			pins = "GPIO2_7"; // PWM2_CH5
 			function = "pwm2";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <13>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <0>;
@@ -897,7 +886,7 @@
 			pins = "GPIO2_28"; // PWM1_CH0
 			function = "pwm1";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <13>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <0>;
@@ -941,7 +930,7 @@
 			pins = "GPIO3_1";
 			function = "can2";
 			bias-disable;
-			drive-strength = <25>;
+			drive-strength = <5>;
 			input-disable;
 			input-schmitt-disable;
 			slew-rate = <1>;
@@ -962,7 +951,7 @@
 			pins = "GPIO3_2", "GPIO3_5", "GPIO3_6", "GPIO3_7", "GPIO3_8";
 			function = "qspi1";
 			bias-disable;
-			drive-strength = <7>;
+			drive-strength = <13>;
 			input-enable;
 			input-schmitt-enable;
 			slew-rate = <0>;
@@ -1034,9 +1023,6 @@
 };
 
 &mdio0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mdio0_pins>;
-
 	phy0: ethernet-phy@0 {
 		reg = <0x0>;
 	};
@@ -1050,9 +1036,6 @@
 };
 
 &mdio1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mdio1_pins>;
-
 	phy1: ethernet-phy@1 {
 		reg = <0x0>;
 	};
@@ -1066,16 +1049,14 @@
 &spi0 {
 	cs-gpios = <&gpio0_porta 30 0>;
 	rx-sample-delay-ns = <4>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&spi0_pins>;
+	spi-max-frequency = <55000000>;
 
 	spi_norflash@0 {
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <36000000>;
-		w25q,fast-read;
 		status = "okay";
 	};
 };
@@ -1083,33 +1064,35 @@
 &spi1 {
 	cs-gpios = <&gpio2_porta 18 0>;
 	rx-sample-delay-ns = <4>;
+	spi-max-frequency = <55000000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi1_pins>;
 
 	spi_norflash@0 {
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <36000000>;
-		w25q,fast-read;
 		status = "okay";
 	};
 };
 
 &qspi0 {
 	cs-gpios = <&gpio0_porta 19 0>;
-	rx-sample-dly = <4>;
+	rx-sample-dly = <2>;
+	spi-swap-data = <1>;
+	spi-max-frequency = <55000000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&qspi0_pins>;
 
 	spi_norflash@0 {
 		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
-		spi-max-frequency = <36000000>;
 		reg = <0>;
 		status = "okay";
 	};
@@ -1117,17 +1100,19 @@
 
 &qspi1 {
 	cs-gpios = <&gpio2_porta 29 0>;
-	rx-sample-dly = <4>;
+	rx-sample-dly = <2>;
+	spi-swap-data = <1>;
+	spi-max-frequency = <55000000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&qspi1_pins>;
 
 	spi_norflash@0 {
 		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
-		spi-max-frequency = <36000000>;
 		reg = <0>;
 		status = "okay";
 
@@ -1147,22 +1132,6 @@
 				reg = <0x00200000 0x00040000>;
 				label = "norenv";
 			};
-		};
-	};
-
-	spi-nandflash@1 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "spi-nand";
-		spi-max-frequency = <100000000>;
-		spi-tx-bus-width = <4>;
-		spi-rx-bus-width = <4>;
-		reg = <1>;
-		status = "disabled";
-
-		partition@0 {
-			label = "nand1";
-			reg = <0x00000000 0x08000000>;
 		};
 	};
 };
@@ -1416,8 +1385,13 @@
 };
 
 &sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdhci_pins>;
 	max-frequency = <196608000>;
+	cap-sd-highspeed;
 	bus-width = <4>;
+	sd-uhs-sdr104;
+	no-sdio;
 	pull_up;
 	wprtn_ignore;
 };
@@ -1658,15 +1632,15 @@
 
 /*
  expansion IO: spi0-0
- Conflict with: uart1-1/pcie_x4
+ Conflict with: uart1-1/pcie_x4/sdhci0
  Switch mode:
 	GPMUX_SEL_07 -> 1
 	GPMUX_SEL_08 -> 1
 */
-// &spi0 {
-// 	pinctrl-names = "default";
-// 	pinctrl-0 = <&spi0_pins>;
-// };
+&spi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0_pins>;
+};
 
 /*
  expansion IO: pwm2_ch5
@@ -1696,73 +1670,12 @@
 	pinctrl-0 = <&can1_pins>;
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/* FIXME: clk stages overlay to be selected for real SOC. */
-
-/* bringup stage 3: full subsys + high freq */
-/* refer to maximum clk freq in p100-soc-core.dtsi */
-
-/* bringup stage 2: full subsys + medium freq*/
-// &clk_peri {
-// 	peri1_spi_ssi_clk_frequency = <220000000>;
-// 	peri2_spi_ssi_clk_frequency = <220000000>;
-// 	peri1_qspi_ssi_clk_frequency = <220000000>;
-// 	peri2_qspi_ssi_clk_frequency = <220000000>;
-// 	uart_sclk_frequency = <24000000>;
-// 	emmc_ref_clk_frequency = <203076924>;
-// 	tee_clk_frequency = <200000000>;
-// };
-
-// &clk_pcie {
-// 	pcie_ss_axi_m_aclk_frequency = <240000000>;
-// };
-
-// &clk_npu {
-// 	npu_cclk_frequency = <600000000>;
-// 	npu_aclk_frequency = <600000000>;
-// };
-
-// &emmc {
-// 	max-frequency = <49152000>;
-// };
-
-// &sdhci0 {
-// 	max-frequency = <49152000>;
-// };
-
-/* bringup stage 1: minisys + low freq */
-// &clk {
-// 	top_cfg_aclk_frequency = <165000000>;
-// 	top_pclk_frequency = <82500000>;
-// 	top_amux_clk_frequency = <240000000>;
-// 	iommu_ptw_aclk_frequency = <165000000>;
-// 	noc_cclk_frequency = <240000000>;
-// 	top_cpusys_bus_clk_frequency = <220000000>;
-// 	top_cpusys_pic_clk_frequency = <250000000>;
-// };
-
-// &clk_peri {
-// 	peri1_spi_ssi_clk_frequency = <220000000>;
-// 	peri2_spi_ssi_clk_frequency = <220000000>;
-// 	peri1_qspi_ssi_clk_frequency = <220000000>;
-// 	peri2_qspi_ssi_clk_frequency = <220000000>;
-// 	uart_sclk_frequency = <24000000>;
-// 	emmc_ref_clk_frequency = <203076924>;
-// 	peri1_mst_aclk_frequency = <165000000>;
-// 	peri3_mst_aclk_frequency = <220000000>;
-// 	tee_clk_frequency = <200000000>;
-// };
-
-// &emmc {
-// 	max-frequency = <49152000>;
-// };
-
-// &sdhci0 {
-// 	max-frequency = <49152000>;
-// };
 
 &vidmem {
   status = "okay";
   memory-region = <&framebuffer>;
+};
+
+&usb2_0 {
+  status = "disabled";
 };

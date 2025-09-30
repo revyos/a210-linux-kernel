@@ -101,6 +101,7 @@ static int ES7210_CHANNELS_MAX = 1;
 /*  to set internal mclk and adclrclk ratio   */
 
 #define RATIO_768  0xC3
+#define RATIO_384  0x03
 #define RATIO_256  0xC1
 #define RATIO_128  0x01
 #define RATIO_64  0x41 /* mclk from bclk pin */
@@ -314,6 +315,9 @@ static void es7210_tdm_init_ratio(struct es7210_priv *priv)
                         break;
                 case 256:
                         priv->mclk_lrck_ratio = RATIO_256;
+                        break;
+                case 384:
+                        priv->mclk_lrck_ratio = RATIO_384;
                         break;
                 case 768:
                         priv->mclk_lrck_ratio = RATIO_768;
@@ -776,11 +780,11 @@ static int es7210_pcm_hw_params(struct snd_pcm_substream *substream,
                         es7210_update_bits(0x11, 0xE0, 0x20,
                                            i2c_clt1[i]);
                         break;
+                case SNDRV_PCM_FORMAT_S24_LE:
                 case SNDRV_PCM_FORMAT_S24_3LE:
                         es7210_update_bits(0x11, 0xE0, 0x00,
                                            i2c_clt1[i]);
                         break;
-                case SNDRV_PCM_FORMAT_S24_LE:
                 case SNDRV_PCM_FORMAT_S32_LE:
                         es7210_update_bits(0x11, 0xE0, 0x80,
                                            i2c_clt1[i]);
@@ -1089,712 +1093,827 @@ static int es7210_set_bias_level(struct snd_soc_component *component,
 	return 0;
 }
 
-static const DECLARE_TLV_DB_SCALE(mic_boost_tlv, 0, 300, 0);
+static const DECLARE_TLV_DB_RANGE(mic_boost_tlv,
+	0, 11, TLV_DB_SCALE_ITEM(0, 300, 0),	// 0db ~ 33db
+	12, 14, TLV_DB_SCALE_ITEM(3450, 150, 0)	// 34.5db ~ 37.5db
+);
 
 static int es7210_micboost1_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[0]);
-        return 0;
+	es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[0]);
+
+	return 0;
 }
 
 static int es7210_micboost1_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(0x43, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	es7210_read(0x43, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
 
 static int es7210_micboost2_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[0]);
-        return 0;
+	es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[0]);
+
+	return 0;
 }
 
 static int es7210_micboost2_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(0x44, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	es7210_read(0x44, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
 
 static int es7210_micboost3_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[0]);
-        return 0;
+	es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[0]);
+
+	return 0;
 }
 
 static int es7210_micboost3_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(0x45, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	es7210_read(0x45, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost4_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[0]);
-        return 0;
+	es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[0]);
+
+	return 0;
 }
 
 static int es7210_micboost4_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(0x46, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	es7210_read(0x46, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
 
-static int es7210_adc1_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc1_set(struct snd_kcontrol *kcontrol, 
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01,
-    ucontrol->value.integer.value[0]&0x01, i2c_clt1[0]);
-        return 0;
+	u8 val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01, val & 0x01,
+			   i2c_clt1[0]);
+
+	return 0;
 }
 
-static int es7210_adc1_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc1_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
+	u8 val;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
 }
 
-static int es7210_adc2_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc2_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02,
-                         (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[0]);
-        return 0;
+	u8 val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[0]);
+
+	return 0;
 }
 
-static int es7210_adc2_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc2_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
-static int es7210_adc3_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc3_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01,
-                           ucontrol->value.integer.value[0]&0x01, i2c_clt1[0]);
-        return 0;
+	u8 val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01, val & 0x01,
+			   i2c_clt1[0]);
+
+	return 0;
 }
 
-static int es7210_adc3_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc3_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
-}
-static int es7210_adc4_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
-{
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02,
-                           (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[0]);
-        return 0;
+	u8 val;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
 }
 
-static int es7210_adc4_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc4_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[0]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[0]);
+
+	return 0;
+}
+
+static int es7210_adc4_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
+{
+	u8 val;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[0]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
 static int es7210_micboost5_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[1]);
-        return 0;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[1]);
+
+	return 0;
 }
 
 static int es7210_micboost5_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(0x43, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(0x43, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost6_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[1]);
-        return 0;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[1]);
+
+	return 0;
 }
 
 static int es7210_micboost6_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(0x44, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(0x44, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
 static int es7210_micboost7_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[1]);
-        return 0;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[1]);
+
+	return 0;
 }
 
 static int es7210_micboost7_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(0x45, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(0x45, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost8_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[1]);
-        return 0;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[1]);
+
+	return 0;
 }
 
 static int es7210_micboost8_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(0x46, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(0x46, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
-static int es7210_adc5_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+ 
+static int es7210_adc5_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01,
-        ucontrol->value.integer.value[0]&0x01, i2c_clt1[1]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01, val & 0x01,
+			   i2c_clt1[1]);
+
+	return 0;
 }
 
-static int es7210_adc5_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc5_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
 }
 
-static int es7210_adc6_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc6_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02,
-                         (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[1]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[1]);
+
+	return 0;
 }
 
-static int es7210_adc6_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc6_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
-static int es7210_adc7_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc7_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01,
-                           ucontrol->value.integer.value[0]&0x01, i2c_clt1[1]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01, val & 0x01,
+			   i2c_clt1[1]);
+
+	return 0;
 }
 
-static int es7210_adc7_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc7_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
-}
-static int es7210_adc8_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
-{
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02,
-                           (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[1]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
 }
 
-static int es7210_adc8_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc8_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[1] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[1]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[1]);
+
+	return 0;
+}
+
+static int es7210_adc8_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
+{
+	u8 val;
+	if (i2c_clt1[1] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[1]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
 static int es7210_micboost9_setting_set(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[2]);
-        return 0;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[2]);
+
+	return 0;
 }
 
 static int es7210_micboost9_setting_get(struct snd_kcontrol *kcontrol,
-                                        struct snd_ctl_elem_value *ucontrol)
+					struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(0x43, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(0x43, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost10_setting_set(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[2]);
-        return 0;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[2]);
+
+	return 0;
 }
 
 static int es7210_micboost10_setting_get(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(0x44, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(0x44, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost11_setting_set(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[2]);
-        return 0;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[2]);
+
+	return 0;
 }
 
 static int es7210_micboost11_setting_get(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(0x45, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(0x45, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost12_setting_set(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[2]);
-        return 0;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[2]);
+
+	return 0;
 }
 
 static int es7210_micboost12_setting_get(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(0x46, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
-}
-static int es7210_adc9_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
-{
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01,
-        ucontrol->value.integer.value[0]&0x01, i2c_clt1[2]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(0x46, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
 
-static int es7210_adc9_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc9_set(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01, val & 0x01,
+			   i2c_clt1[2]);
+
+	return 0;
 }
 
-static int es7210_adc10_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc9_get(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02,
-                         (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[2]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
 }
 
-static int es7210_adc10_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc10_set(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[2]);
+
+	return 0;
 }
 
-static int es7210_adc11_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc10_get(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01,
-                           ucontrol->value.integer.value[0]&0x01, i2c_clt1[2]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
-static int es7210_adc11_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc11_set(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
-}
-static int es7210_adc12_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
-{
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02,
-                           (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[2]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01, val & 0x01,
+			   i2c_clt1[2]);
+
+	return 0;
 }
 
-static int es7210_adc12_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc11_get(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[2] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[2]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
+}
+
+static int es7210_adc12_set(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
+{
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[2]);
+
+	return 0;
+}
+
+static int es7210_adc12_get(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
+{
+	u8 val;
+	if (i2c_clt1[2] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[2]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
 static int es7210_micboost13_setting_set(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[3]);
-        return 0;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_update_bits(0x43, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[3]);
+
+	return 0;
 }
 
 static int es7210_micboost13_setting_get(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(0x43, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(0x43, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost14_setting_set(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[3]);
-        return 0;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_update_bits(0x44, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[3]);
+
+	return 0;
 }
 
 static int es7210_micboost14_setting_get(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(0x44, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(0x44, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost15_setting_set(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[3]);
-        return 0;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_update_bits(0x45, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[3]);
+
+	return 0;
 }
 
 static int es7210_micboost15_setting_get(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(0x45, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(0x45, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
+
 static int es7210_micboost16_setting_set(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0], i2c_clt1[3]);
-        return 0;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_update_bits(0x46, 0x0F, ucontrol->value.integer.value[0],
+			   i2c_clt1[3]);
+
+	return 0;
 }
 
 static int es7210_micboost16_setting_get(struct snd_kcontrol *kcontrol,
-                struct snd_ctl_elem_value *ucontrol)
+					 struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(0x46, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = val;
-        return 0;
-}
-static int es7210_adc13_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
-{
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01,
-        ucontrol->value.integer.value[0]&0x01, i2c_clt1[3]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(0x46, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = val & 0x0F;
+
+	return 0;
 }
 
-static int es7210_adc13_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc13_set(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x01, val & 0x01,
+			   i2c_clt1[3]);
+
+	return 0;
 }
 
-static int es7210_adc14_mute_set(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc13_get(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02,
-                         (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[3]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
 }
 
-static int es7210_adc14_mute_get(struct snd_kcontrol *kcontrol,
-                               struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc14_set(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC12_MUTE_REG15, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[3]);
+
+	return 0;
 }
 
-static int es7210_adc15_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc14_get(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01,
-                           ucontrol->value.integer.value[0]&0x01, i2c_clt1[3]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC12_MUTE_REG15, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
-static int es7210_adc15_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc15_set(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = val & 0x01;
-        return 0;
-}
-static int es7210_adc16_mute_set(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
-{
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02,
-                           (ucontrol->value.integer.value[0] & 0x01) << 1, i2c_clt1[3]);
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x01, val & 0x01,
+			   i2c_clt1[3]);
+
+	return 0;
 }
 
-static int es7210_adc16_mute_get(struct snd_kcontrol *kcontrol,
-                                struct snd_ctl_elem_value *ucontrol)
+static int es7210_adc15_get(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
 {
-        u8 val;
-        if (i2c_clt1[3] == NULL)
-                return 0;
-        es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[3]);
-        ucontrol->value.integer.value[0] = (val & 0x02) >> 1;
-        return 0;
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = !(val & 0x01);
+
+	return 0;
+}
+
+static int es7210_adc16_set(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
+{
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	val = !ucontrol->value.integer.value[0];
+	es7210_update_bits(ES7210_ADC34_MUTE_REG14, 0x02, (val & 0x01) << 1,
+			   i2c_clt1[3]);
+
+	return 0;
+}
+
+static int es7210_adc16_get(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
+{
+	u8 val;
+	if (i2c_clt1[3] == NULL)
+		return 0;
+	es7210_read(ES7210_ADC34_MUTE_REG14, &val, i2c_clt1[3]);
+	ucontrol->value.integer.value[0] = !((val & 0x02) >> 1);
+
+	return 0;
 }
 
 static const struct snd_kcontrol_new es7210_snd_controls[] = {
-        SOC_SINGLE_EXT_TLV("PGA1_setting",
-        0x43, 0, 0x0E, 0,
-        es7210_micboost1_setting_get, es7210_micboost1_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA2_setting",
-        0x44, 0, 0x0E, 0,
-        es7210_micboost2_setting_get, es7210_micboost2_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA3_setting",
-        0x45, 0, 0x0E, 0,
-        es7210_micboost3_setting_get, es7210_micboost3_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA4_setting",
-        0x46, 0, 0x0E, 0,
-        es7210_micboost4_setting_get, es7210_micboost4_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT("ADC1_MUTE", ES7210_ADC12_MUTE_REG15, 0, 1, 0,
-        es7210_adc1_mute_get, es7210_adc1_mute_set),
-        SOC_SINGLE_EXT("ADC2_MUTE", ES7210_ADC12_MUTE_REG15, 1, 1, 0,
-        es7210_adc2_mute_get, es7210_adc2_mute_set),
-        SOC_SINGLE_EXT("ADC3_MUTE", ES7210_ADC34_MUTE_REG14, 0, 1, 0,
-        es7210_adc3_mute_get, es7210_adc3_mute_set),
-        SOC_SINGLE_EXT("ADC4_MUTE", ES7210_ADC34_MUTE_REG14, 1, 1, 0,
-        es7210_adc4_mute_get, es7210_adc4_mute_set),
-        SOC_SINGLE_EXT_TLV("PGA5_setting",
-        0x43, 0, 0x0E, 0,
-        es7210_micboost5_setting_get, es7210_micboost5_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA6_setting",
-        0x44, 0, 0x0E, 0,
-        es7210_micboost6_setting_get, es7210_micboost6_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA7_setting",
-        0x45, 0, 0x0E, 0,
-        es7210_micboost7_setting_get, es7210_micboost7_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA8_setting",
-        0x46, 0, 0x0E, 0,
-        es7210_micboost8_setting_get, es7210_micboost8_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT("ADC5_MUTE", ES7210_ADC12_MUTE_REG15, 0, 1, 0,
-        es7210_adc5_mute_get, es7210_adc5_mute_set),
-        SOC_SINGLE_EXT("ADC6_MUTE", ES7210_ADC12_MUTE_REG15, 1, 1, 0,
-        es7210_adc6_mute_get, es7210_adc6_mute_set),
-        SOC_SINGLE_EXT("ADC7_MUTE", ES7210_ADC34_MUTE_REG14, 0, 1, 0,
-        es7210_adc7_mute_get, es7210_adc7_mute_set),
-        SOC_SINGLE_EXT("ADC8_MUTE", ES7210_ADC34_MUTE_REG14, 1, 1, 0,
-        es7210_adc8_mute_get, es7210_adc8_mute_set),
-        SOC_SINGLE_EXT_TLV("PGA9_setting",
-        0x43, 0, 0x0E, 0,
-        es7210_micboost9_setting_get, es7210_micboost9_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA10_setting",
-        0x44, 0, 0x0E, 0,
-        es7210_micboost10_setting_get, es7210_micboost10_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA11_setting",
-        0x45, 0, 0x0E, 0,
-        es7210_micboost11_setting_get, es7210_micboost11_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA12_setting",
-        0x46, 0, 0x0E, 0,
-        es7210_micboost12_setting_get, es7210_micboost12_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT("ADC9_MUTE", ES7210_ADC12_MUTE_REG15, 0, 1, 0,
-        es7210_adc9_mute_get, es7210_adc9_mute_set),
-        SOC_SINGLE_EXT("ADC10_MUTE", ES7210_ADC12_MUTE_REG15, 1, 1, 0,
-        es7210_adc10_mute_get, es7210_adc10_mute_set),
-        SOC_SINGLE_EXT("ADC11_MUTE", ES7210_ADC34_MUTE_REG14, 0, 1, 0,
-        es7210_adc11_mute_get, es7210_adc11_mute_set),
-        SOC_SINGLE_EXT("ADC12_MUTE", ES7210_ADC34_MUTE_REG14, 1, 1, 0,
-        es7210_adc12_mute_get, es7210_adc12_mute_set),
-        SOC_SINGLE_EXT_TLV("PGA13_setting",
-        0x43, 0, 0x0E, 0,
-        es7210_micboost13_setting_get, es7210_micboost13_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA14_setting",
-        0x44, 0, 0x0E, 0,
-        es7210_micboost14_setting_get, es7210_micboost14_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA15_setting",
-        0x45, 0, 0x0E, 0,
-        es7210_micboost15_setting_get, es7210_micboost15_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT_TLV("PGA16_setting",
-        0x46, 0, 0x0E, 0,
-        es7210_micboost16_setting_get, es7210_micboost16_setting_set,
-        mic_boost_tlv),
-        SOC_SINGLE_EXT("ADC13_MUTE", ES7210_ADC12_MUTE_REG15, 0, 1, 0,
-        es7210_adc13_mute_get, es7210_adc13_mute_set),
-        SOC_SINGLE_EXT("ADC14_MUTE", ES7210_ADC12_MUTE_REG15, 1, 1, 0,
-        es7210_adc14_mute_get, es7210_adc14_mute_set),
-        SOC_SINGLE_EXT("ADC15_MUTE", ES7210_ADC34_MUTE_REG14, 0, 1, 0,
-        es7210_adc15_mute_get, es7210_adc15_mute_set),
-        SOC_SINGLE_EXT("ADC16_MUTE", ES7210_ADC34_MUTE_REG14, 1, 1, 0,
-        es7210_adc16_mute_get, es7210_adc16_mute_set),
+	/* CHIP 1 */
+	SOC_SINGLE_EXT_TLV("PGA_01 Capture Volume", 0x43, 0, 0x0E, 0,
+			   es7210_micboost1_setting_get,
+			   es7210_micboost1_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_02 Capture Volume", 0x44, 0, 0x0E, 0,
+			   es7210_micboost2_setting_get,
+			   es7210_micboost2_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_03 Capture Volume", 0x45, 0, 0x0E, 0,
+			   es7210_micboost3_setting_get,
+			   es7210_micboost3_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_04 Capture Volume", 0x46, 0, 0x0E, 0,
+			   es7210_micboost4_setting_get,
+			   es7210_micboost4_setting_set, mic_boost_tlv),
+	SOC_SINGLE_BOOL_EXT("ADC_01 Capture Switch", 0, es7210_adc1_get,
+			    es7210_adc1_set),
+	SOC_SINGLE_BOOL_EXT("ADC_02 Capture Switch", 0, es7210_adc2_get,
+			    es7210_adc2_set),
+	SOC_SINGLE_BOOL_EXT("ADC_03 Capture Switch", 0, es7210_adc3_get,
+			    es7210_adc3_set),
+	SOC_SINGLE_BOOL_EXT("ADC_04 Capture Switch", 0, es7210_adc4_get,
+			    es7210_adc4_set),
+	/* CHIP 2 */
+	SOC_SINGLE_EXT_TLV("PGA_05 Capture Volume", 0x43, 0, 0x0E, 0,
+			   es7210_micboost5_setting_get,
+			   es7210_micboost5_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_06 Capture Volume", 0x44, 0, 0x0E, 0,
+			   es7210_micboost6_setting_get,
+			   es7210_micboost6_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_07 Capture Volume", 0x45, 0, 0x0E, 0,
+			   es7210_micboost7_setting_get,
+			   es7210_micboost7_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_08 Capture Volume", 0x46, 0, 0x0E, 0,
+			   es7210_micboost8_setting_get,
+			   es7210_micboost8_setting_set, mic_boost_tlv),
+	SOC_SINGLE_BOOL_EXT("ADC_05 Capture Switch", 0, es7210_adc5_get,
+			    es7210_adc5_set),
+	SOC_SINGLE_BOOL_EXT("ADC_06 Capture Switch", 0, es7210_adc6_get,
+			    es7210_adc6_set),
+	SOC_SINGLE_BOOL_EXT("ADC_07 Capture Switch", 0, es7210_adc7_get,
+			    es7210_adc7_set),
+	SOC_SINGLE_BOOL_EXT("ADC_08 Capture Switch", 0, es7210_adc8_get,
+			    es7210_adc8_set),
+	/* CHIP 3 */
+	SOC_SINGLE_EXT_TLV("PGA_09 Capture Volume", 0x43, 0, 0x0E, 0,
+			   es7210_micboost9_setting_get,
+			   es7210_micboost9_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_10 Capture Volume", 0x44, 0, 0x0E, 0,
+			   es7210_micboost10_setting_get,
+			   es7210_micboost10_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_11 Capture Volume", 0x45, 0, 0x0E, 0,
+			   es7210_micboost11_setting_get,
+			   es7210_micboost11_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_12 Capture Volume", 0x46, 0, 0x0E, 0,
+			   es7210_micboost12_setting_get,
+			   es7210_micboost12_setting_set, mic_boost_tlv),
+	SOC_SINGLE_BOOL_EXT("ADC_09 Capture Switch", 0, es7210_adc9_get,
+			    es7210_adc9_set),
+	SOC_SINGLE_BOOL_EXT("ADC_10 Capture Switch", 0, es7210_adc10_get,
+			    es7210_adc10_set),
+	SOC_SINGLE_BOOL_EXT("ADC_11 Capture Switch", 0, es7210_adc11_get,
+			    es7210_adc11_set),
+	SOC_SINGLE_BOOL_EXT("ADC_12 Capture Switch", 0, es7210_adc12_get,
+			    es7210_adc12_set),
+	/* CHIP 4 */
+	SOC_SINGLE_EXT_TLV("PGA_13 Capture Volume", 0x43, 0, 0x0E, 0,
+			   es7210_micboost13_setting_get,
+			   es7210_micboost13_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_14 Capture Volume", 0x44, 0, 0x0E, 0,
+			   es7210_micboost14_setting_get,
+			   es7210_micboost14_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_15 Capture Volume", 0x45, 0, 0x0E, 0,
+			   es7210_micboost15_setting_get,
+			   es7210_micboost15_setting_set, mic_boost_tlv),
+	SOC_SINGLE_EXT_TLV("PGA_16 Capture Volume", 0x46, 0, 0x0E, 0,
+			   es7210_micboost16_setting_get,
+			   es7210_micboost16_setting_set, mic_boost_tlv),
+	SOC_SINGLE_BOOL_EXT("ADC_13 Capture Switch", 0, es7210_adc13_get,
+			    es7210_adc13_set),
+	SOC_SINGLE_BOOL_EXT("ADC_14 Capture Switch", 0, es7210_adc14_get,
+			    es7210_adc14_set),
+	SOC_SINGLE_BOOL_EXT("ADC_15 Capture Switch", 0, es7210_adc15_get,
+			    es7210_adc15_set),
+	SOC_SINGLE_BOOL_EXT("ADC_16 Capture Switch", 0, es7210_adc16_get,
+			    es7210_adc16_set),
 };
 
 static struct snd_soc_component_driver soc_codec_dev_es7210 = {

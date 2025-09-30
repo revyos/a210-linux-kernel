@@ -87,7 +87,8 @@ static int dw_qspi_mmio_probe(struct platform_device *pdev)
 	struct dw_qspi_mmio *dwsmmio;
 	struct dw_spi *dws;
 	int ret;
-	int num_cs,rx_sample_dly;
+	u32 num_cs, rx_sample_dly = 4;
+	u32 swap_data = 0;
 
 	dwsmmio = devm_kzalloc(&pdev->dev, sizeof(struct dw_qspi_mmio),
 			GFP_KERNEL);
@@ -150,10 +151,14 @@ static int dw_qspi_mmio_probe(struct platform_device *pdev)
 	num_cs = 1;
 	device_property_read_u32(&pdev->dev, "num-cs", &num_cs);
 	dws->num_cs = num_cs;
-	rx_sample_dly = 4;
+
 	device_property_read_u32(&pdev->dev, "rx-sample-dly", &rx_sample_dly);
-	printk("get gpio succes %d\n",rx_sample_dly);
+	dev_dbg(&pdev->dev, "get rx_sample_dly success %d\n", rx_sample_dly);
 	dws->rx_sample_delay = rx_sample_dly;
+
+	device_property_read_u32(&pdev->dev, "spi-swap-data", &swap_data);
+	dws->swap_data = swap_data;
+
 	init_func = device_get_match_data(&pdev->dev);
 	if (init_func) {
 		ret = init_func(pdev, dwsmmio);

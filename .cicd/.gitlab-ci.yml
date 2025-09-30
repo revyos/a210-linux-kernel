@@ -15,33 +15,23 @@ mr-code-review:
 mr-build-virt:
   stage: build
   script:
-    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -oboard=virt --tar
-  artifacts:
-    paths:
-      - build/Release/*.tar.gz
-    expire_in: 1 days
+    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -odistro=debian -oboard=virt --tar
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-mr-build-p1:
+mr-build-a200-evb:
   stage: build
   script:
-    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -oboard=p1 --tar
-  artifacts:
-    paths:
-      - build/Release/*.tar.gz
-    expire_in: 1 days
+    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -odistro=debian -oboard=a200-evb --tar
+    - zb gitlab upload build/Release/*.tar.gz   # 上传到临时 mr artifactory
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-mr-build-p100-evb:
+mr-build-a210-evb:
   stage: build
   script:
-    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -oboard=p100-evb --tar
-  artifacts:
-    paths:
-      - build/Release/*.tar.gz
-    expire_in: 1 days
+    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -odistro=debian -oboard=a210-evb --tar
+    - zb gitlab upload build/Release/*.tar.gz   # 上传到临时 mr artifactory
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
@@ -54,34 +44,33 @@ mr-test-virt:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-mr-test-p1:
+mr-test-a200-evb:
   stage: test
   script:
-    - zb gitlab run --timeout 600 --board "p1-evb_develop-*" .cicd/runtest-p1.sh
+    - zb gitlab run --timeout 600 --board "p1-*" .cicd/runtest-a200-evb.sh
   dependencies:
-    - mr-build-p1
+    - mr-build-a200-evb
   tags:
-    - board-runner
+    - a200-board-runner
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-mr-test-p100-evb:
+mr-test-a210-evb:
   stage: test
   script:
-    - echo "无测试"
-    # - zb gitlab run --timeout 600 --board "a210-evb-*" .cicd/runtest-p100-evb.sh
+    - zb gitlab run --timeout 600 --board "a210-evb-3-*" .cicd/runtest-a210-evb.sh
   dependencies:
-    - mr-build-p100-evb
+    - mr-build-a210-evb
   tags:
-    - board-runner
+    - a210-board-runner
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 mr-deploy:
   stage: deploy
   script:
-    - zb kernel -f -esource-path=$PWD -oboard=p100-evb
-    - zb kernel -f -esource-path=$PWD -oboard=p1
+    - zb kernel -f -esource-path=$PWD -oboard=a210-evb
+    - zb kernel -f -esource-path=$PWD -oboard=a200-evb
     - zb kernel -f -esource-path=$PWD -oboard=virt
     - zb upload kernel --all
   rules:
@@ -95,8 +84,8 @@ before_script:
   - export DISK_IMAGE=diskimage_${SDK_VERSION//\//_}
 
   - export VIRT_TARGZ=${DISK_IMAGE}_virt-release_test.tar.gz
-  - export P1_TARGZ=${DISK_IMAGE}_p1-release_test.tar.gz
-  - export P100_EVB_EMMC_TARGZ=${DISK_IMAGE}_p100-evb-release_test.tar.gz
+  - export A200_EVB_IMAGE=${DISK_IMAGE}_a200-evb-release_test_debian.tar.gz
+  - export A210_EVB_IMAGE=${DISK_IMAGE}_a210-evb-release_test_debian.tar.gz
   - export
 
 variables:

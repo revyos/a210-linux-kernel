@@ -2057,7 +2057,21 @@ config TH1520_PMIC_WATCHDOG
 	  module will be called acquirewdt.
 
 	  Most people will say N.
+	  
+config A210_WATCHDOG
+	tristate "A210 watchdog"
+	depends on A210_MBOX
+	select WATCHDOG_CORE
+	help
+	  This is the driver for the hardware watchdog on A210 Board. This watchdog
+	  simply watches your kernel to make sure it doesn't freeze, and if
+	  it does, it reboots your computer after a certain amount of time.
 
+	  To compile this driver as a module, choose M here: the
+	  module will be called acquirewdt.
+
+	  Most people will say N.
+	  
 # S390 Architecture
 
 config DIAG288_WATCHDOG

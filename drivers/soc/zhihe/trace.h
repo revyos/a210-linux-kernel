@@ -5,7 +5,7 @@
 #define TRACE_SYSTEM bmu
 
 #include <linux/tracepoint.h>
-#include "p100_bmu_type.h"
+#include "a210_bmu_type.h"
 
 TRACE_EVENT (bmu_cnt_bytes_cycle_trans,
 	     TP_PROTO (char *name, u8 ch, pft_event_array_t * pft_event),

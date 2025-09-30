@@ -136,7 +136,7 @@ static void es8156_enable_spk(struct es8156_priv *es8156, bool enable)
 static const char *es8156_DAC_SRC[] = { "Left to Left, Right to Right",
 "Right to both Left and Right","Left to both Left & Right", "Left to Right, Right to Left" };
 
-static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -9600, 50, 1);
+static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -9550, 50, 1);
 static const DECLARE_TLV_DB_SCALE(alc_gain_tlv,-2800,400,1);
 static SOC_ENUM_SINGLE_DECL(es8165_dac_enum, ES8156_MISC_CONTROL3_REG18, 4, es8156_DAC_SRC);
 
@@ -152,8 +152,8 @@ static const struct snd_kcontrol_new es8156_snd_controls[] = {
 	SOC_DOUBLE("ALC Maximum Minimum Volume",ES8156_ALC_CONFIG3_REG17,
 	4,0,15,0),
 	/* DAC Digital controls */
-	SOC_SINGLE_TLV("DAC Playback Volume", ES8156_VOLUME_CONTROL_REG14,
-			  0, ES8156_VOL_MAX, 0, dac_vol_tlv),
+	SOC_SINGLE_TLV("Master Playback Volume", ES8156_VOLUME_CONTROL_REG14, 0,
+		       ES8156_VOL_MAX, 0, dac_vol_tlv),
 	SOC_SINGLE("HP Switch",ES8156_ANALOG_SYS3_REG22,3,1,0),
 
 

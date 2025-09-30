@@ -16,7 +16,7 @@
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/proc_fs.h>
-//#include <linux/p100_proc_debug.h>
+//#include <linux/a210_proc_debug.h>
 
 
 
@@ -25,8 +25,8 @@
 #define MAX_RX_TIMEOUT (msecs_to_jiffies(3000))
 #define MAX_TX_TIMEOUT (msecs_to_jiffies(500))
 
-struct p100_aon_chan {
-	struct p100_aon_ipc *aon_ipc;
+struct a210_aon_chan {
+	struct a210_aon_ipc *aon_ipc;
 	struct mbox_client cl;
 	struct mbox_chan *ch;
 	struct completion tx_done;
@@ -38,8 +38,8 @@ struct p100_aon_chan {
 	struct proc_dir_entry *proc_dir;
 };
 
-struct p100_aon_ipc {
-	struct p100_aon_chan chans;
+struct a210_aon_ipc {
+	struct a210_aon_chan chans;
 	struct device *dev;
 	struct mutex lock;
 	struct completion done;
@@ -50,83 +50,83 @@ struct p100_aon_ipc {
 /*
  * This type is used to indicate error response for most functions.
  */
-enum p100_aon_error_codes {
-	P100_AON_ERR_NONE = 0, /* Success */
-	P100_AON_ERR_VERSION = 1, /* Incompatible API version */
-	P100_AON_ERR_CONFIG = 2, /* Configuration error */
-	P100_AON_ERR_PARM = 3, /* Bad parameter */
-	P100_AON_ERR_NOACCESS = 4, /* Permission error (no access) */
-	P100_AON_ERR_LOCKED = 5, /* Permission error (locked) */
-	P100_AON_ERR_UNAVAILABLE = 6, /* Unavailable (out of resources) */
-	P100_AON_ERR_NOTFOUND = 7, /* Not found */
-	P100_AON_ERR_NOPOWER = 8, /* No power */
-	P100_AON_ERR_IPC = 9, /* Generic IPC error */
-	P100_AON_ERR_BUSY = 10, /* Resource is currently busy/active */
-	P100_AON_ERR_FAIL = 11, /* General I/O failure */
-	P100_AON_ERR_LAST
+enum a210_aon_error_codes {
+	A210_AON_ERR_NONE = 0, /* Success */
+	A210_AON_ERR_VERSION = 1, /* Incompatible API version */
+	A210_AON_ERR_CONFIG = 2, /* Configuration error */
+	A210_AON_ERR_PARM = 3, /* Bad parameter */
+	A210_AON_ERR_NOACCESS = 4, /* Permission error (no access) */
+	A210_AON_ERR_LOCKED = 5, /* Permission error (locked) */
+	A210_AON_ERR_UNAVAILABLE = 6, /* Unavailable (out of resources) */
+	A210_AON_ERR_NOTFOUND = 7, /* Not found */
+	A210_AON_ERR_NOPOWER = 8, /* No power */
+	A210_AON_ERR_IPC = 9, /* Generic IPC error */
+	A210_AON_ERR_BUSY = 10, /* Resource is currently busy/active */
+	A210_AON_ERR_FAIL = 11, /* General I/O failure */
+	A210_AON_ERR_LAST
 };
 
-static int p100_aon_linux_errmap[P100_AON_ERR_LAST] = {
-	0, /* P100_AON_ERR_NONE */
-	-EINVAL, /* P100_AON_ERR_VERSION */
-	-EINVAL, /* P100_AON_ERR_CONFIG */
-	-EINVAL, /* P100_AON_ERR_PARM */
-	-EACCES, /* P100_AON_ERR_NOACCESS */
-	-EACCES, /* P100_AON_ERR_LOCKED */
-	-ERANGE, /* P100_AON_ERR_UNAVAILABLE */
-	-EEXIST, /* P100_AON_ERR_NOTFOUND */
-	-EPERM, /* P100_AON_ERR_NOPOWER */
-	-EPIPE, /* P100_AON_ERR_IPC */
-	-EBUSY, /* P100_AON_ERR_BUSY */
-	-EIO, /* P100_AON_ERR_FAIL */
+static int a210_aon_linux_errmap[A210_AON_ERR_LAST] = {
+	0, /* A210_AON_ERR_NONE */
+	-EINVAL, /* A210_AON_ERR_VERSION */
+	-EINVAL, /* A210_AON_ERR_CONFIG */
+	-EINVAL, /* A210_AON_ERR_PARM */
+	-EACCES, /* A210_AON_ERR_NOACCESS */
+	-EACCES, /* A210_AON_ERR_LOCKED */
+	-ERANGE, /* A210_AON_ERR_UNAVAILABLE */
+	-EEXIST, /* A210_AON_ERR_NOTFOUND */
+	-EPERM, /* A210_AON_ERR_NOPOWER */
+	-EPIPE, /* A210_AON_ERR_IPC */
+	-EBUSY, /* A210_AON_ERR_BUSY */
+	-EIO, /* A210_AON_ERR_FAIL */
 };
-#define P100_AON_CHN_MAX     (4)
-static struct p100_aon_ipc *p100_aon_ipc_handle[P100_AON_CHN_MAX];
+#define A210_AON_CHN_MAX     (4)
+static struct a210_aon_ipc *a210_aon_ipc_handle[A210_AON_CHN_MAX];
 static uint32_t g_aon_ipc_handle_num;
 
-static inline int p100_aon_to_linux_errno(int errno)
+static inline int a210_aon_to_linux_errno(int errno)
 {
-	if (errno >= P100_AON_ERR_NONE && errno < P100_AON_ERR_LAST)
-		return p100_aon_linux_errmap[errno];
+	if (errno >= A210_AON_ERR_NONE && errno < A210_AON_ERR_LAST)
+		return a210_aon_linux_errmap[errno];
 	return -EIO;
 }
 
 /*
  * Get the default handle used by SCU
  */
-int p100_aon_get_handle(struct p100_aon_ipc **ipc, char* name)
+int a210_aon_get_handle(struct a210_aon_ipc **ipc, char* name)
 {
 	uint32_t i = 0;
 	if(!name)
 		return -1;
 	for(i = 0;i<g_aon_ipc_handle_num;i++) {
-		if(!p100_aon_ipc_handle[i])
-			return -1;
-		if(!strcmp(name, p100_aon_ipc_handle[i]->mbox_name))) {
-			*ipc = p100_aon_ipc_handle[i];
+		if(!a210_aon_ipc_handle[i])
+			return -EPROBE_DEFER;
+		if(!strcmp(name, a210_aon_ipc_handle[i]->mbox_name)) {
+			*ipc = a210_aon_ipc_handle[i];
 			return 0;
 		}
 	}
-	return -1;
+	return -EPROBE_DEFER;
 }
-EXPORT_SYMBOL(p100_aon_get_handle);
+EXPORT_SYMBOL(a210_aon_get_handle);
 
-static void p100_aon_tx_done(struct mbox_client *cl, void *mssg, int r)
+static void a210_aon_tx_done(struct mbox_client *cl, void *mssg, int r)
 {
-	struct p100_aon_chan *aon_chan =
-		container_of(cl, struct p100_aon_chan, cl);
+	struct a210_aon_chan *aon_chan =
+		container_of(cl, struct a210_aon_chan, cl);
 
 	complete(&aon_chan->tx_done);
 }
 
-static void p100_aon_rx_callback(struct mbox_client *c, void *msg)
+static void a210_aon_rx_callback(struct mbox_client *c, void *msg)
 {
-	struct p100_aon_chan *aon_chan =
-		container_of(c, struct p100_aon_chan, cl);
-	struct p100_aon_ipc *aon_ipc = aon_chan->aon_ipc;
-	struct p100_aon_rpc_msg_hdr *hdr =
-		(struct p100_aon_rpc_msg_hdr *)msg;
-	uint8_t recv_size = sizeof(struct p100_aon_rpc_msg_hdr) + hdr->size;
+	struct a210_aon_chan *aon_chan =
+		container_of(c, struct a210_aon_chan, cl);
+	struct a210_aon_ipc *aon_ipc = aon_chan->aon_ipc;
+	struct a210_aon_rpc_msg_hdr *hdr =
+		(struct a210_aon_rpc_msg_hdr *)msg;
+	uint8_t recv_size = sizeof(struct a210_aon_rpc_msg_hdr) + hdr->size;
 
 	memcpy(aon_ipc->msg, msg, recv_size);
 	dev_dbg(aon_ipc->dev, "msg head: 0x%x, size:%d\n", *((u32 *)msg),
@@ -134,14 +134,14 @@ static void p100_aon_rx_callback(struct mbox_client *c, void *msg)
 	complete(&aon_ipc->done);
 }
 
-static int p100_aon_ipc_write(struct p100_aon_ipc *aon_ipc, void *msg)
+static int a210_aon_ipc_write(struct a210_aon_ipc *aon_ipc, void *msg)
 {
-	struct p100_aon_rpc_msg_hdr *hdr = msg;
-	struct p100_aon_chan *aon_chan;
+	struct a210_aon_rpc_msg_hdr *hdr = msg;
+	struct a210_aon_chan *aon_chan;
 	u32 *data = msg;
 	int ret;
 	/* check size, currently it requires 7 MSG in one transfer */
-	if (hdr->size != P100_AON_RPC_MSG_NUM)
+	if (hdr->size != A210_AON_RPC_MSG_NUM)
 		return -EINVAL;
 
 	dev_dbg(aon_ipc->dev, "RPC SVC %u FUNC %u SIZE %u\n", hdr->svc,
@@ -164,10 +164,10 @@ static int p100_aon_ipc_write(struct p100_aon_ipc *aon_ipc, void *msg)
 /*
  * RPC command/response
  */
-int p100_aon_call_rpc(struct p100_aon_ipc *aon_ipc, void *msg,
+int a210_aon_call_rpc(struct a210_aon_ipc *aon_ipc, void *msg,
 			void *ack_msg, bool have_resp)
 {
-	struct p100_aon_rpc_msg_hdr *hdr = msg;
+	struct a210_aon_rpc_msg_hdr *hdr = msg;
 	int ret = 0;
 	if (WARN_ON(!aon_ipc || !msg))
 		return -EINVAL;
@@ -175,7 +175,7 @@ int p100_aon_call_rpc(struct p100_aon_ipc *aon_ipc, void *msg,
 		return -EINVAL;
 	mutex_lock(&aon_ipc->lock);
 	reinit_completion(&aon_ipc->done);
-	RPC_SET_VER(hdr, P100_AON_RPC_VERSION);
+	RPC_SET_VER(hdr, A210_AON_RPC_VERSION);
 	/*svc id use 6bit for version 2*/
 	RPC_SET_SVC_ID(hdr, hdr->svc);
 	RPC_SET_SVC_FLAG_MSG_TYPE(hdr, RPC_SVC_MSG_TYPE_DATA);
@@ -185,7 +185,7 @@ int p100_aon_call_rpc(struct p100_aon_ipc *aon_ipc, void *msg,
 	} else {
 		RPC_SET_SVC_FLAG_ACK_TYPE(hdr, RPC_SVC_MSG_NO_NEED_ACK);
 	}
-	ret = p100_aon_ipc_write(aon_ipc, msg);
+	ret = a210_aon_ipc_write(aon_ipc, msg);
 	if (ret < 0) {
 		dev_err(aon_ipc->dev, "RPC send msg failed: %d\n", ret);
 		goto out;
@@ -199,7 +199,7 @@ int p100_aon_call_rpc(struct p100_aon_ipc *aon_ipc, void *msg,
 		}
 
 		/* response status is stored in msg data[0] field */
-		struct p100_aon_rpc_ack_common *ack = ack_msg;
+		struct a210_aon_rpc_ack_common *ack = ack_msg;
 		ret = ack->err_code;
 	}
 out:
@@ -207,15 +207,15 @@ out:
 
 	dev_dbg(aon_ipc->dev, "RPC SVC done\n");
 
-	return p100_aon_to_linux_errno(ret);
+	return a210_aon_to_linux_errno(ret);
 }
-EXPORT_SYMBOL(p100_aon_call_rpc);
+EXPORT_SYMBOL(a210_aon_call_rpc);
 
-static int p100_aon_probe(struct platform_device *pdev)
+static int a210_aon_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
-	struct p100_aon_ipc *aon_ipc;
-	struct p100_aon_chan *aon_chan;
+	struct a210_aon_ipc *aon_ipc;
+	struct a210_aon_chan *aon_chan;
 	struct mbox_client *cl;
 	struct device_node *np;
 	int ret;
@@ -227,10 +227,10 @@ static int p100_aon_probe(struct platform_device *pdev)
 	cl->dev = dev;
 	cl->tx_block = false;
 	cl->knows_txdone = true;
-	cl->rx_callback = p100_aon_rx_callback;
+	cl->rx_callback = a210_aon_rx_callback;
 
 	/* Initial tx_done completion as "done" */
-	cl->tx_done = p100_aon_tx_done;
+	cl->tx_done = a210_aon_tx_done;
 	init_completion(&aon_chan->tx_done);
 	complete(&aon_chan->tx_done);
 
@@ -251,45 +251,45 @@ static int p100_aon_probe(struct platform_device *pdev)
 	mutex_init(&aon_ipc->lock);
 	init_completion(&aon_ipc->done);
 	aon_chan->log_ctrl = NULL;
-	if(g_aon_ipc_handle_num>=P100_AON_CHN_MAX) {
+	if(g_aon_ipc_handle_num>=A210_AON_CHN_MAX) {
 		dev_err(dev, "aon_ipc:%s handle num overflow\n",aon_ipc->mbox_name);
 		return -1;
 	}
-	p100_aon_ipc_handle[g_aon_ipc_handle_num] = aon_ipc;
+	a210_aon_ipc_handle[g_aon_ipc_handle_num] = aon_ipc;
 	g_aon_ipc_handle_num++;
 	return devm_of_platform_populate(dev);
 }
 
-static const struct of_device_id p100_aon_match[] = {
+static const struct of_device_id a210_aon_match[] = {
 	{
-		.compatible = "zhihe,p100-aon",
+		.compatible = "zhihe,a210-aon",
 	},
 	{ /* Sentinel */ }
 };
 
-static int __maybe_unused p100_aon_resume_noirq(struct device *dev)
+static int __maybe_unused a210_aon_resume_noirq(struct device *dev)
 {
 #if 0
-	struct p100_aon_chan *aon_chan;
-	aon_chan = &p100_aon_ipc_handle->chans;
+	struct a210_aon_chan *aon_chan;
+	aon_chan = &a210_aon_ipc_handle->chans;
 
 	complete(&aon_chan->tx_done);
 #endif	
 	return 0;
 }
 
-static const struct dev_pm_ops p100_aon_pm_ops = {
-	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(NULL, p100_aon_resume_noirq)
+static const struct dev_pm_ops a210_aon_pm_ops = {
+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(NULL, a210_aon_resume_noirq)
 };
-static struct platform_driver p100_aon_driver = {
+static struct platform_driver a210_aon_driver = {
 	.driver = {
-		.name = "p100-aon",
-		.of_match_table = p100_aon_match,
-		.pm = &p100_aon_pm_ops,
+		.name = "a210-aon",
+		.of_match_table = a210_aon_match,
+		.pm = &a210_aon_pm_ops,
 	},
-	.probe = p100_aon_probe,
+	.probe = a210_aon_probe,
 };
-builtin_platform_driver(p100_aon_driver);
+builtin_platform_driver(a210_aon_driver);
 
 MODULE_AUTHOR("xionglue.huang <huangxionglue@zhcomputing.com>");
 MODULE_DESCRIPTION("ZHIHE firmware protocol driver");

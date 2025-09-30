@@ -17,6 +17,7 @@
 #include <linux/regmap.h>
 #include <linux/platform_device.h>
 #include <linux/reset.h>
+#include <linux/of_address.h>
 
 #include "core.h"
 
@@ -32,6 +33,9 @@
 #define TCA_INTR_STS 		0x8
 #define TCA_TCPC  		0x14
 
+/* Base DWC3 Control Register */
+#define DWC3_LCSR_TX_DEEMPH_2	0xd068
+
 struct dwc3_zhihe {
 	struct device		*dev;
 	void __iomem		*usb31_sysreg;	
@@ -42,7 +46,8 @@ struct dwc3_zhihe {
 	struct clk		*slv_aclk;
 	struct clk		*cfg_aclk;
 	void __iomem		*c10phy_tca;
-	void __iomem		*c10phy_sysreg;	
+	void __iomem		*c10phy_sysreg;
+	void __iomem		*dwc3_ctrl;
 };
 
 static int dwc3_zhihe_probe(struct platform_device *pdev)
@@ -50,6 +55,8 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
 	struct device		*dev = &pdev->dev;
 	struct device_node	*np  = dev->of_node;
 	struct dwc3_zhihe	*zhihe;
+	struct device_node 	*dwc3_np;
+        struct resource	        dwc3_res;
 	int			ret;
 
 	if (!np) {
@@ -124,6 +131,31 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
 		return PTR_ERR(zhihe->c10phy_sysreg);
 	}
 
+	dwc3_np = of_get_child_by_name(np, "dwc3");
+	if (!dwc3_np) {
+		dev_err(dev, "No DWC3 subnode found\n");
+		return -ENODEV;
+	}
+	ret = of_address_to_resource(dwc3_np, 0, &dwc3_res);
+	if (ret) {
+		dev_err(dev, "failed to get subnode's resource\n");
+		of_node_put(dwc3_np);
+		dwc3_np = NULL;
+		return ret;
+	}
+	of_node_put(dwc3_np);
+	dwc3_np = NULL;
+
+	zhihe->dwc3_ctrl = devm_ioremap(dev, dwc3_res.start, resource_size(&dwc3_res));
+	if (IS_ERR(zhihe->dwc3_ctrl)) {
+		dev_err(dev, "dwc3_ctrl has ERROR\n");
+		return PTR_ERR(zhihe->dwc3_ctrl);
+	}
+
+	/* Update TX deemphasis parameters used in compliance mode, pattern 14 */
+	writel(0x10540, zhihe->dwc3_ctrl + DWC3_LCSR_TX_DEEMPH_2);
+	devm_release_region(dev, dwc3_res.start, resource_size(&dwc3_res));
+
 	clk_disable(zhihe->ref_clk);
 	clk_disable(zhihe->slv_aclk);
 	reset_control_deassert(zhihe->usb31_arst);
@@ -154,6 +186,8 @@ static int dwc3_zhihe_remove(struct platform_device *pdev)
 {
         struct dwc3_zhihe *zhihe = platform_get_drvdata(pdev);
 
+        if (zhihe->dwc3_ctrl)
+                devm_iounmap(&pdev->dev, zhihe->dwc3_ctrl);
         of_platform_depopulate(zhihe->dev);
 
         return 0;

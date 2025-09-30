@@ -14,7 +14,7 @@
 #include <linux/of_address.h>
 
 #include <linux/types.h>
-#include <dt-bindings/clock/p100-clock.h>
+#include <dt-bindings/clock/a210-clock.h>
 
 #include "clk-helper.h"
 
@@ -52,7 +52,6 @@ static const char * const peri2_i2s2_src_clk_parents[] = {"audio1_pll_fout2", "a
 static const char * const peri1_qspi_ssi_clk_parents[] = {"peri1_qspi_ssi_clk_div1", "peri1_qspi_ssi_clk_div0"};
 static const char * const peri2_qspi_ssi_clk_parents[] = {"peri2_qspi_ssi_clk_div1", "peri2_qspi_ssi_clk_div0"};
 static const char * const peri1_tdm_src_clk_parents[] = {"audio1_pll_fout2", "audio0_pll_fout2"};
-static const char * const uart_sclk_parents[] = {"uart_sclk_100M", "aon_osc_clk_logic"};
 static const char * const pdm_clk_mux_parents[] = {"audio1_pll_fout2", "audio0_pll_fout2"};
 static const char * const emmc_ref_clk_mux_parents[] = {"audio0_pll_foutvco", "video_pll_foutvco"};
 static const char * const pad_sensor_vclk0_mux_parents[] = {"dpu0_pll_foutvco", "dpu1_pll_foutvco",
@@ -223,8 +222,8 @@ static struct p100_clk_info info_top[] = {
 	PLL(AUDIO1_PLL_FOUTVCO, "audio1_pll_foutvco", "osc_24m", PLL_WRAP, 0, &plls_top[AUDIO1_PLL]),
 	FIXED_FACTOR(AUDIO1_PLL_FOUTPOSTDIV, "audio1_pll_foutpostdiv", "audio1_pll_foutvco", 1, 2),
 	FIXED_FACTOR(AUDIO1_PLL_FOUT2, "audio1_pll_fout2", "audio1_pll_foutvco", 1, 8),
-	PLL(C908_PLL_FOUTVCO, "c908_pll_foutvco", "osc_24m", PLL_WRAP, 0, &plls_top[C908_PLL]),
-	PLL(C920_PLL_FOUTVCO, "c920_pll_foutvco", "osc_24m", PLL_WRAP, 0, &plls_top[C920_PLL]),
+	PLL(C908_PLL_FOUTVCO, "c908_pll_foutvco", "osc_24m", CPU_SS_CPU_PLL, 0, &plls_top[C908_PLL]),
+	PLL(C920_PLL_FOUTVCO, "c920_pll_foutvco", "osc_24m", CPU_SS_CPU_PLL, 0, &plls_top[C920_PLL]),
 	PLL(VIDEO_PLL_FOUTVCO, "video_pll_foutvco", "top_pll_ref_clk", PLL_WRAP, 0, &plls_top[VIDEO_PLL]),
 	FIXED_FACTOR(VIDEO_PLL_FOUTPOSTDIV, "video_pll_foutpostdiv", "video_pll_foutvco", 1, 2),
 	FIXED_FACTOR(VIDEO_PLL_FOUT1PH0, "video_pll_fout1ph0", "video_pll_foutvco", 1, 4),
@@ -361,9 +360,7 @@ static struct p100_clk_info info_top[] = {
 	    NO_DIV_EN, MUX_TYPE_DIV, 33, 63),
 	MUX(TOP_PERI_TDM_SRC_CLK_MUX, "peri1_tdm_src_clk", TOP_CRG, 0x28, 25, 1,
 	    peri1_tdm_src_clk_parents, ARRAY_SIZE(peri1_tdm_src_clk_parents), CLK_SET_RATE_PARENT),
-	FIXED_FACTOR(UART_SCLK_100M, "uart_sclk_100M", "gmac_pll_foutpostdiv", 1, 10),
-	MUX(TOP_UART_SCLK_MUX, "uart_sclk", TOP_CRG, 0x28, 24, 1,
-	    uart_sclk_parents, ARRAY_SIZE(uart_sclk_parents), CLK_SET_RATE_PARENT),
+	FIXED_FACTOR(UART_SCLK_100M, "uart_sclk", "gmac_pll_foutpostdiv", 1, 10),
 	FIXED_FACTOR(PERI1_UART_SCLK, "peri1_uart_sclk", "uart_sclk", 1, 1),
 	FIXED_FACTOR(PERI2_UART_SCLK, "peri2_uart_sclk", "uart_sclk", 1, 1),
 	DIV(TOP_PERI_PDM_MCLK_DIV, "peri1_pdm_mclk", "pdm_clk_mux", TOP_CRG, 0x2c, 24, 8,
@@ -895,7 +892,7 @@ static int p100_clocks_probe(struct platform_device *pdev)
 		goto unregister_clks;
 	}
 
-	dev_err(dev, "succeed to register p100 %s driver\n", priv->name);
+	dev_info(dev, "succeed to register p100 %s driver\n", priv->name);
 
 	return 0;
 

@@ -1,5 +1,5 @@
-#ifndef _P100_BMU_TYPE_H
-#define _P100_BMU_TYPE_H
+#ifndef _A210_BMU_TYPE_H
+#define _A210_BMU_TYPE_H
 #include <linux/kernel.h>
 //#include <linux/spinlock.h>
 
