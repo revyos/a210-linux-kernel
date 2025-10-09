@@ -1375,7 +1375,10 @@
 &emmc {
 	max-frequency = <196608000>;
 	non-removable;
+	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	cap-mmc-highspeed;
 	io_fixed_1v8;
 	is_emmc;
 	no-sdio;
