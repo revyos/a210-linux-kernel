@@ -573,6 +573,7 @@
 			snps,pbl = <32>;
 			snps,fixed-burst;
 			snps,axi-config = <&stmmac_axi_setup>;
+			snps,tso;
 			zhihe,gmacsys = <&gmac0_sys>;
 			// iommus = <&peri1_dfmu_iommu DEVID_DIE0_GMAC_0>;
 			status = "okay";
@@ -598,6 +599,7 @@
 			snps,pbl = <32>;
 			snps,fixed-burst;
 			snps,axi-config = <&stmmac_axi_setup>;
+			snps,tso;
 			zhihe,gmacsys = <&gmac1_sys>;
 			// iommus = <&peri1_dfmu_iommu DEVID_DIE0_GMAC_1>;
 			status = "okay";
