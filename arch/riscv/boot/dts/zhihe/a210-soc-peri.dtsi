@@ -1045,6 +1045,20 @@
 			status = "okay";
 		};
 
+		aoi2c1: i2c@30891000{
+			compatible = "snps,designware-i2c";
+			reg = <0x00 0x30891000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <20>;
+			//clocks = <&clk_peri PERI2_I2C7_IC_CLK_EN>, <&clk_peri PERI2_I2C7_PCLK_EN>;
+			 clocks = <&aon_110m>;
+			clock-names = "ref", "pclk";
+			//power-domains = <&power_peri2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
 		vdec: vdec@0006800000 {
 			compatible = "zhihe,vpu-vc9000d";
 			address-cells = <2>;

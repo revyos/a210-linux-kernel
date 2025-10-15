@@ -31,6 +31,8 @@
 #include <sound/soc.h>
 #include <sound/tlv.h>
 #include <sound/soc-dapm.h>
+#include <linux/of_platform.h>
+#include <linux/gpio/consumer.h>
 #include "aw87565.h"
 
 /*******************************************************************************
@@ -396,6 +398,9 @@ static const struct snd_soc_component_driver aw87565_component_driver = {
 static int aw87565_i2c_probe(struct i2c_client *client)
 {
 	struct device_node *np = client->dev.of_node;
+	struct device_node *node;
+	struct device_node *aw9535_node = NULL;
+	int reg_val;
 	int ret = -1;
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
@@ -421,7 +426,14 @@ static int aw87565_i2c_probe(struct i2c_client *client)
 	aw87565->i2c_client = client;
 	i2c_set_clientdata(client, aw87565);
 
-	/* aw87565芯片ID检查 */
+	aw87565->audio_parst0_desc = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
+	if (aw87565->audio_parst0_desc) {
+		gpiod_set_value_cansleep(aw87565->audio_parst0_desc, 1);
+		msleep(1);
+		gpiod_set_value_cansleep(aw87565->audio_parst0_desc, 0);
+		msleep(5);
+	}
+
 	ret = aw87565_read_chipid(aw87565);
 	if (ret < 0) {
 		dev_err(&client->dev, "%s: aw87565_read_chipid failed %d\n",
@@ -442,8 +454,6 @@ static int aw87565_i2c_probe(struct i2c_client *client)
 	return devm_snd_soc_register_component(&client->dev, &aw87565_component_driver, NULL, 0);
 
 exit_i2c_check_id_failed:
-exit_gpio_request_failed:
-exit_gpio_get_failed:
 	devm_kfree(&client->dev, aw87565);
 	aw87565 = NULL;
 exit_devm_kzalloc_failed:
@@ -453,6 +463,9 @@ exit_check_functionality_failed:
 
 static void aw87565_i2c_remove(struct i2c_client *client)
 {
+	if (aw87565->audio_parst0_desc)
+		gpiod_put(aw87565->audio_parst0_desc);
+	return;
 }
 
 static const struct i2c_device_id aw87565_i2c_id[] = {

@@ -158,6 +158,7 @@ struct aw87565 {
 	unsigned char spk_cfg_update_flag;
 	unsigned char rcv_cfg_update_flag;
 	struct regmap *regmap;
+	struct gpio_desc *audio_parst0_desc;
 };
 
 /*******************************************************************************
