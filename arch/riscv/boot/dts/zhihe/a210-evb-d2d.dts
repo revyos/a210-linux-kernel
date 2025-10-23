@@ -1,0 +1,457 @@
+/dts-v1/;
+
+#include "a210-soc-core.dtsi"
+#include "a210-soc-core-die1.dtsi"
+#include "a210-soc-peri.dtsi"
+
+/ {
+	model = "A210 EVB D2D configuration";
+
+	aliases {
+		mmc0 = &emmc;
+		serial4 = &uart4;
+	};
+
+	/* The first 2M will be reserved in the Kernel, and the entire available range is set here */
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00 0x80000000  0x01 0x00000000>; /* 4G - 64MB */
+		numa-node-id = <0>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x00 0x40000000>;
+			alloc-ranges = <0x00 0x90000000 0x00 0x40000000>;
+			linux,cma-default;
+		};
+
+		memory@1c000000 {
+			reg = <0x00 0x1c000000 0x00 0x2000000>;
+			no-map;
+		};
+
+		framebuffer: framebuffer@10000000 {
+			reg = <0x01 0x00 0x00 0x5000000>;
+			no-map;
+		};
+
+		// zh_videomem@100000000 {
+		// 	reg = <0x01 0x00 0x00 0x20000000>;
+		// 	no-map;
+		// };
+
+		npu_mmu_memory@130000000 {
+			reg = <0x01 0x30000000 0x00 0x04000000>;
+			no-map;
+		};
+
+		memblock-memory@17b800000 {
+			reg = <0x01 0x7b800000 0x00 0x04000000>;
+			no-map;
+		};
+	};
+
+	/* The bootargs in U-Boot will override the configuration set here. */
+	chosen {
+		stdout-path = "serial4";
+	};
+};
+
+&reset {
+	control-val = <0x3 0x0 0x3 0x0>;
+};
+
+&c908_1 {
+ 	 status = "disable";
+};
+
+&c908_2 {
+ 	 status = "disable";
+};
+
+&c908_3 {
+ 	 status = "disable";
+};
+
+&c920_4 {
+	status = "disable";
+};
+
+&c920_5 {
+	status = "disable";
+};
+
+&c920_6 {
+	status = "disable";
+};
+
+&c920_7 {
+	status = "disable";
+};
+
+&c908_8 {
+ 	 //status = "disable";
+};
+
+&c908_9 {
+	status = "disable";
+};
+
+&c908_10 {
+	status = "disable";
+};
+
+&c908_11 {
+	status = "disable";
+};
+
+&c920_12 {
+	status = "disable";
+};
+
+&c920_13 {
+	status = "disable";
+};
+
+&c920_14 {
+	status = "disable";
+};
+
+&c920_15 {
+	status = "disable";
+};
+
+&uart0 {
+	status = "disabled";
+};
+
+&uart1 {
+	status = "disabled";
+};
+
+&uart3 {
+	status = "disabled";
+};
+
+&uart4 {
+	current-speed = <115200>; /* OpenSBI */
+};
+
+&uart5 {
+	status = "disabled";
+};
+
+&uart6 {
+	status = "disabled";
+};
+
+&uart7 {
+	status = "disabled";
+};
+
+&uart8 {
+	status = "disabled";
+};
+
+&uart9 {
+	status = "disabled";
+};
+
+&spi0 {
+	status = "disabled";
+};
+
+&qspi0 {
+	status = "disabled";
+};
+
+&i2c1 {
+	status = "disabled";
+};
+
+&i2c2 {
+	status = "disabled";
+};
+
+&i2c3 {
+	status = "disabled";
+};
+
+&i2c5 {
+	status = "disabled";
+};
+
+&i2c6 {
+	status = "disabled";
+};
+
+&i2c7 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "disabled";
+};
+
+&pwm2 {
+	status = "disabled";
+};
+
+&audio_i2s2 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd1 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd2 {
+	status = "disabled";
+};
+
+&audio_i2s_8ch_sd3 {
+	status = "disabled";
+};
+
+&peri3_padctrl {
+	status = "disabled";
+};
+
+&gpio4 {
+	status = "disabled";
+};
+
+&gmac1 {
+	status = "disabled";
+};
+
+/* FIXME: Disabled non-critical peripherals in the bringup phase */
+&can0 {
+	status = "disabled";
+};
+
+&can1 {
+	status = "disabled";
+};
+
+&can2 {
+	status = "disabled";
+};
+
+&dmac1 {
+	status = "disabled";
+};
+
+&uart2 {
+	status = "disabled";
+};
+
+&timer0 {
+	status = "disabled";
+};
+
+&timer1 {
+	status = "disabled";
+};
+
+&timer3 {
+	status = "disabled";
+};
+
+&timer4 {
+	status = "disabled";
+};
+
+&timer5 {
+	status = "disabled";
+};
+
+&timer6 {
+	status = "disabled";
+};
+
+&timer7 {
+	status = "disabled";
+};
+
+&i2c4 {
+	status = "disabled";
+};
+
+&audio_i2s0 {
+	status = "disabled";
+};
+
+&dm3x4 {
+	status = "disabled";
+};
+
+&rp3x1 {
+	status = "disabled";
+};
+
+&usb31_zhihe {
+	status = "disabled";
+};
+
+&gmac0 {
+	status = "disabled";
+};
+
+&mdio0 {
+	status = "disabled";
+};
+
+&gmac1 {
+	status = "disabled";
+};
+
+&mdio1 {
+	status = "disabled";
+};
+
+&audio_i2s0 {
+	status = "disabled";
+};
+
+&spi0 {
+	status = "disabled";
+};
+
+&spi1 {
+	status = "disabled";
+};
+
+&rp3x1 {
+	status = "disabled";
+};
+
+&audio_i2s2 {
+	status = "disabled";
+};
+
+&audio_pdm0 {	// Load the module using insmod
+	status = "disabled";
+};
+
+&pwm1 {
+	status = "disabled";
+};
+
+&sata {
+	status = "disabled";
+};
+
+&hdmi_tx {
+	status = "disabled";
+};
+
+&emmc {
+	max-frequency = <196608000>;
+	non-removable;
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	cap-mmc-highspeed;
+	io_fixed_1v8;
+	is_emmc;
+	no-sdio;
+	no-sd;
+	pull_up;
+	bus-width = <8>;
+};
+
+&sdhci0 {
+	status = "disabled";
+};
+
+&adc {
+	status = "disabled";
+};
+
+&vp_dfmu_iommu {
+    status = "disabled";
+};
+
+&vp_dfmu_mt {
+    status = "disabled";
+};
+
+&npu_dfmu_iommu {
+    status = "disabled";
+};
+
+&npu_dfmu_mt {
+    status = "disabled";
+};
+
+&vi_dfmu_iommu {
+    status = "disabled";
+};
+
+&vi_dfmu_mt {
+    status = "disabled";
+};
+
+&vo_dfmu_iommu {
+    status = "disabled";
+};
+
+&vo_dfmu_mt {
+    status = "disabled";
+};
+
+&peri1_dfmu_iommu {
+    status = "okay";
+};
+
+&peri1_dfmu_mt {
+    status = "disabled";
+};
+
+&pcie_dfmu_iommu {
+    status = "disabled";
+};
+
+&pcie_dfmu_mt {
+    status = "disabled";
+};
+
+&usb_dfmu_iommu {
+    status = "okay";
+};
+
+&usb_dfmu_mt {
+    status = "disabled";
+};
+
+&vidmem {
+  status = "disabled";
+};
+
+&usb2_0 {
+  status = "disabled";
+};
+
+&gpio0 {
+	status = "disabled";
+};
+&gpio1 {
+	status = "disabled";
+};
+&gpio2 {
+	status = "disabled";
+};
+&gpio3 {
+	status = "disabled";
+};
+&gpio4 {
+	status = "disabled";
+};

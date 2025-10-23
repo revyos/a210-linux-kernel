@@ -161,11 +161,4 @@ struct aw87565 {
 	struct gpio_desc *audio_parst0_desc;
 };
 
-/*******************************************************************************
-* aw87565 functions
-******************************************************************************/
-unsigned char aw87565_audio_receiver(void);
-unsigned char aw87565_audio_speaker(void);
-unsigned char aw87565_audio_off(void);
-
 #endif

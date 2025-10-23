@@ -18,6 +18,7 @@
 #include <linux/platform_device.h>
 #include <linux/reset.h>
 #include <linux/of_address.h>
+#include <linux/gpio/consumer.h>
 
 #include "core.h"
 
@@ -48,6 +49,7 @@ struct dwc3_zhihe {
 	void __iomem		*c10phy_tca;
 	void __iomem		*c10phy_sysreg;
 	void __iomem		*dwc3_ctrl;
+	struct gpio_desc 	*pwren;
 };
 
 static int dwc3_zhihe_probe(struct platform_device *pdev)
@@ -157,6 +159,14 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
 		dev_err(dev, "failed to register dwc3 core - %d\n", ret);
 		return ret;
 	}
+
+	zhihe->pwren = devm_gpiod_get_optional(&pdev->dev, "typec-pwren", GPIOD_OUT_LOW);
+	if (IS_ERR(zhihe->pwren))
+		zhihe->pwren = NULL;
+	else if (zhihe->pwren)
+		gpiod_set_value(zhihe->pwren, 1);
+	else
+		dev_info(dev, "Type-C power enable GPIO not defined in device tree\n");
 
 	/* Update TX deemphasis parameters used in compliance mode, pattern 14 */
 	writel(0x10540, zhihe->dwc3_ctrl + DWC3_LCSR_TX_DEEMPH_2);
