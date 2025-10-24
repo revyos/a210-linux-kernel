@@ -163,6 +163,7 @@ static struct p100_clk_reg regs_top[] = {
 	REG(DDR1_SYSREG),
 	REG(SLC_DUAL_SYSREG),
 	REG(TOP_CRG_T),
+	REG(CPU_SS_CCU),
 };
 
 static struct p100_clk_reg regs_gpu[] = {
@@ -285,6 +286,12 @@ static struct p100_clk_info info_top[] = {
 	    NO_DIV_EN, MUX_TYPE_DIV, 2, 15),
 	DIV(TOP_CPU_BAK_PLL1_CLK_DIV4, "top_cpu_bak_pll1_clk_div4", "video_pll_foutvco", TOP_CRG, 0x44, 0, 8,
 	    NO_DIV_EN, MUX_TYPE_DIV, 2, 255),
+	DIV(TOP_CPUSYS_CFG_ACLK_DIV, "top_cpusys_sys_cfg_axi_clk", "video_pll_fout1ph0", CPU_SS_CCU, 0x1c, 0, 16,
+	    NO_DIV_EN, MUX_TYPE_CDE, 1, 5),
+	DIV(TOP_CPUSYS_COM_APB_CLK_DIV, "top_cpusys_sys_com_apb_clk", "video_pll_fout1ph0", CPU_SS_CCU, 0x21c, 0, 16,
+	    NO_DIV_EN, MUX_TYPE_CDE, 3, 7),
+	DIV(TOP_CPUSYS_APB_CLK_DIV, "top_cpusys_cpu_apb_clk", "video_pll_fout1ph0", CPU_SS_CCU, 0x41c, 0, 16,
+	    NO_DIV_EN, MUX_TYPE_CDE, 3, 7),
 	/* TOP SS - NOC_CCLK */
 	GATE(SW_NOC_CCLK_EN, "noc_cclk", "noc_cclk_div", TOP_CRG, 0x200, 3),
 	DIV(NOC_CCLK_DIV, "noc_cclk_div", "noc_cclk_mux", TOP_CRG, 0, 20, 4,
@@ -436,9 +443,9 @@ static struct p100_clk_info info_top[] = {
 	GATE(SW_TOP_PAD_SENSOR_VCLK1_EN, "top_pad_sensor_vclk1", "top_pad_sensor_vclk1_div", TOP_CRG, 0x200, 5),
 	/* CPU SS */
 	MUX(C908_CPU_TO_CDE_CLK_MUX, "c908_cpu_clk", CPU_SS_CLK_SYSREG, 0x0, 0, 1,
-	    c908_cpu_clk_parents, ARRAY_SIZE(c908_cpu_clk_parents), CLK_SET_RATE_PARENT | CLK_SET_RATE_NO_REPARENT),
+	    c908_cpu_clk_parents, ARRAY_SIZE(c908_cpu_clk_parents), CLK_SET_RATE_PARENT),
 	MUX(C920_CPU_TO_CDE_CLK_MUX, "c920_cpu_clk", CPU_SS_CLK_SYSREG, 0x4, 0, 1,
-	    c920_cpu_clk_parents, ARRAY_SIZE(c920_cpu_clk_parents), CLK_SET_RATE_PARENT | CLK_SET_RATE_NO_REPARENT),
+	    c920_cpu_clk_parents, ARRAY_SIZE(c920_cpu_clk_parents), CLK_SET_RATE_PARENT),
 	/* DDR SS */
 	GATE(DDR0_PHY_DFICLK_EN, "ddr0_phy_dficlk", "ddr_pll_foutpostdiv", DDR0_SYSREG, 0x8, 3),
 	GATE(DDR0_DDRC_ACLK_EN, "ddr0_aclk", "ddr_pll_foutpostdiv", DDR0_SYSREG, 0x8, 2),

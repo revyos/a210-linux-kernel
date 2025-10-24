@@ -24,6 +24,7 @@ extern spinlock_t zhihe_p100_clk_lock;
 #define DDR1_SYSREG		5
 #define SLC_DUAL_SYSREG		6
 #define TOP_CRG_T		7
+#define CPU_SS_CCU		8
 /* gpu reg idx */
 #define GPU_SS_PWRAP_CLK_EN	0
 #define GPU_SS_TOP_CLK_EN	1

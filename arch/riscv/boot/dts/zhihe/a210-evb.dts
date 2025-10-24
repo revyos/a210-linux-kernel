@@ -62,10 +62,10 @@
 		pcie3x1 = &rp3x1;
 	};
 
-	/* The first 2M will be reserved in the Kernel, and the entire available range is set here */
+	/* The actual capacity will be adjusted through SPL */
 	memory@0 {
 		device_type = "memory";
-		reg = <0x00 0x80000000  0x01 0x00000000>; /* 4G - 64MB */
+		reg = <0x00 0x80000000  0x01 0x00000000>; /* 4G */
 		numa-node-id = <0>;
 	};
 
