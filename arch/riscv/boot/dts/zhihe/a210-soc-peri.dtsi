@@ -1612,7 +1612,7 @@
 		};
 
 		mbox_920: mbox@0000310000 {
-			compatible = "zhihe,a210-mbox";
+			compatible = "zhihe,mailbox";
 			reg = <0x00 0x00321000 0x0 0x1000>,
 				  <0x00 0x00320000 0x0 0x1000>,
 				  <0x00 0x00311000 0x0 0x1000>;
@@ -1626,7 +1626,7 @@
 			status = "okay";
 		};
 		aon: aon_subsys {
-			compatible = "zhihe,a210-aon";
+			compatible = "zhihe,aon";
 			mbox-names = "aon0";
 			mboxes = <&mbox_920 1 0>;					 //parent / channel / type
 			#mbox-cells = <2>;
