@@ -17,6 +17,9 @@
 #include <linux/of_device.h>
 #include <linux/slab.h>
 
+#define ZHIHE_MBOX_V1			0x0
+#define ZHIHE_MBOX_V2			0x1
+
 /* Status Register */
 #define ZHIHE_MBOX_STA			0x0
 #define ZHIHE_MBOX_CLR			0x4
@@ -53,27 +56,29 @@ enum zhihe_mbox_chan_type {
 	ZHIHE_MBOX_TYPE_TXRX,		/* Tx & Rx chan */
 	ZHIHE_MBOX_TYPE_DB,		/* Tx & Rx doorbell */
 };
+
 enum zhihe_mbox_icu_cpu_id {
-	ZHIHE_MBOX_ICU_CPU0  = 0,		/*die0-908*/
-	ZHIHE_MBOX_ICU_CPU1  = 1,		
-	ZHIHE_MBOX_ICU_CPU2  = 2,		
-	ZHIHE_MBOX_ICU_CPU3  = 3,		
+	ZHIHE_MBOX_ICU_CPU0  = 0,		/* A200:910T,A210:die0-908 */
+	ZHIHE_MBOX_ICU_CPU1  = 1,		/* A200:902                */
+	ZHIHE_MBOX_ICU_CPU2  = 2,		/* A200:906                */
+	ZHIHE_MBOX_ICU_CPU3  = 3,		/* A200:910R               */
 };
 
 enum zhihe_mbox_local_id {
 	ZHIHE_MBOX_INTERRUPT = 0,
-	ZHIHE_MBOX_DATA_CH0  = 1,		/* die0-908--die0-902*/
+	ZHIHE_MBOX_DATA_CH0  = 1,		/* A210:die0-908--die0-902 */
 	ZHIHE_MBOX_DATA_CH1  = 2,		
 	ZHIHE_MBOX_DATA_CH2  = 3,		
 };
 enum zhihe_mbox_remote_id {
-	ZHIHE_MBOX_REMOTE_CH0  = 0,		/* die0-908--die0-902*/
+	ZHIHE_MBOX_REMOTE_CH0  = 0,		/* A210:die0-908--die0-902 */
 	ZHIHE_MBOX_REMOTE_CH1  = 1,		
 	ZHIHE_MBOX_REMOTE_CH2  = 2,			
 };
 
 struct zhihe_mbox_con_priv {
-	enum zhihe_mbox_local_id	idx;
+	enum zhihe_mbox_icu_cpu_id	icu_cpu_idx;
+	enum zhihe_mbox_local_id	local_idx;
 	enum zhihe_mbox_chan_type	type;
 	void __iomem			*comm_local_base;
 	void __iomem			*comm_remote_base;
@@ -96,6 +101,7 @@ struct zhihe_mbox_priv {
 	struct zhihe_mbox_con_priv	con_priv[ZHIHE_MBOX_CHANS];
 	struct clk			*clk;
 	int				irq;
+	int				version;
 #ifdef CONFIG_PM_SLEEP
 	struct zhihe_mbox_context	*ctx;
 #endif
@@ -144,12 +150,10 @@ static void zhihe_mbox_chan_write(struct zhihe_mbox_con_priv *cp,
 static u32 zhihe_mbox_chan_read(struct zhihe_mbox_con_priv *cp,
 				 u32 offs, bool is_remote)
 {
-	uint32_t t = 0;
 	if (is_remote)
-		t = ioread32(cp->comm_remote_base + offs);
+		return ioread32(cp->comm_remote_base + offs);
 	else
-		t = ioread32(cp->comm_local_base + offs);
-	return t;
+		return ioread32(cp->comm_local_base + offs);
 }
 
 static void zhihe_mbox_chan_rmw(struct zhihe_mbox_con_priv *cp,
@@ -213,12 +217,26 @@ static int zhihe_mbox_chan_id_to_mapbit(struct zhihe_mbox_con_priv *cp)
 {
 	int i;
 	int mapbit = 0;
-	for (i = 0; i < ZHIHE_MBOX_CHANS; i++) {
-		if (i == cp->idx)
-			return mapbit;
+	struct zhihe_mbox_priv *priv = to_zhihe_mbox_priv(cp->chan->mbox);
 
-		if (i != ZHIHE_MBOX_INTERRUPT)
-			mapbit++;
+	if (priv->version == ZHIHE_MBOX_V1) {
+		for (i = 0; i < ZHIHE_MBOX_CHANS; i++) {
+			if (i == cp->icu_cpu_idx)
+				return mapbit;
+
+			if (i != priv->cur_icu_cpu_id)
+				mapbit++;
+		}
+	} else if (priv->version == ZHIHE_MBOX_V2) {
+		for (i = 0; i < ZHIHE_MBOX_CHANS; i++) {
+			if (i == cp->local_idx)
+				return mapbit;
+
+			if (i != ZHIHE_MBOX_INTERRUPT)
+				mapbit++;
+		}
+	} else {
+			dev_err(cp->chan->mbox->dev, "Unknown zhihe mailbox version\n");
 	}
 
 	if (i == ZHIHE_MBOX_CHANS)
@@ -264,6 +282,14 @@ static irqreturn_t zhihe_mbox_isr(int irq, void *p)
 		zhihe_mbox_chan_write(cp, 0x0, ZHIHE_MBOX_INFO0, false);
 		/* notify remote cpu */
 		zhihe_mbox_chan_wr_ack(cp, &ack_magic, true);
+
+		if (priv->version == ZHIHE_MBOX_V1) {
+			/* CPU1 902/906 use polling mode to monitor info7 */
+			if (cp->icu_cpu_idx != ZHIHE_MBOX_ICU_CPU1 &&
+				cp->icu_cpu_idx != ZHIHE_MBOX_ICU_CPU2)
+				zhihe_mbox_chan_rmw(cp, ZHIHE_MBOX_GEN,
+							 ZHIHE_MBOX_GEN_TX_ACK, 0, true);
+		}
 		/* transfer the data to client */
 		mbox_chan_received_data(chan, (void *)dat);
 	}
@@ -362,6 +388,7 @@ static struct mbox_chan *zhihe_mbox_xlate(struct mbox_controller *mbox,
 {
 	u32 chan, type;
 	struct zhihe_mbox_con_priv *cp;
+	struct zhihe_mbox_priv *priv = to_zhihe_mbox_priv(mbox);
 
 	if (sp->args_count != 2) {
 		dev_err(mbox->dev,
@@ -374,6 +401,13 @@ static struct mbox_chan *zhihe_mbox_xlate(struct mbox_controller *mbox,
 	if (chan >= mbox->num_chans) {
 		dev_err(mbox->dev, "Not supported channel number: %d\n", chan);
 		return ERR_PTR(-EINVAL);
+	}
+
+	if (priv->version == ZHIHE_MBOX_V1) {
+		if (chan == priv->cur_icu_cpu_id) {
+			dev_err(mbox->dev, "Cannot communicate with yourself\n");
+			return ERR_PTR(-EINVAL);
+		}
 	}
 
 	if (type > ZHIHE_MBOX_TYPE_DB) {
@@ -392,6 +426,7 @@ static int zhihe_mbox_probe(struct platform_device *pdev)
 {
 	int ret;
 	unsigned int i;
+	unsigned int mbox_id;
 	struct resource *res;
 	struct zhihe_mbox_priv *priv;
 	unsigned int remote_idx = 0;
@@ -402,40 +437,124 @@ static int zhihe_mbox_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+	ret = of_property_read_u32(np, "version", &priv->version);
+	if (ret) {
+		priv->version = ZHIHE_MBOX_V1;
+	}
+
 	if (of_property_read_u32(np, "icu_cpu_id", &priv->cur_icu_cpu_id)) {
 		dev_err(dev, "icu_cpu_id is missing\n");
 		return -EINVAL;
 	}
+
+	if (priv->version == ZHIHE_MBOX_V1) {
+		if (priv->cur_icu_cpu_id != ZHIHE_MBOX_ICU_CPU0 &&
+			priv->cur_icu_cpu_id != ZHIHE_MBOX_ICU_CPU3) {
+			dev_err(dev, "icu_cpu_id is invalid\n");
+			return -EINVAL;
+		}
+	}
 	priv->dev = dev;
-	
-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "interrupt_addr"); 
-	priv->local_icu[ZHIHE_MBOX_INTERRUPT] = devm_ioremap_resource(dev, res);
-	if (IS_ERR(priv->local_icu[ZHIHE_MBOX_INTERRUPT]))						
-		return PTR_ERR(priv->local_icu[ZHIHE_MBOX_INTERRUPT]);	
-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "local_addr0"); 
-	priv->local_icu[ZHIHE_MBOX_DATA_CH0] = devm_ioremap_resource(dev, res);
-	if (IS_ERR(priv->local_icu[ZHIHE_MBOX_DATA_CH0]))						
-		return PTR_ERR(priv->local_icu[ZHIHE_MBOX_DATA_CH0]);
-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "remote_icu0");
-	priv->remote_icu[ZHIHE_MBOX_REMOTE_CH0] = devm_ioremap_resource(dev, res);
-	if (IS_ERR(priv->remote_icu[ZHIHE_MBOX_REMOTE_CH0]))
-		return PTR_ERR(priv->remote_icu[ZHIHE_MBOX_REMOTE_CH0]);
-	
-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "local_addr1"); 
+
+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "local_addr0");
 	if(res!=NULL) {
-		priv->local_icu[ZHIHE_MBOX_DATA_CH1] = devm_ioremap_resource(dev, res);
-		if (IS_ERR(priv->local_icu[ZHIHE_MBOX_DATA_CH1]))						
-			return PTR_ERR(priv->local_icu[ZHIHE_MBOX_DATA_CH1]);
+		if (priv->version == ZHIHE_MBOX_V1) {
+			mbox_id = ZHIHE_MBOX_ICU_CPU0;
+		} else if (priv->version == ZHIHE_MBOX_V2) {
+			mbox_id = ZHIHE_MBOX_DATA_CH0;
+		} else {
+			dev_err(dev, "Unknown zhihe mailbox version\n");
+		}
+		priv->local_icu[mbox_id] = devm_ioremap_resource(dev, res);
+		if (IS_ERR(priv->local_icu[mbox_id]))
+			return PTR_ERR(priv->local_icu[mbox_id]);
+	} else {
+		dev_err(dev, "local_addr0 is NULL\n");
+	}
+
+	if (priv->version == ZHIHE_MBOX_V2) {
+		res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "local_addr1");
+		if(res!=NULL) {
+			mbox_id = ZHIHE_MBOX_DATA_CH1;
+			priv->local_icu[mbox_id] = devm_ioremap_resource(dev, res);
+			if (IS_ERR(priv->local_icu[mbox_id]))
+				return PTR_ERR(priv->local_icu[mbox_id]);
+		} else {
+			dev_err(dev, "local_addr1 is NULL\n");
+		}
+
+		res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "interrupt_addr");
+		if(res!=NULL) {
+			mbox_id = ZHIHE_MBOX_INTERRUPT;
+			priv->local_icu[mbox_id] = devm_ioremap_resource(dev, res);
+			if (IS_ERR(priv->local_icu[mbox_id]))
+				return PTR_ERR(priv->local_icu[mbox_id]);
+		} else {
+			dev_err(dev, "interrupt_addr is NULL\n");
+		}
+	}
+
+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "remote_icu0");
+	if(res!=NULL) {
+		if (priv->version == ZHIHE_MBOX_V1) {
+			mbox_id = 0;
+		} else if (priv->version == ZHIHE_MBOX_V2) {
+			mbox_id = ZHIHE_MBOX_REMOTE_CH0;
+		} else {
+			dev_err(dev, "Unknown zhihe mailbox version\n");
+		}
+		priv->remote_icu[mbox_id] = devm_ioremap_resource(dev, res);
+		if (IS_ERR(priv->remote_icu[mbox_id]))
+			return PTR_ERR(priv->remote_icu[mbox_id]);
+	} else {
+		dev_err(dev, "remote_icu0 is NULL\n");
 	}
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "remote_icu1");
 	if(res!=NULL) {
-		priv->remote_icu[ZHIHE_MBOX_REMOTE_CH1] = devm_ioremap_resource(dev, res);
-		if (IS_ERR(priv->remote_icu[ZHIHE_MBOX_REMOTE_CH1]))
-			return PTR_ERR(priv->remote_icu[ZHIHE_MBOX_REMOTE_CH1]);
+		if (priv->version == ZHIHE_MBOX_V1) {
+			mbox_id = 1;
+		} else if (priv->version == ZHIHE_MBOX_V2) {
+			mbox_id = ZHIHE_MBOX_REMOTE_CH1;
+		} else {
+			dev_err(dev, "Unknown zhihe mailbox version\n");
+		}
+
+		priv->remote_icu[mbox_id] = devm_ioremap_resource(dev, res);
+		if (IS_ERR(priv->remote_icu[mbox_id]))
+			return PTR_ERR(priv->remote_icu[mbox_id]);
+	} else {
+		dev_err(dev, "remote_icu1 is NULL\n");
 	}
-	
-	priv->cur_cpu_ch_base = priv->local_icu[ZHIHE_MBOX_INTERRUPT];
+
+	if (priv->version == ZHIHE_MBOX_V1) {
+		res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "remote_icu2");
+		if(res!=NULL) {
+			mbox_id = 2;
+			priv->remote_icu[mbox_id] = devm_ioremap_resource(dev, res);
+			if (IS_ERR(priv->remote_icu[mbox_id]))
+				return PTR_ERR(priv->remote_icu[mbox_id]);
+		} else {
+			dev_err(dev, "remote_icu2 is NULL\n");
+		}
+
+		priv->local_icu[ZHIHE_MBOX_ICU_CPU1] =
+			priv->local_icu[ZHIHE_MBOX_ICU_CPU0] +
+			ZHIHE_MBOX_CHAN_RES_SIZE;
+
+		priv->local_icu[ZHIHE_MBOX_ICU_CPU2] =
+			priv->local_icu[ZHIHE_MBOX_ICU_CPU1] +
+			ZHIHE_MBOX_CHAN_RES_SIZE;
+
+		priv->local_icu[ZHIHE_MBOX_ICU_CPU3] =
+			priv->local_icu[ZHIHE_MBOX_ICU_CPU2] +
+			ZHIHE_MBOX_CHAN_RES_SIZE;
+		mbox_id = priv->cur_icu_cpu_id;
+	}else {
+		mbox_id = ZHIHE_MBOX_INTERRUPT;
+	}
+
+	priv->cur_cpu_ch_base = priv->local_icu[mbox_id];
 	priv->irq = platform_get_irq(pdev, 0);
 	if (priv->irq < 0)
 		return priv->irq;
@@ -451,19 +570,38 @@ static int zhihe_mbox_probe(struct platform_device *pdev)
 		return ret;
 	}
 	/* init the chans */
-	for (i = 0; i < ZHIHE_MBOX_CHANS; i++) {
-		struct zhihe_mbox_con_priv *cp = &priv->con_priv[i];
-		cp->idx = i;
-		cp->chan = &priv->mbox_chans[i];
-		priv->mbox_chans[i].con_priv = cp;
-		snprintf(cp->irq_desc, sizeof(cp->irq_desc),
-			 "zhihe_mbox_chan[%i]", cp->idx);
-		cp->comm_local_base = priv->local_icu[i];
-		if (i != ZHIHE_MBOX_INTERRUPT) {
-			cp->comm_remote_base = priv->remote_icu[remote_idx];
-			remote_idx++;
+	if (priv->version == ZHIHE_MBOX_V1) {
+		for (i = 0; i < ZHIHE_MBOX_CHANS; i++) {
+			struct zhihe_mbox_con_priv *cp = &priv->con_priv[i];
+			cp->icu_cpu_idx = i;
+			cp->chan = &priv->mbox_chans[i];
+			priv->mbox_chans[i].con_priv = cp;
+			snprintf(cp->irq_desc, sizeof(cp->irq_desc),
+				 "zhihe_mbox_chan[%i]", cp->icu_cpu_idx);
+			cp->comm_local_base = priv->local_icu[i];
+			if (i != priv->cur_icu_cpu_id) {
+				cp->comm_remote_base = priv->remote_icu[remote_idx];
+				remote_idx++;
+			}
 		}
+	} else if (priv->version == ZHIHE_MBOX_V2) {
+		for (i = 0; i < ZHIHE_MBOX_CHANS; i++) {
+			struct zhihe_mbox_con_priv *cp = &priv->con_priv[i];
+			cp->local_idx = i;
+			cp->chan = &priv->mbox_chans[i];
+			priv->mbox_chans[i].con_priv = cp;
+			snprintf(cp->irq_desc, sizeof(cp->irq_desc),
+				 "zhihe_mbox_chan[%i]", cp->local_idx);
+			cp->comm_local_base = priv->local_icu[i];
+			if (i != ZHIHE_MBOX_INTERRUPT) {
+				cp->comm_remote_base = priv->remote_icu[remote_idx];
+				remote_idx++;
+			}
+		}
+	} else {
+		dev_err(dev, "Unknown zhihe mailbox version\n");
 	}
+
 	spin_lock_init(&priv->mbox_lock);
 
 	priv->mbox.dev = dev;

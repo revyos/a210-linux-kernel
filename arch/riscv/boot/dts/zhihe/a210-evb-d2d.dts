@@ -19,6 +19,12 @@
 		numa-node-id = <0>;
 	};
 
+	memory@2080000000 {
+		device_type = "memory";
+		reg = <0x20 0x80000000  0x02 0x00000000>; // 8G
+		numa-node-id = <1>;
+	};
+
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -62,70 +68,6 @@
 	chosen {
 		stdout-path = "serial4";
 	};
-};
-
-&reset {
-	control-val = <0x3 0x0 0x3 0x0>;
-};
-
-&c908_1 {
- 	 status = "disable";
-};
-
-&c908_2 {
- 	 status = "disable";
-};
-
-&c908_3 {
- 	 status = "disable";
-};
-
-&c920_4 {
-	status = "disable";
-};
-
-&c920_5 {
-	status = "disable";
-};
-
-&c920_6 {
-	status = "disable";
-};
-
-&c920_7 {
-	status = "disable";
-};
-
-&c908_8 {
- 	 //status = "disable";
-};
-
-&c908_9 {
-	status = "disable";
-};
-
-&c908_10 {
-	status = "disable";
-};
-
-&c908_11 {
-	status = "disable";
-};
-
-&c920_12 {
-	status = "disable";
-};
-
-&c920_13 {
-	status = "disable";
-};
-
-&c920_14 {
-	status = "disable";
-};
-
-&c920_15 {
-	status = "disable";
 };
 
 &uart0 {

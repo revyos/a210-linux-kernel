@@ -277,6 +277,17 @@
 			slew-rate = <0>;
 		};
 	};
+	pwm0_pins: pwm0-1 {
+		pwm0-pins {
+			pins = "GPIO0_30"; // PWM0_CH2
+			function = "pwm0";
+			bias-disable;
+			drive-strength = <13>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
 	gmac1_pins: gmac1-0 {
 		txclk-pins {
 			pins = "GPIO1_2", /* GMAC1_TX_CLK */
@@ -435,17 +446,6 @@
 			drive-strength = <7>;
 			input-enable;
 			input-schmitt-enable;
-			slew-rate = <0>;
-		};
-	};
-	pwm0_pins: pwm0-1 {
-		pwm0-pins {
-			pins = "GPIO0_30"; // PWM0_CH2
-			function = "pwm0";
-			bias-disable;
-			drive-strength = <13>;
-			input-disable;
-			input-schmitt-disable;
 			slew-rate = <0>;
 		};
 	};

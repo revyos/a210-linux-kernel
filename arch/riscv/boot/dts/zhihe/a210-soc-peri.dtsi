@@ -1623,6 +1623,7 @@
 			interrupts = <336 IRQ_TYPE_LEVEL_HIGH>;
 			icu_cpu_id = <0>;
 			#mbox-cells = <2>;
+			version = <1>;
 			status = "okay";
 		};
 		aon: aon_subsys {
@@ -1630,6 +1631,7 @@
 			mbox-names = "aon0";
 			mboxes = <&mbox_920 1 0>;					 //parent / channel / type
 			#mbox-cells = <2>;
+			version = <1>;
 			status = "okay";
 		};
 

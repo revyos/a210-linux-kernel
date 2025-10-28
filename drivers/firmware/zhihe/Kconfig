@@ -10,3 +10,7 @@ config ZHIHE_AON
 	  This driver manages the IPC interface between host cpu liks thead
 	  and the Aon firmware running on thead riscv E902 core.
 
+config ZHIHE_PROC_DEBUG
+       bool "ZHIHE debug"
+       help
+         proc_debug

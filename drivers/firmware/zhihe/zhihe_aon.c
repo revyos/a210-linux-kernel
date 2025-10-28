@@ -16,6 +16,10 @@
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/proc_fs.h>
+#include <linux/zhihe_proc_debug.h>
+
+#define ZHIHE_AON_V1			0x0
+#define ZHIHE_AON_V2			0x1
 
 /* wait for response for 3000ms instead of 300ms (fix me pls)*/
 #define MAX_RX_TIMEOUT (msecs_to_jiffies(3000))
@@ -207,6 +211,32 @@ out:
 }
 EXPORT_SYMBOL(zhihe_aon_call_rpc);
 
+int get_aon_log_mem(struct device *dev, phys_addr_t *mem, size_t *mem_size)
+{
+	struct resource r;
+	struct device_node *node;
+	int ret;
+
+	*mem = 0;
+	*mem_size = 0;
+
+	node = of_parse_phandle(dev->of_node, "log-memory-region", 0);
+	if (!node) {
+		dev_err(dev, "no memory-region specified\n");
+		return -EINVAL;
+	}
+
+	ret = of_address_to_resource(node, 0, &r);
+	if (ret) {
+		dev_err(dev, "memory-region get resource faild\n");
+		return -EINVAL;
+	}
+
+	*mem = r.start;
+	*mem_size = resource_size(&r);
+	return 0;
+}
+
 static int zhihe_aon_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -214,6 +244,7 @@ static int zhihe_aon_probe(struct platform_device *pdev)
 	struct zhihe_aon_chan *aon_chan;
 	struct mbox_client *cl;
 	struct device_node *np;
+	char dir_name[32] = { 0x0 };
 	int ret;
 	aon_ipc = devm_kzalloc(dev, sizeof(*aon_ipc), GFP_KERNEL);
 	if (!aon_ipc)
@@ -251,6 +282,28 @@ static int zhihe_aon_probe(struct platform_device *pdev)
 		dev_err(dev, "aon_ipc:%s handle num overflow\n",aon_ipc->mbox_name);
 		return -1;
 	}
+
+	ret = get_aon_log_mem(dev, &aon_chan->log_phy, &aon_chan->log_size);
+	if (!ret) {
+		aon_chan->log_mem = ioremap(aon_chan->log_phy, aon_chan->log_size);
+		if (IS_ERR(aon_chan->log_mem)) {
+			aon_chan->log_mem = NULL;
+			dev_err(dev, "%s:get aon log region fail\n", __func__);
+			return -1;
+		}
+
+		sprintf(dir_name, "aon_proc");
+		aon_chan->proc_dir = proc_mkdir(dir_name, NULL);
+		if (NULL != aon_chan->proc_dir) {
+			aon_chan->log_ctrl = zhihe_create_panic_log_proc(
+				aon_chan->log_phy, aon_chan->proc_dir,
+				aon_chan->log_mem, aon_chan->log_size);
+		} else {
+			dev_err(dev, "create %s fail\n", dir_name);
+			return ret;
+		}
+	}
+
 	zhihe_aon_ipc_handle[g_aon_ipc_handle_num] = aon_ipc;
 	g_aon_ipc_handle_num++;
 	return devm_of_platform_populate(dev);
@@ -291,3 +344,4 @@ MODULE_AUTHOR("hongkun.xu <xuhongkun@zhcomputing.com>");
 MODULE_AUTHOR("xionglue.huang <huangxionglue@zhcomputing.com>");
 MODULE_DESCRIPTION("ZHIHE firmware protocol driver");
 MODULE_LICENSE("GPL v2");
+
