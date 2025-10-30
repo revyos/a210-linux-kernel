@@ -15,4 +15,4 @@ fi
 zbuild build zbuild -f || true
 
 # 删除一天前的遗留目录
-find $CI_BUILDS_DIR -maxdepth 1 -type d -name "[0-9]*" -mtime +1 -exec rm -r {} \; || true
+find $CI_BUILDS_DIR -maxdepth 1 -type d -name "[0-9]*" -mmin +1440 -exec rm -rf {} \; || true

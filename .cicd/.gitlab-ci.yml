@@ -1,5 +1,4 @@
 stages:
-  - init
   - build
   - test
   - deploy
@@ -22,7 +21,7 @@ mr-build-virt:
 mr-build-a200-evb:
   stage: build
   script:
-    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -odistro=debian -oboard=a200-evb --tar
+    - zb diskimage -ekernel:source-path=$PWD -osubsystem=test -odistro=ubuntu -oboard=a200-evb --tar
     - zb gitlab upload build/Release/*.tar.gz   # 上传到临时 mr artifactory
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -76,6 +75,27 @@ mr-deploy:
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+cleanup-success:
+  stage: cleanup
+  script:
+    - zb gitlab remove "$ARTIFACTS_URL/mr/$CI_PIPELINE_ID"
+    - zb gitlab message "[SUCCESS] $CI_PIPELINE_SOURCE - $CI_PIPELINE_URL - $CI_COMMIT_TITLE"
+  tags:
+    - message-runner
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: on_success
+
+cleanup-failure:
+  stage: cleanup
+  script:
+    - zb gitlab message "[FAILURE] $CI_PIPELINE_SOURCE - $CI_PIPELINE_URL - $CI_COMMIT_TITLE"
+  tags:
+    - message-runner
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: on_failure
+
 before_script:
   - .cicd/version.sh
 
@@ -84,8 +104,13 @@ before_script:
   - export DISK_IMAGE=diskimage_${SDK_VERSION//\//_}
 
   - export VIRT_TARGZ=${DISK_IMAGE}_virt-release_test.tar.gz
+
   - export A200_EVB_IMAGE=${DISK_IMAGE}_a200-evb-release_test_debian.tar.gz
+  - export A200_EVB_IMAGE_UBUNTU=${DISK_IMAGE}_a200-evb-release_test_ubuntu.tar.gz
+
   - export A210_EVB_IMAGE=${DISK_IMAGE}_a210-evb-release_test_debian.tar.gz
+  - export A210_EVB_IMAGE_UBUNTU=${DISK_IMAGE}_a210-evb-release_test_ubuntu.tar.gz
+
   - export
 
 variables:
