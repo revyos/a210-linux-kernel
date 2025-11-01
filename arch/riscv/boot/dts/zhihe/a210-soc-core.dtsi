@@ -564,7 +564,7 @@
 				 <&clk TOP_PERI_TDM_SRC_CLK_MUX>, <&clk TOP_PAD_SENSOR_VCLK0_DIV>,
 				 <&clk TOP_PAD_SENSOR_VCLK1_DIV>, <&clk TOP_PERI_HIRES_CLK0_DIV>,
 				 <&clk TOP_PERI_HIRES_CLK1_DIV>, <&clk TOP_TEE_CLK_DIV>,
-				 <&clk TOP_PERI_EMMC_REF_CLK_DIV>, <&clk TOP_PERI_MST_ACLK0_DIV>, 
+				 <&clk TOP_PERI_EMMC_REF_CLK_DIV>, <&clk TOP_PERI_MST_ACLK0_DIV>,
 				 <&clk TOP_PERI_MST_CLK1_DIV>;
 			clock-names = "peri0_timer_clk", "peri1_i2s0_src_clk", "peri2_i2s1_src_clk",
 				      "peri2_i2s2_src_clk", "peri2_i2s3_src_clk", "peri1_spi_ssi_clk",

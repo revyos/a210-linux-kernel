@@ -1290,7 +1290,7 @@
 				remote-endpoint = <&typec_con_usb>;
 			};
 		};
-	};	
+	};
 };
 
 &i2c5 {

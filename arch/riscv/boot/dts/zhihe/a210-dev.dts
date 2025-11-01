@@ -257,7 +257,7 @@
 	};
 	pcie_x1_pins: pcie_x1-1 {
 		pcie_x1-pins {
-			pins = "GPIO0_24", "GPIO0_25", "GPIO0_26", "GPIO0_27";
+			pins = "GPIO0_18", "GPIO0_19", "GPIO0_20", "GPIO0_21";
 			function = "pcie_x1";
 			bias-disable;
 			drive-strength = <7>;
@@ -540,6 +540,7 @@
 	spi-max-frequency = <55000000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&qspi0_pins>;
+	status = "disabled";
 
 	spi_norflash@0 {
 		compatible = "jedec,spi-nor";
@@ -688,6 +689,12 @@
 &rp3x1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pcie_x1_pins>;
+	minipcie-1v5-pwren-gpios = 	<&aw9535_0  6 GPIO_ACTIVE_HIGH>;
+	minipcie-3v3-pwren-gpios = 	<&aw9535_0  7 GPIO_ACTIVE_HIGH>;
+	minipcie-perst-gpios = 	        <&aw9535_0 15 GPIO_ACTIVE_HIGH>;
+	pcie-clk-en-gpios = 		<&aw9535_0 12 GPIO_ACTIVE_HIGH>;
+	pcie-clk-pwren-gpios = 		<&aw9535_1 13 GPIO_ACTIVE_HIGH>;
+	status = "okay";
 };
 
 &dm3x4 {
@@ -772,4 +779,12 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb3_pins>;
 	typec-pwren-gpios = <&gpio0_porta 27 GPIO_ACTIVE_HIGH>;
+};
+
+&sata {
+	m2-sata-3v3-pwren-gpios = 	<&aw9535_0 14 GPIO_ACTIVE_HIGH>;
+	m2-sata-en-gpios = 		<&aw9535_0  9 GPIO_ACTIVE_HIGH>;
+	sata-clk-en-gpios = 		<&aw9535_0 12 GPIO_ACTIVE_HIGH>;
+	sata-clk-pwren-gpios = 		<&aw9535_1 13 GPIO_ACTIVE_HIGH>;
+	status = "disabled";
 };
