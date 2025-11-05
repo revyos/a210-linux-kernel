@@ -24,11 +24,15 @@
 		ethernet0 = &gmac0;
 		ethernet1 = &gmac1;
 
-		gpio0 = &gpio0;
-		gpio1 = &gpio1;
-		gpio2 = &gpio2;
-		gpio3 = &gpio3;
-		gpio4 = &gpio4;
+		gpio0 = &ao_gpio0;
+		gpio1 = &ao_gpio1;
+		gpio2 = &gpio0;
+		gpio3 = &gpio1;
+		gpio4 = &gpio2;
+		gpio5 = &gpio3;
+		gpio6 = &gpio4;
+		gpio7 = &aw9535_0;
+		gpio8 = &aw9535_1;
 
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
@@ -38,7 +42,7 @@
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
 		i2c7 = &i2c7;
-		aoi2c1 = &aoi2c1;
+		i2c8 = &aoi2c1;
 
 		can0 = &can0;
 		can1 = &can1;
@@ -152,6 +156,181 @@
 	/* The bootargs in U-Boot will override the configuration set here. */
 	chosen {
 		stdout-path = "serial4";
+	};
+
+	lcd0_backlight: pwm-backlight@0 {
+		compatible = "pwm-backlight";
+		status = "okay";
+		pwms = <&pwm1 2 100000 0>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <7>;
+		enable-gpios = <&aw9535_1 15 GPIO_ACTIVE_HIGH>;
+	};
+
+	reg_vdd33_lcd0: regulator-vdd33-lcd0 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd0_vdd33";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&aw9535_1 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_vddtp33_lcd0: regulator-vddtp33-lcd0 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd0_vddtp33";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&aw9535_1 14 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&aon {
+	regulators {
+		compatible = "zhihe,a210-aon-regulator";
+
+		avdd33_emmc_reg: avdd33_emmc {
+			regulator-name = "avdd33_emmc";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		avdd33_usb2_reg: avdd33_usb2 {
+			regulator-name = "avdd33_usb2";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		dvdd08_aon_reg: dvdd08_aon {
+			regulator-name = "dvdd08_aon";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		avdd18_aon_reg: avdd18_aon {
+			regulator-name = "avdd18_aon";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		avdd18_emmc_usb2_reg: avdd18_emmc_usb2 {
+			regulator-name = "avdd18_emmc_usb2";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		avdd18_emmc_peri_reg: avdd18_emmc_peri {
+			regulator-name = "avdd18_emmc_peri";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		avdd18_top_reg: avdd18_top {
+			regulator-name = "avdd18_top";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		avdd18_pll_reg: avdd18_pll {
+			regulator-name = "avdd18_pll";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		avdd18_reg: avdd18 {
+			regulator-name = "avdd18";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		dvdd18_ddr_vaa_reg: dvdd18_ddr_vaa {
+			regulator-name = "dvdd18_ddr_vaa";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		p3v3_reg: p3v3 {
+			regulator-name = "p3v3";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		dvdd08_top_reg: dvdd08_top {
+			regulator-name = "dvdd08_top";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		dvdd06_ddr_vddqlp_reg: dvdd06_ddr_vddqlp {
+			regulator-name = "dvdd06_ddr_vddqlp";
+			regulator-type = "voltage";
+			regulator-always-on;
+		};
+
+		dvdd08_ddr_reg: dvdd08_ddr {
+			regulator-name = "dvdd08_ddr";
+			regulator-type = "voltage";
+			regulator-settling-time-us = <1000>;
+			regulator-min-microvolt = <750000>;
+			regulator-max-microvolt = <800000>;
+			regulator-always-on;
+		};
+
+		dvdd_cpu_reg: dvdd_cpu {
+			regulator-name = "dvdd_cpu";
+			regulator-type = "voltage";
+			regulator-settling-time-us = <1000>;
+			regulator-min-microvolt = <600000>;
+			regulator-max-microvolt = <1000000>;
+			regulator-always-on;
+		};
+
+		dvddm_cpu_reg: dvddm_cpu {
+			regulator-name = "dvddm_cpu";
+			regulator-type = "voltage";
+			regulator-settling-time-us = <1000>;
+			regulator-min-microvolt = <800000>;
+			regulator-max-microvolt = <1000000>;
+			regulator-always-on;
+		};
+
+		dvdd_vp_reg: dvdd_vp {
+			regulator-name = "dvdd_vp";
+			regulator-type = "voltage";
+			regulator-settling-time-us = <1000>;
+			regulator-min-microvolt = <750000>;
+			regulator-max-microvolt = <800000>;
+			regulator-always-on;
+		};
+
+		dvdd_npu_vip_reg: dvdd_npu_vip {
+			regulator-name = "dvdd_npu_vip";
+			regulator-type = "voltage";
+			regulator-settling-time-us = <1000>;
+			regulator-min-microvolt = <750000>;
+			regulator-max-microvolt = <1000000>;
+			regulator-always-on;
+		};
+
+		dvdd_cpu_p_reg: dvdd_cpu_p {
+			regulator-name = "dvdd_cpu_p";
+			regulator-type = "voltage";
+			regulator-settling-time-us = <1000>;
+			regulator-min-microvolt = <800000>;
+			regulator-max-microvolt = <1000000>;
+			regulator-always-on;
+		};
+
+		dvdd_gpu_reg: dvdd_gpu {
+			regulator-name = "dvdd_gpu";
+			regulator-type = "voltage";
+			regulator-settling-time-us = <1000>;
+			regulator-min-microvolt = <750000>;
+			regulator-max-microvolt = <800000>;
+			regulator-always-on;
+		};
+
 	};
 };
 
@@ -787,4 +966,67 @@
 	sata-clk-en-gpios = 		<&aw9535_0 12 GPIO_ACTIVE_HIGH>;
 	sata-clk-pwren-gpios = 		<&aw9535_1 13 GPIO_ACTIVE_HIGH>;
 	status = "disabled";
+};
+
+&mipi0_csi0 {
+	status = "disabled";
+};
+
+&mipi0_csi1 {
+	//combination 4lane mode: host addr; aphy ctrl addr; bphy ctrl addr; mipi_ctrl addr
+	reg = < 0x00 0x06310000 0x0 0x10000
+			0x00 0x063a0020 0x0 0x4
+			0x00 0x063a0024 0x0 0x4
+			0x00 0x063a0028 0x0 0x4>;
+	phy_name = "CSI_4LANE"; //combination 4lane
+};
+
+//config dsi display: dpu_disp0->dup_enc0->dsi0->lcd_plane
+
+&dpu_enc0 {
+    status = "disabled";
+    ports {
+        /* output */
+        port@1 {
+            reg = <1>;
+            enc0_out: endpoint {
+                remote-endpoint = <&dsi0_in>;
+            };
+        };
+    };
+};
+
+&dhost_0 {
+	status = "disabled";
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@0 {
+			reg = <0>;
+			dsi0_in: endpoint {
+				remote-endpoint = <&enc0_out>;
+			};
+		};
+		port@1 {
+			reg = <1>;
+			dsi0_out: endpoint {
+				remote-endpoint = <&panel0_in>;
+			};
+		};
+	};
+
+	panel0@0 {
+		compatible = "jadard,jd9365da-h3";
+		reg = <0>;
+		backlight = <&lcd0_backlight>;
+		reset-gpio = <&aw9535_0 13 0>; /* active low */
+		hsvcc-supply = <&reg_vdd33_lcd0>;
+		vspn3v3-supply = <&reg_vddtp33_lcd0>;
+
+		port {
+			panel0_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
 };

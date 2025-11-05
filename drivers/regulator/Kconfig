@@ -1673,4 +1673,14 @@ config REGULATOR_TH1520_AON
 	  This driver relies on the IPC interface between host CPU and the AON
 	  firmware runnint on E902.
 
+config REGULATOR_ZHIHE_AON
+        tristate "Zhihe Aon regulator"
+        depends on ZHIHE_AON
+        default y
+        help
+	  This driver provides support for the Zhihe virtual regulators
+          that inmplemented on Zhihe Aon system.
+	  This driver relies on the IPC interface between host CPU and the AON
+	  firmware runnint on E902.
+
 endif

@@ -10,6 +10,8 @@
 	aliases {
 		mmc0 = &emmc;
 		serial4 = &uart4;
+		ethernet0 = &gmac0;
+		ethernet1 = &gmac1;
 	};
 
 	/* The first 2M will be reserved in the Kernel, and the entire available range is set here */
@@ -67,6 +69,51 @@
 	/* The bootargs in U-Boot will override the configuration set here. */
 	chosen {
 		stdout-path = "serial4";
+	};
+};
+
+&peri1_padctrl {
+	gmac0_pins: gmac0-0 {
+		txclk-pins {
+			pins = "GPIO0_0", /* GMAC0_TX_CLK */
+					"GPIO0_12"; /* GMAC0_MDC */
+			function = "gmac0";
+			bias-disable;
+			drive-strength = <13>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		tx-pins {
+			pins = "GPIO0_2", /* GMAC0_TXEN */
+					"GPIO0_3", /* GMAC0_TXD0 */
+					"GPIO0_4", /* GMAC0_TXD1 */
+					"GPIO0_5", /* GMAC0_TXD2 */
+					"GPIO0_6"; /* GMAC0_TXD3 */
+			function = "gmac0";
+			bias-disable;
+			drive-strength = <20>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		rx-pins {
+			pins = "GPIO0_1",  /* GMAC0_RX_CLK */
+					"GPIO0_7",  /* GMAC0_RXDV */
+					"GPIO0_8",  /* GMAC0_RXD0 */
+					"GPIO0_9",  /* GMAC0_RXD1 */
+					"GPIO0_10", /* GMAC0_RXD2 */
+					"GPIO0_11", /* GMAC0_RXD3 */
+					"GPIO0_13"; /* GMAC0_MDIO */
+			function = "gmac0";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
 	};
 };
 
@@ -244,11 +291,18 @@
 };
 
 &gmac0 {
-	status = "disabled";
+	phy-mode = "rgmii-id";
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac0_pins>;
+	rx-clk-delay = <0x00>; /* for RGMII */
+	tx-clk-delay = <0x00>; /* for RGMII */
+	phy-handle = <&phy0>;
 };
 
 &mdio0 {
-	status = "disabled";
+	phy0: ethernet-phy@0 {
+		reg = <0x0>;
+	};
 };
 
 &gmac1 {

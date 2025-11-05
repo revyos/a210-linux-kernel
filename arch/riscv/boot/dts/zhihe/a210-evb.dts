@@ -1682,3 +1682,60 @@
 &usb2_0 {
   status = "disabled";
 };
+
+&mipi0_csi0 {
+	status = "disabled";
+};
+
+&mipi0_csi1 {
+	//combination 4lane mode: host addr; aphy ctrl addr; bphy ctrl addr; mipi_ctrl addr
+	reg = < 0x00 0x06310000 0x0 0x10000
+			0x00 0x063a0020 0x0 0x4
+			0x00 0x063a0024 0x0 0x4
+			0x00 0x063a0028 0x0 0x4>;
+	phy_name = "CSI_4LANE"; //combination 4lane
+};
+
+//config dsi display: dpu_disp0->dup_enc0->dsi0->lcd_plane
+&dpu_enc0 {
+    status = "disabled";
+    ports {
+        /* output */
+        port@1 {
+            reg = <1>;
+            enc0_out: endpoint {
+                remote-endpoint = <&dsi0_in>;
+            };
+        };
+    };
+};
+
+&dhost_0 {
+	status = "disabled";
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@0 {
+			reg = <0>;
+			dsi0_in: endpoint {
+				remote-endpoint = <&enc0_out>;
+			};
+		};
+		port@1 {
+			reg = <1>;
+			dsi0_out: endpoint {
+				remote-endpoint = <&panel0_in>;
+			};
+		};
+	};
+
+	panel0@0 { //virtual panel0, not yet enabled
+		compatible = "jadard,jd9365da-h3";
+		reg = <0>;
+		port {
+			panel0_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
