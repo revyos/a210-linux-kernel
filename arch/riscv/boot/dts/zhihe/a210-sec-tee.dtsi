@@ -122,13 +122,12 @@
         optee {
             compatible = "linaro,optee-tz";
             method = "smc";
-            memory-region = <&optee_shm>;
         };
     };
 
     reserved-memory {
-        optee_shm: optee@8a000000 {
-            reg = <0x0 0x8a000000 0x0 0x02000000>;
+        optee_mem: optee@88000000 {
+            reg = <0x0 0x88000000 0x0 0x04000000>;
             no-map;
         };
     };

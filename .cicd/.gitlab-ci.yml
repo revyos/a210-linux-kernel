@@ -46,7 +46,7 @@ mr-test-virt:
 mr-test-a200-evb:
   stage: test
   script:
-    - zb gitlab run --timeout 600 --board "p1-*" .cicd/runtest-a200-evb.sh
+    - zb gitlab run --timeout 600 --board "p1-*" --board-label "cicd" .cicd/runtest-a200-evb.sh
   dependencies:
     - mr-build-a200-evb
   tags:
@@ -57,7 +57,7 @@ mr-test-a200-evb:
 mr-test-a210-evb:
   stage: test
   script:
-    - zb gitlab run --timeout 600 --board "a210-evb-3-*" .cicd/runtest-a210-evb.sh
+    - zb gitlab run --timeout 600 --board "a210-*" --board-label "cicd" .cicd/runtest-a210-evb.sh
   dependencies:
     - mr-build-a210-evb
   tags:

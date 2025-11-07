@@ -3,15 +3,49 @@
 #include "a210-soc-core.dtsi"
 #include "a210-soc-core-die1.dtsi"
 #include "a210-soc-peri.dtsi"
+#include "a210-soc-peri-die1.dtsi"
+#include "a210-platform-d2d.dtsi"
 
 / {
 	model = "A210 EVB D2D configuration";
 
 	aliases {
-		mmc0 = &emmc;
-		serial4 = &uart4;
 		ethernet0 = &gmac0;
 		ethernet1 = &gmac1;
+
+		gpio0 = &ao_gpio0;
+		gpio1 = &ao_gpio1;
+		gpio2 = &gpio0;
+		gpio3 = &gpio1;
+		gpio4 = &gpio2;
+		gpio5 = &gpio3;
+		gpio6 = &gpio4;
+		gpio7 = &gpio0_die1;
+		gpio8 = &gpio1_die1;
+		gpio9 = &gpio2_die1;
+		gpio10 = &gpio3_die1;
+
+		mmc0 = &emmc;
+		mmc1 = &sdhci0;
+
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+		serial5 = &uart5;
+		serial6 = &uart6;
+		serial7 = &uart7;
+		serial8 = &uart8;
+		serial9 = &uart9;
+		serial14 = &uart4_die1;
+
+		spi0 = &qspi0;
+		spi1 = &qspi1;
+		spi2 = &spi0;
+		spi3 = &spi1;
+		spi4 = &qspi0_die1;
+		spi5 = &qspi1_die1;
 	};
 
 	/* The first 2M will be reserved in the Kernel, and the entire available range is set here */
@@ -72,6 +106,7 @@
 	};
 };
 
+/* DIE0 */
 &peri1_padctrl {
 	gmac0_pins: gmac0-0 {
 		txclk-pins {
@@ -115,179 +150,63 @@
 			slew-rate = <0>;
 		};
 	};
+	qspi0_pins: qspi0-0 {
+		qspi-pins {
+			pins = "GPIO0_18", "GPIO0_20", "GPIO0_21", "GPIO0_22", "GPIO0_23";
+			function = "qspi0";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+	sdhci_pins: sdhci0-1 {
+		sd-pins {
+			pins = "GPIO1_0";
+			function = "sdio";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
 
-&uart0 {
-	status = "disabled";
-};
+&peri2_padctrl {
+	uart4_pins: uart4-0 {
+		tx-pins {
+			pins = "GPIO2_0";
+			function = "uart4";
+			bias-disable;
+			drive-strength = <3>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
 
-&uart1 {
-	status = "disabled";
-};
-
-&uart3 {
-	status = "disabled";
-};
-
-&uart4 {
-	current-speed = <115200>; /* OpenSBI */
-};
-
-&uart5 {
-	status = "disabled";
-};
-
-&uart6 {
-	status = "disabled";
-};
-
-&uart7 {
-	status = "disabled";
-};
-
-&uart8 {
-	status = "disabled";
-};
-
-&uart9 {
-	status = "disabled";
-};
-
-&spi0 {
-	status = "disabled";
-};
-
-&qspi0 {
-	status = "disabled";
-};
-
-&i2c1 {
-	status = "disabled";
-};
-
-&i2c2 {
-	status = "disabled";
-};
-
-&i2c3 {
-	status = "disabled";
-};
-
-&i2c5 {
-	status = "disabled";
-};
-
-&i2c6 {
-	status = "disabled";
-};
-
-&i2c7 {
-	status = "disabled";
-};
-
-&pwm0 {
-	status = "disabled";
-};
-
-&pwm2 {
-	status = "disabled";
-};
-
-&audio_i2s2 {
-	status = "disabled";
-};
-
-&audio_i2s_8ch_sd1 {
-	status = "disabled";
-};
-
-&audio_i2s_8ch_sd2 {
-	status = "disabled";
-};
-
-&audio_i2s_8ch_sd3 {
-	status = "disabled";
-};
-
-&peri3_padctrl {
-	status = "disabled";
-};
-
-&gpio4 {
-	status = "disabled";
-};
-
-&gmac1 {
-	status = "disabled";
-};
-
-/* FIXME: Disabled non-critical peripherals in the bringup phase */
-&can0 {
-	status = "disabled";
-};
-
-&can1 {
-	status = "disabled";
-};
-
-&can2 {
-	status = "disabled";
-};
-
-&dmac1 {
-	status = "disabled";
-};
-
-&uart2 {
-	status = "disabled";
-};
-
-&timer0 {
-	status = "disabled";
-};
-
-&timer1 {
-	status = "disabled";
-};
-
-&timer3 {
-	status = "disabled";
-};
-
-&timer4 {
-	status = "disabled";
-};
-
-&timer5 {
-	status = "disabled";
-};
-
-&timer6 {
-	status = "disabled";
-};
-
-&timer7 {
-	status = "disabled";
-};
-
-&i2c4 {
-	status = "disabled";
-};
-
-&audio_i2s0 {
-	status = "disabled";
-};
-
-&dm3x4 {
-	status = "disabled";
-};
-
-&rp3x1 {
-	status = "disabled";
-};
-
-&usb31_zhihe {
-	status = "disabled";
+		rx-pins {
+			pins = "GPIO2_1";
+			function = "uart4";
+			bias-disable;
+			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+	qspi1_pins: qspi1-1 {
+		qspi-pins {
+			pins = "GPIO3_2", "GPIO3_5", "GPIO3_6", "GPIO3_7", "GPIO3_8";
+			function = "qspi1";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
 
 &gmac0 {
@@ -303,50 +222,6 @@
 	phy0: ethernet-phy@0 {
 		reg = <0x0>;
 	};
-};
-
-&gmac1 {
-	status = "disabled";
-};
-
-&mdio1 {
-	status = "disabled";
-};
-
-&audio_i2s0 {
-	status = "disabled";
-};
-
-&spi0 {
-	status = "disabled";
-};
-
-&spi1 {
-	status = "disabled";
-};
-
-&rp3x1 {
-	status = "disabled";
-};
-
-&audio_i2s2 {
-	status = "disabled";
-};
-
-&audio_pdm0 {	// Load the module using insmod
-	status = "disabled";
-};
-
-&pwm1 {
-	status = "disabled";
-};
-
-&sata {
-	status = "disabled";
-};
-
-&hdmi_tx {
-	status = "disabled";
 };
 
 &emmc {
@@ -365,89 +240,155 @@
 };
 
 &sdhci0 {
-	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdhci_pins>;
+	max-frequency = <196608000>;
+	cap-sd-highspeed;
+	bus-width = <4>;
+	sd-uhs-sdr104;
+	no-sdio;
+	pull_up;
+	wprtn_ignore;
 };
 
-&adc {
-	status = "disabled";
+&qspi0 {
+	cs-gpios = <&gpio0_porta 19 0>;
+	rx-sample-dly = <2>;
+	spi-swap-data = <1>;
+	spi-max-frequency = <55000000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&qspi0_pins>;
+
+	spi_norflash@0 {
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		reg = <0>;
+		status = "okay";
+	};
 };
 
-&vp_dfmu_iommu {
-    status = "disabled";
+&qspi1 {
+	cs-gpios = <&gpio2_porta 29 0>;
+	rx-sample-dly = <2>;
+	spi-swap-data = <1>;
+	spi-max-frequency = <55000000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&qspi1_pins>;
+
+	spi_norflash@0 {
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		reg = <0>;
+		status = "okay";
+	};
 };
 
-&vp_dfmu_mt {
-    status = "disabled";
+&uart4 {
+	current-speed = <115200>; /* OpenSBI */
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins>;
 };
 
-&npu_dfmu_iommu {
-    status = "disabled";
+/* DIE1 */
+&peri1_padctrl_die1 {
+	qspi0_pins_die1: qspi0-0 {
+		qspi-pins {
+			pins = "GPIO0_18", "GPIO0_20", "GPIO0_21", "GPIO0_22", "GPIO0_23";
+			function = "qspi0";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
 
-&npu_dfmu_mt {
-    status = "disabled";
+&peri2_padctrl_die1 {
+	uart4_pins_die1: uart4-0 {
+		tx-pins {
+			pins = "GPIO2_0";
+			function = "uart4";
+			bias-disable;
+			drive-strength = <3>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		rx-pins {
+			pins = "GPIO2_1";
+			function = "uart4";
+			bias-disable;
+			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+	qspi1_pins_die1: qspi1-1 {
+		qspi-pins {
+			pins = "GPIO3_2", "GPIO3_5", "GPIO3_6", "GPIO3_7", "GPIO3_8";
+			function = "qspi1";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
 
-&vi_dfmu_iommu {
-    status = "disabled";
+&qspi0_die1 {
+	cs-gpios = <&gpio0_porta_die1 19 0>;
+	rx-sample-dly = <2>;
+	spi-swap-data = <1>;
+	spi-max-frequency = <55000000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&qspi0_pins_die1>;
+
+	spi_norflash@0 {
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		reg = <0>;
+		status = "okay";
+	};
 };
 
-&vi_dfmu_mt {
-    status = "disabled";
+&qspi1_die1 {
+	cs-gpios = <&gpio2_porta_die1 29 0>;
+	rx-sample-dly = <2>;
+	spi-swap-data = <1>;
+	spi-max-frequency = <55000000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&qspi1_pins_die1>;
+
+	spi_norflash@0 {
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <55000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		reg = <0>;
+		status = "okay";
+	};
 };
 
-&vo_dfmu_iommu {
-    status = "disabled";
-};
-
-&vo_dfmu_mt {
-    status = "disabled";
-};
-
-&peri1_dfmu_iommu {
-    status = "okay";
-};
-
-&peri1_dfmu_mt {
-    status = "disabled";
-};
-
-&pcie_dfmu_iommu {
-    status = "disabled";
-};
-
-&pcie_dfmu_mt {
-    status = "disabled";
-};
-
-&usb_dfmu_iommu {
-    status = "okay";
-};
-
-&usb_dfmu_mt {
-    status = "disabled";
-};
-
-&vidmem {
-  status = "disabled";
-};
-
-&usb2_0 {
-  status = "disabled";
-};
-
-&gpio0 {
-	status = "disabled";
-};
-&gpio1 {
-	status = "disabled";
-};
-&gpio2 {
-	status = "disabled";
-};
-&gpio3 {
-	status = "disabled";
-};
-&gpio4 {
-	status = "disabled";
+&uart4_die1 {
+	current-speed = <115200>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins_die1>;
 };

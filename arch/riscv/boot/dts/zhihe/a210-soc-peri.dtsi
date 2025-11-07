@@ -395,9 +395,9 @@
 			status = "okay";
 		};
 
-		uart4: serial@0008401000 {
+		uart4: serial@08401000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x00 0x0008401000 0x0 0x400>;
+			reg = <0x00 0x08401000 0x0 0x400>;
 			interrupt-parent = <&intc>;
 			interrupts = <325>;
 			clocks = <&clk_peri PERI2_UART4_PCLK_EN>, <&clk_peri PERI2_UART4_SCLK_EN>;
