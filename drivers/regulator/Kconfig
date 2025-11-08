@@ -1653,6 +1653,15 @@ config REGULATOR_WM8994
 	  This driver provides support for the voltage regulators on the
 	  WM8994 CODEC.
 
+config REGULATOR_WL2866D
+	tristate "Willsemi WL2866D PMIC voltage regulator support"
+	depends on I2C
+	select REGMAP_I2C
+	help
+	  This driver supports WL2866D voltage regulator chips. WL2866D provides
+	  four LDO voltage regulators.Each regulator can be individually configured for voltage
+	  level and enable state through the standard Linux regulator framework
+
 config REGULATOR_QCOM_LABIBB
 	tristate "QCOM LAB/IBB regulator support"
 	depends on SPMI || COMPILE_TEST
@@ -1682,5 +1691,5 @@ config REGULATOR_ZHIHE_AON
           that inmplemented on Zhihe Aon system.
 	  This driver relies on the IPC interface between host CPU and the AON
 	  firmware runnint on E902.
-
 endif
+
