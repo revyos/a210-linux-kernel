@@ -141,8 +141,8 @@ pvrsrvkm-y += \
  system/sysconfig_cmn.o \
  dma_support.o \
  vmm_type_stub.o \
- xuantie/xuantie_sys.o \
- xuantie/sysconfig.o
+ zhihe/thead_sys.o \
+ zhihe/sysconfig.o
 pvrsrvkm-$(CONFIG_DRM_POWERVR_ROGUE_DEBUG) += \
  client_htbuffer_direct_bridge.o \
  server_htbuffer_bridge.o \
